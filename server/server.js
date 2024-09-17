@@ -6,16 +6,16 @@ const port = 5000;
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Database connection configuration
+// Database connection configuration using the .env
+require('dotenv').config(); // Load environment variables
+
 const dbConfig = {
-  user: 'kacc1', // SQL username
-  password: 'Password!', //  SQL password
-  server: 'kacc-useast.database.windows.net', //  SQL server
-  database: 'KACC', // database name
-  options: {
-    encrypt: true, 
-  },
-  connectionTimeout: 60000 //1 minute timeout
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  server: process.env.DB_SERVER,
+  database: process.env.DB_DATABASE,
+  options: { encrypt: true },
+  connectionTimeout: 60000,
 };
 
 // Connect to the database
