@@ -14,7 +14,8 @@ const dbConfig = {
   database: 'KACC', // database name
   options: {
     encrypt: true, 
-  }
+  },
+  connectionTimeout: 60000 //1 minute timeout
 };
 
 // Connect to the database
