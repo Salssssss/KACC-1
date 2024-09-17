@@ -20,7 +20,7 @@ const Login = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Login successful') {
-        // Redirect to another route, e.g., dashboard
+        // Redirect to dashboard
         navigate('/dashboard');
       }
 
