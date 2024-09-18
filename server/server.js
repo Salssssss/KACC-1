@@ -29,11 +29,16 @@ sql.connect(dbConfig).then(pool => {
   // Use user routes for handling login and account creation
   app.use('/users', userRoutes);
 
+  // Add a simple GET route for the root URL
+  app.get('/', (req, res) => {
+    res.send('API is running');
+  });
+
   // Start the server
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 
 }).catch(err => {
-  console.error('Database connection failed', err);
+  console.error('Database connection failed:', err);
 });
