@@ -4,14 +4,16 @@ const cors = require('cors');
 require('dotenv').config(); // Load environment variables
 
 const userRoutes = require('./routes/userRoutes'); // Import the user routes
-const adminRoutes = require('./routes/adminRoutes');
-
 const app = express();
 const port = 5000;
 
 // Middleware
 app.use(express.json());
 app.use(cors()); // Enable CORS
+
+//Make sure admin routes are included
+const adminRoutes = require('/routes/adminRoutes');
+app.use('/admin', adminRoutes);
 
 // Database connection configuration
 const dbConfig = {

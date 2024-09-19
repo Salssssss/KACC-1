@@ -1,4 +1,4 @@
-const sql = require('mssql');
+const sql = require('mssql'); 
 
 // login logic
 exports.login = async (pool, username, password) => {
@@ -9,14 +9,16 @@ exports.login = async (pool, username, password) => {
   const result = await pool.request()
     .input('username', sql.VarChar, username)
     .input('password', sql.VarChar, password) 
-    .query(query);
+    //.query(query);
+    //modified line to this to make sure authentication is ran when a user logs in - Ian 9/19/24
+    .query('SELECT username, role FROM users WHERE username = @username AND password_hash = @password');
 
   if (result.recordset.length > 0) {
     return result.recordset[0];
   } else {
     throw new Error('Invalid username or password');
-  }
-};
+  } 
+}; 
 
 // creating a new account
 exports.createAccount = async (pool, userData) => {
@@ -35,7 +37,7 @@ exports.createAccount = async (pool, userData) => {
     throw new Error('Username or email already exists');
   }
 
-  // Insert new user
+  // Insert new user 
   const insertUserQuery = `
     INSERT INTO users (first_name, last_name, username, password_hash, email, status, created_at, updated_at)
     VALUES (@firstName, @lastName, @username, @password, @Email, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
