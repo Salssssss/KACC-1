@@ -57,7 +57,7 @@ exports.createAccount = async (pool, userData) => {
     //Integrating emailService.js
     try {
       await sendAccountApprovalEmail({
-        adminEmail: 'MrAdmin@Outlook.com', //we should make a config file to store this so we don't hardcode it, better for security
+        adminEmail: EMAIL_ADMIN, 
         firstName,
         lastName,
         username,
