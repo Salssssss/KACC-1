@@ -1,5 +1,7 @@
 const sql = require('mssql'); 
 
+const { sendAccountApprovalEmail } = require('../services/emailService');
+
 // login logic
 exports.login = async (pool, username, password) => {
   const query = `
@@ -50,4 +52,20 @@ exports.createAccount = async (pool, userData) => {
     .input('password', sql.VarChar, password) // Store plain text password for now
     .input('Email', sql.VarChar, email)
     .query(insertUserQuery);
+
+    //Adding 9/20/2024 - Ian
+    //Integrating emailService.js
+    try {
+      await sendAccountApprovalEmail({
+        adminEmail: 'MrAdmin@Outlook.com', //we should make a config file to store this so we don't hardcode it, better for security
+        firstName,
+        lastName,
+        username,
+        email
+      });
+      console.log('Account approval request sent, awaiting admin approval');
+    }
+    catch (error) {
+      console.error('Error sending account approval request', error);
+    }
 };
