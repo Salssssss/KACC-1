@@ -3,10 +3,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { authorizeUser } = require('./middleware/authorizationMiddleware')
+const { authorizeUser } = require('../middleware/authorizationMiddleware')
 
 //Route for looking at all users(this should come after pulling up the admin dashboard, not sure how to differentiate admin dashboard from current dashboard we have)
-router.get('/users', isAdmin, async (req, res) => {
+router.get('/users', authorizeUser, async (req, res) => {
     try{
         const pool = req.app.get('dbpool');
         const result = await pool.request().query('SELECT * FROM users');

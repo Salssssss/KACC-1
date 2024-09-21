@@ -39,5 +39,5 @@ function sendApprovalRequestEmail(adminEmail, username, email) {
     });
   }
 
-  module.exports = { sendAccountApprovalEmail };
+  module.exports = { sendApprovalRequestEmail };
 

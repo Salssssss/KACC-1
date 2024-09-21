@@ -3,7 +3,7 @@
 
 const authorizeUser = (req, res, next) => {
     const user = req.user; 
-    if(user && user.role === 'administrator') {
+    if(user && user.role_name === 'administrator') {
         next();
     }
     else{

@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors()); // Enable CORS
 
 //Make sure admin routes are included
-const adminRoutes = require('/routes/adminRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 app.use('/admin', adminRoutes);
 
 // Database connection configuration
