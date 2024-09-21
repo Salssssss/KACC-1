@@ -4,16 +4,21 @@ const { sendAccountApprovalEmail } = require('../services/emailService');
 
 // login logic
 exports.login = async (pool, username, password) => {
-  const query = `
-    SELECT * FROM users 
+  //Old query: SELECT * FROM users 
+  //WHERE username = @username AND password_hash = @password
+  //Modified 9/20/24 when trying to make sure the role of a user is taken for authorization purposes
+  const query = `SELECT username, role_name 
+    FROM users 
+    JOIN roles ON role_name = role_id 
     WHERE username = @username AND password_hash = @password
   `;
   const result = await pool.request()
     .input('username', sql.VarChar, username)
     .input('password', sql.VarChar, password) 
-    //.query(query);
-    //modified line to this to make sure authentication is ran when a user logs in - Ian 9/19/24
-    .query('SELECT username, role FROM users WHERE username = @username AND password_hash = @password');
+    //modified line to this to make sure authentication is ran when a user logs in - Ian 9/19/24 
+    //Changed it back the next day, commented what I had changed it to
+    //'SELECT username, role_name FROM users WHERE username = @username AND password_hash = @password'
+    .query(query);
 
   if (result.recordset.length > 0) {
     return result.recordset[0];
