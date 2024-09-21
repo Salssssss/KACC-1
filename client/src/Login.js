@@ -27,7 +27,7 @@ const Login = () => {
 
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        setMessage('Invalid credentials');
+        setMessage(error.response.data.message);
       } else {
         setMessage('Error connecting to server');
       }
