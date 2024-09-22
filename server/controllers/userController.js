@@ -7,10 +7,19 @@ exports.login = async (pool, username, password) => {
   //Old query: SELECT * FROM users 
   //WHERE username = @username AND password_hash = @password
   //Modified 9/20/24 when trying to make sure the role of a user is taken for authorization purposes
-  const query = `SELECT username, role_name 
-    FROM users 
-    JOIN roles ON role_name = role_id 
-    WHERE username = @username AND password_hash = @password
+  //Old query 2: 
+  /*SELECT username, role_name 
+  FROM users 
+  JOIN roles ON role_name = role_id 
+  WHERE username = @username AND password_hash = @password*/
+  const query = `SELECT u.username, r.role_name
+    FROM users u
+    JOIN user_passwords up ON u.user_id = up.user_id
+    JOIN user_roles ur ON u.user_id = ur.user_id
+    JOIN roles r ON ur.role_id = r.role_id
+    WHERE u.username = @username 
+    AND up.password_hash = @password 
+    AND up.is_current = 1
   `;
   const result = await pool.request()
     .input('username', sql.VarChar, username)
