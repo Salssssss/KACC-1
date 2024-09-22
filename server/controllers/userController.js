@@ -86,8 +86,8 @@ exports.createAccount = async (pool, userData) => {
 
   // Insert new user
   const insertUserQuery = `
-    INSERT INTO users (first_name, last_name, username, password_hash, email)
-    VALUES (@firstName, @lastName, @username, @hashedPassword, @Email);
+    INSERT INTO users (first_name, last_name, username, email)
+    VALUES (@firstName, @lastName, @username, @Email);
     SELECT SCOPE_IDENTITY() AS user_id;  -- Get the newly inserted user_id
   `;
 
@@ -95,7 +95,6 @@ exports.createAccount = async (pool, userData) => {
     .input('firstName', sql.VarChar, firstName)
     .input('lastName', sql.VarChar, lastName)
     .input('username', sql.VarChar, username)
-    .input('hashedPassword', sql.VarChar, hashedPassword) 
     .input('Email', sql.VarChar, email)
     .query(insertUserQuery);
 
@@ -113,6 +112,17 @@ exports.createAccount = async (pool, userData) => {
       .input('userId', sql.Int, newUserId)
       .input('hashedPassword', sql.VarChar, hashedPassword)
       .query(insertPasswordQuery);
+
+
+    //insert roles query default role will be accountant admins can change this
+    const insertRoleQuery = `
+      INSERT INTO user_roles (user_id, role_id)
+      VALUES (@userId, 3);
+    `;
+
+    await pool.request()
+      .input('userId', sql.Int, newUserId)
+      .query(insertRoleQuery);
 
     return { message: 'User created successfully', userId: newUserId };
   };
