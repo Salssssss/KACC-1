@@ -7,12 +7,9 @@ exports.login = async (pool, username, password) => {
  
   const query = `SELECT u.username, r.role_name
     FROM users u
-    JOIN user_passwords up ON u.user_id = up.user_id
     JOIN user_roles ur ON u.user_id = ur.user_id
     JOIN roles r ON ur.role_id = r.role_id
     WHERE u.username = @username 
-    AND up.password_hash = @password 
-    AND up.is_current = 1
   `;
   const result = await pool.request()
     .input('username', sql.VarChar, username)
