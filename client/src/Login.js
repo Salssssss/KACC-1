@@ -24,6 +24,7 @@ const Login = () => {
       localStorage.setItem('userRole', user.role_name);
       
       if (response.data.message === 'Login successful') {
+        console.log(user.role_name);
         if(user.role_name === 'administrator') {
           navigate('/admin-dashboard')
         }

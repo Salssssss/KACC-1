@@ -4,14 +4,7 @@ const { sendAccountApprovalEmail } = require('../services/emailService');
 
 // login logic
 exports.login = async (pool, username, password) => {
-  //Old query: SELECT * FROM users 
-  //WHERE username = @username AND password_hash = @password
-  //Modified 9/20/24 when trying to make sure the role of a user is taken for authorization purposes
-  //Old query 2: 
-  /*SELECT username, role_name 
-  FROM users 
-  JOIN roles ON role_name = role_id 
-  WHERE username = @username AND password_hash = @password*/
+ 
   const query = `SELECT u.username, r.role_name
     FROM users u
     JOIN user_passwords up ON u.user_id = up.user_id
@@ -83,3 +76,13 @@ exports.createAccount = async (pool, userData) => {
       console.error('Error sending account approval request', error);
     }
 };
+
+
+ //Old query: SELECT * FROM users 
+  //WHERE username = @username AND password_hash = @password
+  //Modified 9/20/24 when trying to make sure the role of a user is taken for authorization purposes
+  //Old query 2: 
+  /*SELECT username, role_name 
+  FROM users 
+  JOIN roles ON role_name = role_id 
+  WHERE username = @username AND password_hash = @password*/
