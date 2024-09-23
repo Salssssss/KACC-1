@@ -16,13 +16,21 @@ const Login = () => {
         username,
         password
       });
-      
-      
       setMessage(response.data.message);
 
+      //Adding 9/20/24 to check if a user is an admin - Ian
+      const user = response.data.user;
+      console.log('Logged in user:', user);
+      localStorage.setItem('userRole', user.role_name);
+
       if (response.data.message === 'Login successful') {
-        // Redirect to dashboard
-        navigate('/dashboard');
+        console.log(user.role_name);
+        if(user.role_name === 'administrator') {
+          navigate('/admin-dashboard')
+        }
+        else{
+          navigate('/dashboard')
+        }
       }
 
     } catch (error) {
