@@ -20,8 +20,11 @@ const isPasswordExpired = (passwordCreatedAt) => {
 // login logic
 exports.login = async (pool, username, password) => {
   const userQuery = `
-    SELECT * FROM users 
-    WHERE username = @username 
+    SELECT u.username, u.user_id, r.role_name
+    FROM users u
+    JOIN user_roles ur ON u.user_id = ur.user_id
+    JOIN roles r ON ur.role_id = r.role_id
+    WHERE u.username = @username
   `;
   const result = await pool.request()
     .input('username', sql.VarChar, username)
@@ -29,6 +32,7 @@ exports.login = async (pool, username, password) => {
 
   if (result.recordset.length > 0) {
     const user = result.recordset[0];
+    console.log(user.role_name);
 
     //grab users current password
     const passwordQuery = `
@@ -56,7 +60,8 @@ exports.login = async (pool, username, password) => {
       //when changing passwords set the old password to expired
 
   // If password is valid and not expired, return the user data
-    return { message: 'Login successful', user };
+  console.log(user.role_name);
+    return { user };
     } else {
     throw new Error('No current password found');
     } 
