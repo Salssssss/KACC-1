@@ -8,7 +8,9 @@ router.post('/login', async (req, res) => {
   const pool = req.app.get('dbPool'); // Use the shared DB pool
 
   try {
-    const user = await login(pool, username, password);
+    const result = await login(pool, username, password);
+    const user = result.user;
+    console.log('User object keys:', Object.keys(user))
     res.json({ message: 'Login successful', user });
   } catch (error) {
     res.status(401).json({ message: error.message });

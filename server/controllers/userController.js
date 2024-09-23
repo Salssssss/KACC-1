@@ -32,6 +32,7 @@ exports.login = async (pool, username, password) => {
 
   if (result.recordset.length > 0) {
     const user = result.recordset[0];
+    console.log(user.role_name);
 
     //grab users current password
     const passwordQuery = `
@@ -59,7 +60,8 @@ exports.login = async (pool, username, password) => {
       //when changing passwords set the old password to expired
 
   // If password is valid and not expired, return the user data
-    return { message: 'Login successful', user };
+  console.log(user.role_name);
+    return { user };
     } else {
     throw new Error('No current password found');
     } 
