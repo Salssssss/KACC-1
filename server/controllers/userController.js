@@ -1,6 +1,7 @@
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const { sendAccountApprovalEmail } = require('../services/emailService');
 
 //helper function to check password age
 const isPasswordExpired = (passwordCreatedAt) => {
@@ -29,6 +30,7 @@ exports.login = async (pool, username, password) => {
   const result = await pool.request()
     .input('username', sql.VarChar, username)
     .query(userQuery);
+
 
   if (result.recordset.length > 0) {
     const user = result.recordset[0];
@@ -67,8 +69,8 @@ exports.login = async (pool, username, password) => {
     } 
   } else {
     throw new Error('Invalid username or password');
-  }
-};
+  } 
+}; 
 
 // creating a new account
 exports.createAccount = async (pool, userData) => {
@@ -128,6 +130,25 @@ exports.createAccount = async (pool, userData) => {
     await pool.request()
       .input('userId', sql.Int, newUserId)
       .query(insertRoleQuery);
-
+  
+    //Adding 9/20/2024 - Ian
+    //Integrating emailService.js
+    try {
+      await sendAccountApprovalEmail({
+        adminEmail: EMAIL_ADMIN, 
+        firstName,
+        lastName,
+        username,
+        email
+      });
+      console.log('Account approval request sent, awaiting admin approval');
+    }
+    catch (error) {
+      console.error('Error sending account approval request', error);
+    }
     return { message: 'User created successfully', userId: newUserId };
-  };
+
+};
+
+
+

@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Dashboard = () => {
-  return (
-    <div>
-      <h2>Welcome to the Admin Dashboard!</h2>
-    </div>
-  );
-};
+const AdminDashboard = () => {
+    return (
+      <div>
+        <h2>Welcome to the Admin Dashboard!</h2>
+      </div>
+    );
+  };
 
-export default Dashboard;
+  export default AdminDashboard;
+
