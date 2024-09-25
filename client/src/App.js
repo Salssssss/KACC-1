@@ -6,6 +6,7 @@ import CreateAccount from './CreateAccount';
 import Dashboard from './Dashboard'; 
 import AdminDashboard from './AdminDashboard';
 
+
 const userRole = localStorage.getItem('userRole');
 
 function App() {
@@ -17,7 +18,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/create-account" element={<CreateAccount />} />
         <Route path="/admin-dashboard" element={userRole === 'administrator' ? <AdminDashboard /> : <Navigate to="/dashboard"/>} />
+
         <Route path="/dashboard" element={<Dashboard />} />  
+
       </Routes>
     </Router>
   );

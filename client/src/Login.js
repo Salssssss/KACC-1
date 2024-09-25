@@ -22,7 +22,7 @@ const Login = () => {
       const user = response.data.user;
       console.log('Logged in user:', user);
       localStorage.setItem('userRole', user.role_name);
-      
+
       if (response.data.message === 'Login successful') {
         console.log(user.role_name);
         if(user.role_name === 'administrator') {
@@ -35,7 +35,7 @@ const Login = () => {
 
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        setMessage('Invalid credentials');
+        setMessage(error.response.data.message);
       } else {
         setMessage('Error connecting to server');
       }
