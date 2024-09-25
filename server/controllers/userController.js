@@ -149,5 +149,5 @@ exports.createAccount = async (pool, userData) => {
 };
 
     return { message: 'User created successfully', userId: newUserId };
-  };
+  ;
 
