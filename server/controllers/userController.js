@@ -146,8 +146,9 @@ exports.createAccount = async (pool, userData) => {
     catch (error) {
       console.error('Error sending account approval request', error);
     }
+    return { message: 'User created successfully', userId: newUserId };
+
 };
 
-    return { message: 'User created successfully', userId: newUserId };
-  ;
+
 
