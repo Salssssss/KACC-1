@@ -7,8 +7,11 @@ const router = express.Router();
 const { fetchUsersByRole, modifyUser } = require('../controllers/adminController')
 
 
+  
+
 //Check if user is admin
 const authorizationMiddleware = (req, res, next) => {
+  console.log(`[${new Date().toISOString()}] After session modification:`, req.session);
     if (req.session && req.session.user && req.session.user.role_name === 'administrator') {
         return next();
     }
@@ -20,7 +23,7 @@ const authorizationMiddleware = (req, res, next) => {
 //Route for looking at all users (accountants and managers)
 //Calls the function in adminController
 router.get('/users-by-role', authorizationMiddleware, async (req, res) => {
-  console.log('Session in admin route:', req.session);
+  
   try{
         const result = await fetchUsersByRole(req.pool);
         res.status(result.status).json(result);

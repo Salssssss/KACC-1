@@ -3,7 +3,7 @@ const sql = require('mssql');
 const cors = require('cors');
 const session = require('express-session');
 require('dotenv').config(); // Load environment variables
-
+const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); // Import the user routes
 const app = express();
 const port = 5000;
@@ -18,8 +18,8 @@ app.use(cors({
 })); // Enable CORS
 
 //Make sure admin routes are included
-const adminRoutes = require('./routes/adminRoutes');
-app.use('/admin', adminRoutes);
+
+
 
 //const sessionMiddleware = require('./middleware/sessionMiddleware');
 //app.use(sessionMiddleware);
@@ -51,6 +51,8 @@ sql.connect(dbConfig).then(pool => {
 
   // Use user routes for handling login and account creation
   app.use('/users', userRoutes);
+
+  app.use('/admin', adminRoutes);
 
   // Add a simple GET route for the root URL
   app.get('/', (req, res) => {

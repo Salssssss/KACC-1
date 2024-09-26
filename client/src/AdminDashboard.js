@@ -19,6 +19,7 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
   //useEffect to verify the user's role once again
+  console.log(localStorage.getItem('userRole'))
   useEffect(() => {
     const userRole = localStorage.getItem('userRole'); 
 
@@ -27,6 +28,7 @@ const AdminDashboard = () => {
       navigate('/login'); 
     }
   }, [navigate]);
+  
 
   //useEffect to display data
   useEffect(() => {
