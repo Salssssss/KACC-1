@@ -1,6 +1,7 @@
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
+const session = require('express-session');
 require('dotenv').config(); // Load environment variables
 
 const userRoutes = require('./routes/userRoutes'); // Import the user routes
@@ -22,6 +23,17 @@ app.use('/admin', adminRoutes);
 
 const sessionMiddleware = require('./middleware/sessionMiddleware');
 app.use(sessionMiddleware);
+
+app.use(session({
+  secret: 'placeholder-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24
+  }
+}));
 
 // Database connection configuration
 const dbConfig = {
