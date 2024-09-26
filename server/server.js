@@ -15,6 +15,9 @@ app.use(cors()); // Enable CORS
 const adminRoutes = require('./routes/adminRoutes');
 app.use('/admin', adminRoutes);
 
+const sessionMiddleware = require('./middleware/sessionMiddleware');
+app.use(sessionMiddleware);
+
 // Database connection configuration
 const dbConfig = {
   user: process.env.DB_USER,
