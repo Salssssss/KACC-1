@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-
 const AdminDashboard = () => {
+  //store the users from the backend
   const [users, setUsers] = useState([]);
+  //Store the ID of the user that gets edited
   const [editUserID, setEditUserID] = useState(null);
+  //Hold onto any errors that come up
+  const [error, setError] = useState(null);
+  //Store the form data for the user being edited
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -37,6 +41,7 @@ const AdminDashboard = () => {
       }
       catch (error) {
         console.error('Error fetching the users: ', error);
+        setError(error.message);
       }
     };
 
@@ -53,6 +58,7 @@ const AdminDashboard = () => {
     });
   };
 
+  //Submit the updated data
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -69,6 +75,7 @@ const AdminDashboard = () => {
     }
   };
 
+  //Update the formData state when a change is made to a user
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({...formData, [name]: value});
@@ -77,6 +84,12 @@ const AdminDashboard = () => {
     return (
       <div>
         <h2>Welcome to the Admin Dashboard!</h2>
+        {error && <p>Error: {error}</p>}
+        <ul>
+          {users.map((user) => (
+            <li key={user.id}>{user.name}</li>
+          ))}
+        </ul>
         <table>
           <thead>
             <tr>

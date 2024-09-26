@@ -20,7 +20,8 @@ const authorizationMiddleware = (req, res, next) => {
 //Route for looking at all users (accountants and managers)
 //Calls the function in adminController
 router.get('/users-by-role', authorizationMiddleware, async (req, res) => {
-    try{
+  console.log('Session in admin route:', req.session);
+  try{
         const result = await fetchUsersByRole(req.pool);
         res.status(result.status).json(result);
     }
@@ -30,7 +31,7 @@ router.get('/users-by-role', authorizationMiddleware, async (req, res) => {
 });
 
 //Route for modifying user data from the admin dashboard
-router.put('/modify-user/:userID', authorizeUser, async (req, res) => {
+router.put('/modify-user/:userID', authorizationMiddleware, async (req, res) => {
     try{
         const {userID } = req.params;
         const result = await modifyUser(req.pool, userID, req.body);

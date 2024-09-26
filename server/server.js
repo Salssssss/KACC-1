@@ -21,8 +21,8 @@ app.use(cors({
 const adminRoutes = require('./routes/adminRoutes');
 app.use('/admin', adminRoutes);
 
-const sessionMiddleware = require('./middleware/sessionMiddleware');
-app.use(sessionMiddleware);
+//const sessionMiddleware = require('./middleware/sessionMiddleware');
+//app.use(sessionMiddleware);
 
 app.use(session({
   secret: 'placeholder-key',

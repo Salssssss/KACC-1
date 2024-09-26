@@ -10,6 +10,14 @@ router.post('/login', async (req, res) => {
   try {
     const result = await login(pool, username, password);
     const user = result.user;
+
+  //Added 9/26/24 to store user information in the session - Ian
+  req.session.user = {
+    id: user.id,
+    role_name: user.role_name,
+  };
+  console.log("Session after login:", req.session);
+
     console.log('User object keys:', Object.keys(user))
     res.json({ message: 'Login successful', user });
   } catch (error) {
