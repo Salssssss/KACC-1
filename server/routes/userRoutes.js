@@ -3,6 +3,7 @@ const router = express.Router();
 const { login, createAccount } = require('../controllers/userController');
 
 // Route for user login
+// Route for user login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const pool = req.app.get('dbPool'); // Use the shared DB pool
@@ -10,12 +11,29 @@ router.post('/login', async (req, res) => {
   try {
     const result = await login(pool, username, password);
     const user = result.user;
-    console.log('User object keys:', Object.keys(user))
-    res.json({ message: 'Login successful', user });
+
+    // Store user information in the session
+    req.session.user = {
+      id: user.user_id,
+      role_name: user.role_name,
+    };
+
+    // Save the session and respond to the client only once
+    req.session.save((err) => {
+      if (err) {
+        console.error('Error saving session:', err);
+        return res.status(600).send('Session could not be saved'); 
+      }
+
+      res.json({ message: 'Login successful', user });
+    });
+
   } catch (error) {
+    console.error('Login error:', error);
     res.status(401).json({ message: error.message });
   }
 });
+
 
 // Route for creating a new account
 router.post('/create-account', async (req, res) => {
