@@ -4,7 +4,6 @@
 //I wrote the query to only fetch users of account type 'Manager' or 'Accountant'
 //I figured if an admin needs to modify their own account it would make more sense to do it elsewhere, we can change this if we want though
 exports.fetchUsersByRole = async (pool) => {
-    try{
         const userQuery = `
       SELECT u.user_id, u.first_name, u.last_name, u.username, u.email, r.role_name
       FROM users u
@@ -12,8 +11,9 @@ exports.fetchUsersByRole = async (pool) => {
       JOIN roles r ON ur.role_id = r.role_id
       WHERE r.role_name IN ('Manager', 'Accountant')
     `;
-
-    const result = await pool.request().query(userQuery);
+    try{
+    const result = await pool.request()
+    .query(userQuery);
 
     return { status: 200, users: result.recordset };
     }

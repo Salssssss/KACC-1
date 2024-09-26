@@ -25,7 +25,6 @@ router.post('/login', async (req, res) => {
         return res.status(600).send('Session could not be saved'); 
       }
 
-      console.log(`[${new Date().toISOString()}] Session after saving:`, req.session);
       res.json({ message: 'Login successful', user });
     });
 

@@ -11,7 +11,6 @@ const { fetchUsersByRole, modifyUser } = require('../controllers/adminController
 
 //Check if user is admin
 const authorizationMiddleware = (req, res, next) => {
-  console.log(`[${new Date().toISOString()}] After session modification:`, req.session);
     if (req.session && req.session.user && req.session.user.role_name === 'administrator') {
         return next();
     }
@@ -25,7 +24,8 @@ const authorizationMiddleware = (req, res, next) => {
 router.get('/users-by-role', authorizationMiddleware, async (req, res) => {
   
   try{
-        const result = await fetchUsersByRole(req.pool);
+        const pool = req.app.get('dbPool');
+        const result = await fetchUsersByRole(pool);
         res.status(result.status).json(result);
     }
     catch (err){
