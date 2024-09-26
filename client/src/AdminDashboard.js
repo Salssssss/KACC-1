@@ -30,7 +30,7 @@ const AdminDashboard = () => {
       try {
         //Will need to change the route eventually, keep it localhost for now so we can test it.
         //Make sure it matches what is typed in adminRoutes
-        const response = await axios.get('http://localhost:5000/admin/users-by-role');
+        const response = await axios.get('http://localhost:5000/admin/users-by-role', {withCredentials: true});
         console.log(response.data.users);
 
         setUsers(response.data.users);

@@ -9,7 +9,27 @@ const { fetchUsersByRole, modifyUser } = require('../controllers/adminController
 
 //Route for looking at all users (accountants and managers)
 //Calls the function in adminController
-router.get('/users-by-role', authorizeUser, async (req, res) => {
+router.get('/users-by-role', authorizationMiddleware, (req, res) => {
+    if (req.session && req.session.user) {
+      const userRole = req.session.user.role_name;
+      
+      if (userRole === 'administrator') {
+        // Fetch and return users by role from the database
+        const query = 'SELECT * FROM users';
+        db.query(query, (err, results) => {
+          if (err) {
+            return res.status(500).json({ message: 'Error fetching users' });
+          }
+          res.json({ users: results });
+        });
+      } else {
+        return res.status(403).json({ message: 'Access forbidden: Insufficient privileges' });
+      }
+    } else {
+      return res.status(403).json({ message: 'No valid session found' });
+    }
+  });
+/*router.get('/users-by-role', authorizeUser, async (req, res) => {
     try{
         const result = await fetchUsersByRole(req.pool);
         res.status(result.status).json(result);
@@ -17,7 +37,7 @@ router.get('/users-by-role', authorizeUser, async (req, res) => {
     catch (err){
         res.status(500).json({ message: 'Error when fetching users' });
     }
-});
+});*/
 
 //Route for modifying user data from the admin dashboard
 router.put('/modify-user/:userID', authorizeUser, async (req, res) => {
