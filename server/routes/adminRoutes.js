@@ -4,18 +4,31 @@
 const express = require('express');
 const router = express.Router();
 const { authorizeUser } = require('../middleware/authorizationMiddleware')
+const { fetchUsersByRole, modifyUser } = require('../controllers/adminController')
 
-//Route for looking at all users(this should come after pulling up the admin dashboard, not sure how to differentiate admin dashboard from current dashboard we have)
-router.get('/users', authorizeUser, async (req, res) => {
+
+//Route for looking at all users (accountants and managers)
+//Calls the function in adminController
+router.get('/users-by-role', authorizeUser, async (req, res) => {
     try{
-        const pool = req.app.get('dbpool');
-        const result = await pool.request().query('SELECT * FROM users');
-        res.json(result.recordset);
+        const result = await fetchUsersByRole(req.pool);
+        res.status(result.status).json(result);
     }
     catch (err){
         res.status(500).json({ message: 'Error when fetching users' });
     }
 });
 
+//Route for modifying user data from the admin dashboard
+router.put('/modify-user/:userID', authorizeUser, async (req, res) => {
+    try{
+        const {userID } = req.params;
+        const result = await modifyUser(req.pool, userID, req.body);
+        res.status(result.status).json(result);
+    }
+    catch(err){
+        res.status(500).json({ message: 'Error modifying user' });
+    }
+});
 
 module.exports = router;
