@@ -9,12 +9,12 @@ const Nav = () => {
 
     return (
         <nav>
-            <div className="rightNav">
+            <div className="leftNav">
                 <button onClick={() => navigate('/')}>
                     <img src={logo} alt="Navigation Logo" style={{ width: '50px' }} /> {/* Replace this with the actual image */}
                 </button>
             </div>
-            <div className="leftNav">
+            <div className="rightNav">
                 <button onClick={() => navigate('/login')}>Login</button>
                 <button onClick={() => navigate('/create-account')}>Create Account</button>
             </div>

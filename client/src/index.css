@@ -64,3 +64,27 @@ code {
   94% {left: -100%;}
   96% {left: 0;}
 }
+
+nav {
+  display: flex;
+}
+
+nav button {
+  text-align: center;
+  border-width: 0px;
+  background-color: white;
+}
+
+nav button:hover {
+  background-color: gray;
+}
+
+nav .leftnav {
+  display: flex;
+  justify-content: left;
+}
+
+nav .rightnav {
+  display: flex;
+  justify-content: right;
+}

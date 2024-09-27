@@ -7,14 +7,10 @@ import imageThree from './tempAssets/content_aziz-acharki-290990.jpg';
 import imageFour from './tempAssets/Cover21.jpg';
 import imageFive from './tempAssets/shutterstock_189352979.jpg';
 
-// Import Navbar
-import Nav from './Nav';
-
 const LandingPage = () => {
 
   return (
     <div>
-      <Nav />
       <div className="slider">
         <figure>
           <div className="slide">
