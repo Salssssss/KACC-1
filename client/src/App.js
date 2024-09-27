@@ -9,8 +9,8 @@ import Nav from './Nav';
 function App() {
   return (
     <Router>
+      <Nav />
       <Routes>
-        <Nav />
         {/* Define the routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
