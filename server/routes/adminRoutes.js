@@ -38,10 +38,10 @@ router.put('/modify-user/:userID', authorizationMiddleware, async (req, res) => 
   console.log('Request Params:', req.params);
   console.log('Request Body:', req.body);
   try {
-      const pool = req.app.get('dbPool');  // Assuming dbPool is properly initialized in app.js
-      const { userID } = req.params;       // Extracting userID from the request URL params
-      const result = await modifyUser(pool, userID, req.body);  // Calling modifyUser with the db pool, userID, and form data
-      res.status(result.status).json(result);  // Sending back the result from modifyUser function
+      const pool = req.app.get('dbPool');  
+      const { userID } = req.params;       
+      const result = await modifyUser(pool, userID, req.body);  
+      res.status(result.status).json(result);  
   } catch (err) {
       console.error('Error modifying user:', err);
       res.status(500).json({ message: 'Error modifying user' });
