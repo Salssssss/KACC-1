@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LandingPage from './LandingPage'; 
 import Login from './Login'; 
 import CreateAccount from './CreateAccount'; 
-import Dashboard from './Dashboard'; 
+import Dashboard from './Dashboard';
+import Nav from './Nav';
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Nav />
         {/* Define the routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
