@@ -35,15 +35,19 @@ router.get('/users-by-role', authorizationMiddleware, async (req, res) => {
 
 //Route for modifying user data from the admin dashboard
 router.put('/modify-user/:userID', authorizationMiddleware, async (req, res) => {
-    try{
-        const {userID } = req.params;
-        const result = await modifyUser(req.pool, userID, req.body);
-        res.status(result.status).json(result);
-    }
-    catch(err){
-        res.status(500).json({ message: 'Error modifying user' });
-    }
+  console.log('Request Params:', req.params);
+  console.log('Request Body:', req.body);
+  try {
+      const pool = req.app.get('dbPool');  
+      const { userID } = req.params;       
+      const result = await modifyUser(pool, userID, req.body);  
+      res.status(result.status).json(result);  
+  } catch (err) {
+      console.error('Error modifying user:', err);
+      res.status(500).json({ message: 'Error modifying user' });
+  }
 });
+
 
 module.exports = router;
 
