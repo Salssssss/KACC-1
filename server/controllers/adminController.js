@@ -3,6 +3,7 @@
 //This is a function to fetch the users in the database for the Admin to view them at their dashboard. 
 //I wrote the query to only fetch users of account type 'Manager' or 'Accountant'
 //I figured if an admin needs to modify their own account it would make more sense to do it elsewhere, we can change this if we want though
+const sql = require('mssql');
 exports.fetchUsersByRole = async (pool) => {
         const userQuery = `
       SELECT u.user_id, u.first_name, u.last_name, u.username, u.email, r.role_name
@@ -40,7 +41,7 @@ exports.modifyUser = async (pool, userID, updatedData) => {
         .input('firstName', sql.VarChar, firstName)
         .input('lastName', sql.VarChar, lastName)
         .input('Email', sql.VarChar, email)
-        .input('userID', sql.int, userID)
+        .input('userId', sql.Int, userID)
         .query(updateUserQuery);
 
     //Update the role seperately, due to the seperate table
@@ -52,10 +53,10 @@ exports.modifyUser = async (pool, userID, updatedData) => {
 
     await pool.request()
         .input('role', sql.VarChar, role)
-        .input('userID', sql.int, userID)
-        .query(updateUserQuery);
+        .input('userID', sql.Int, userID)
+        .query(updateUserRoleQuery);
 
-    return {stats: 200, message: 'User updated'};
+    return {status: 200, message: 'User updated'};
     }
     catch (err) {
         console.error('Error when updating user info: ', err);
