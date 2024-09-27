@@ -70,6 +70,66 @@ exports.createUser = async (pool, userData) => {
   const { firstName, lastName, username, email, role } = userData;
 
   try {
+    // Check if the username or email already exists
+    const checkUserQuery = `
+      SELECT * FROM users WHERE username = @username OR email = @Email
+    `;
+    const checkUserResult = await pool.request()
+      .input('username', sql.VarChar, username)
+      .input('Email', sql.VarChar, email)
+      .query(checkUserQuery);
+
+    if (checkUserResult.recordset.length > 0) {
+      throw new Error('Username or email already exists');
+    }
+
+    // Insert new user
+    const createUserQuery = `
+      INSERT INTO users (first_name, last_name, username, email)
+      VALUES (@firstName, @lastName, @username, @Email);
+      SELECT SCOPE_IDENTITY() AS user_id;  -- Get the newly inserted user_id
+    `;
+
+    const result = await pool.request()
+      .input('firstName', sql.VarChar, firstName)
+      .input('lastName', sql.VarChar, lastName)
+      .input('username', sql.VarChar, username)
+      .input('Email', sql.VarChar, email)
+      .query(createUserQuery);
+
+    const userId = result.recordset[0].user_id; // Correct way to get the user ID
+
+    // Insert role for the new user
+    const assignRoleQuery = `
+      INSERT INTO user_roles (user_id, role_id)
+      VALUES (@userId, (SELECT role_id FROM roles WHERE role_name = @role));
+    `;
+
+    await pool.request()
+      .input('userId', sql.Int, userId)
+      .input('role', sql.VarChar, role)
+      .query(assignRoleQuery);
+
+    return { status: 201, message: 'User created successfully' };
+  } catch (error) {
+    console.error('Error creating user: ', error);
+    return { status: 500, message: 'Error creating user' };
+  }
+};
+
+
+
+
+
+
+
+
+
+
+/*exports.createUser = async (pool, userData) => {
+  const { firstName, lastName, username, email, role } = userData;
+
+  try {
     const createUserQuery = `
       INSERT INTO users (first_name, last_name, username, email) 
       VALUES (@firstName, @lastName, @username, @Email);
@@ -100,4 +160,4 @@ exports.createUser = async (pool, userData) => {
     console.error('Error creating user: ', error);
     return { status: 500, message: 'Error creating user' };
   }
-};
+};*/

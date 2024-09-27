@@ -47,8 +47,8 @@ router.put('/modify-user/:userID', authorizationMiddleware, async (req, res) => 
 
 //Route for creating a new account from the admin dashboard
 router.post('/create-user', authorizationMiddleware, async (req, res) => {
+  const pool = req.app.get('dbPool');
   try{
-    const pool = req.app.get('dbPool');
     const result = await createUser(pool, req.body);
     res.status(result.status).json(result);
   }
