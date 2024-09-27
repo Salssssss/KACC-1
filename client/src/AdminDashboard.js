@@ -13,9 +13,13 @@ const AdminDashboard = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     role: '',
   });
+
+  //Adding this state to show or hide the create user form - Ian 9/27/24
+  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
 
   const navigate = useNavigate();
   //useEffect to verify the user's role once again
@@ -83,6 +87,23 @@ const AdminDashboard = () => {
     setFormData({...formData, [name]: value});
   };
 
+  //Adding this to handle the user creation form submission from the admin page - Ian 9/27/24
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/admin/create-user', formData, {withCredentials: true});
+      alert('User created successfully');
+      //Hide form after submission
+      setShowCreateUserForm(false); 
+      //Fetch the updated users list
+      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      setUsers(response.data.users);
+    } catch (err) {
+      console.error('Error creating the user: ', err);
+      alert('Error creating user. Please try again.');
+    }
+  };
+
     return (
       <div>
         <h2>Welcome to the Admin Dashboard!</h2>
@@ -119,6 +140,71 @@ const AdminDashboard = () => {
           </tbody>
         </table>
 
+ {/*Button to show the "Create New User" form - Ian 9/27/24*/}
+ <button onClick={() => setShowCreateUserForm(true)}>Create New User</button>
+
+{/*Conditionally renders the form if showCreateUserForm is true. That way it's hidden most of the time*/}
+{showCreateUserForm && (
+  <div>
+    <h3>Create New User</h3>
+    <form onSubmit={handleCreateUser}>
+      <div>
+        <label>First Name:</label>
+        <input
+          type="text"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Last Name:</label>
+        <input
+          type="text"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Email:</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Role:</label>
+        <select name="role" value={formData.role} onChange={handleChange} required>
+          <option value="">Select Role</option>
+          <option value="Manager">Manager</option>
+          <option value="Accountant">Accountant</option>
+        </select>
+      </div>
+
+      <button type="submit">Create User</button>
+    </form>
+  </div>
+)};
         {editUserID && (
           <div>
             <h3>Edit User</h3>

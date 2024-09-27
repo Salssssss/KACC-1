@@ -3,6 +3,8 @@
 //This is a function to fetch the users in the database for the Admin to view them at their dashboard. 
 //I wrote the query to only fetch users of account type 'Manager' or 'Accountant'
 //I figured if an admin needs to modify their own account it would make more sense to do it elsewhere, we can change this if we want though
+const sql = require('mssql');
+
 exports.fetchUsersByRole = async (pool) => {
         const userQuery = `
       SELECT u.user_id, u.first_name, u.last_name, u.username, u.email, r.role_name
@@ -26,7 +28,7 @@ exports.fetchUsersByRole = async (pool) => {
 
 //This function is to modify the accounts of accountants and managers
 exports.modifyUser = async (pool, userID, updatedData) => {
-    const {firstName, lastName, email, role } = updatedData;
+    const {firstName, lastName, username, email, role } = updatedData;
 
     try{
         //This is to update the user's personal info, not their role
@@ -61,4 +63,41 @@ exports.modifyUser = async (pool, userID, updatedData) => {
         console.error('Error when updating user info: ', err);
         return {status: 500, message: 'Error when updating user info'};
     }
+};
+
+//Create a user from the admin page
+exports.createUser = async (pool, userData) => {
+  const { firstName, lastName, username, email, role } = userData;
+
+  try {
+    const createUserQuery = `
+      INSERT INTO users (first_name, last_name, username, email) 
+      VALUES (@firstName, @lastName, @username, @Email);
+    `;
+
+    const result = await pool.request()
+      .input('firstName', sql.VarChar, firstName)
+      .input('lastName', sql.VarChar, lastName)
+      .input('username', sql.VarChar, username)
+      .input('Email', sql.VarChar, email)
+      .query(createUserQuery);
+
+    //Retrieve newly created user ID
+    const userId = result.recordset.insertId; 
+
+    const assignRoleQuery = `
+      INSERT INTO user_roles (user_id, role_id)
+      VALUES (@userId, (SELECT role_id FROM roles WHERE role_name = @role));
+    `;
+
+    await pool.request()
+      .input('userId', sql.Int, userId)
+      .input('role', sql.VarChar, role)
+      .query(assignRoleQuery);
+
+    return { status: 201, message: 'User created successfully' };
+  } catch (error) {
+    console.error('Error creating user: ', error);
+    return { status: 500, message: 'Error creating user' };
+  }
 };

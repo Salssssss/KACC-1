@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
-const { fetchUsersByRole, modifyUser } = require('../controllers/adminController')
+const { fetchUsersByRole, modifyUser, createUser } = require('../controllers/adminController')
 
 
   
@@ -43,6 +43,19 @@ router.put('/modify-user/:userID', authorizationMiddleware, async (req, res) => 
     catch(err){
         res.status(500).json({ message: 'Error modifying user' });
     }
+});
+
+//Route for creating a new account from the admin dashboard
+router.post('/create-user', authorizationMiddleware, async (req, res) => {
+  try{
+    const pool = req.app.get('dbPool');
+    const result = await createUser(pool, req.body);
+    res.status(result.status).json(result);
+  }
+  catch(error){
+    console.error('Error in create-user route: ', error);
+    res.status(500).json({ error: 'Error creating user' });
+  }
 });
 
 module.exports = router;
