@@ -118,7 +118,21 @@ exports.createUser = async (pool, userData) => {
 };
 
 
+exports.getReportOfAllUsers = async (pool) => {
+  try {
+    const query = `
+      SELECT *
+      FROM users;
+    `;
 
+    const result = await pool.request().query(query);
+    return { status: 200, users: result.recordset };
+  }
+  catch (error) {
+    console.error('Error fetching users: ', error);
+    return { status: 500, message: 'Error fetching users' };
+  }
+};
 
 
 

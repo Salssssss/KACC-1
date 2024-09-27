@@ -18,6 +18,11 @@ const AdminDashboard = () => {
     role: '',
   });
 
+  //State to hold report data
+  const [reportData, setReportData] = useState(null);
+  //State to handle loading
+  const [loading, setLoading] = useState(false);
+
   //Adding this state to show or hide the create user form - Ian 9/27/24
   const [showCreateUserForm, setShowCreateUserForm] = useState(false);
 
@@ -104,10 +109,60 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAllUsersReport = async () => {
+    setLoading(true); // Set loading to true before fetching
+    try {
+      const response = await axios.get('http://localhost:5000/admin/get-report-of-users', { withCredentials: true });
+      console.log('Users Report: ', response.data);
+      setReportData(response.data); // Store the report data in state
+    } catch (error) {
+      console.error('Error fetching all users report: ', error);
+      setError(error.message);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
+    }
+  };
+
+  /*const YourComponent = () => {
+    //State to hold report data
+    const [reportData, setReportData] = useState(null); 
+    //State to handle loading
+    const [loading, setLoading] = useState(true); */
+
+  //Adding this to generate a report of all users
+  /*const fetchAllUsersReport = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/admin/get-report-of-users', { withCredentials: true });
+      console.log('Users Report: ', response.data);
+      setUsers(response.data.users);
+    } catch (error) {
+      console.error('Error fetching all users report: ', error);
+      setError(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsersReport();
+  }, []);*/
+  
+
     return (
       <div>
         <h2>Welcome to the Admin Dashboard!</h2>
         {error && <p>Error: {error}</p>}
+        <button onClick={fetchAllUsersReport}>Generate Report of All Users</button>
+
+         {/* Show loading indicator if fetching report */}
+      {loading && <p>Loading report...</p>}
+      
+      {/* Display report data if available */}
+      {reportData && (
+        <div>
+          <h3>User Report</h3>
+          <pre>{JSON.stringify(reportData, null, 2)}</pre> {/* You can format this for better presentation */}
+        </div>
+      )}
+
         <ul>
           {users.map((user) => (
             <li key={user.id}>{user.name}</li>

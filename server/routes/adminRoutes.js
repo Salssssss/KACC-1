@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
-const { fetchUsersByRole, modifyUser, createUser } = require('../controllers/adminController')
+const { fetchUsersByRole, modifyUser, createUser, getReportOfAllUsers } = require('../controllers/adminController')
 
 
   
@@ -60,7 +60,17 @@ router.post('/create-user', authorizationMiddleware, async (req, res) => {
 
 module.exports = router;
 
-
+//Route for getting all the users for report
+router.get('/get-report-of-users', authorizationMiddleware, async (req, res) => {
+  try{
+    const pool = req.app.get('dbPool');
+    const result = await getReportOfAllUsers(pool);
+    res.status(result.status).json(result);
+}
+catch (err){
+    res.status(500).json({ message: 'Error when generating report' });
+}
+});
 
 
 /*router.get('/users-by-role', authorizationMiddleware, (req, res) => {
