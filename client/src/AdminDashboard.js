@@ -18,10 +18,6 @@ const AdminDashboard = () => {
     role: '',
   });
 
-  //State to hold report data
-  const [reportData, setReportData] = useState(null);
-  //State to handle loading
-  const [loading, setLoading] = useState(false);
 
   //Adding this state to show or hide the create user form - Ian 9/27/24
   const [showCreateUserForm, setShowCreateUserForm] = useState(false);
@@ -109,59 +105,69 @@ const AdminDashboard = () => {
     }
   };
 
+  
+  //State to hold report data for users report
+  const [reportData, setReportData] = useState(null);
+  //State to handle loading for users report
+  const [loading, setLoading] = useState(false);
+
   const fetchAllUsersReport = async () => {
-    setLoading(true); // Set loading to true before fetching
+    //Set loading to true before fetching
+    setLoading(true); 
     try {
       const response = await axios.get('http://localhost:5000/admin/get-report-of-users', { withCredentials: true });
       console.log('Users Report: ', response.data);
-      setReportData(response.data); // Store the report data in state
+      //Store the report data in state
+      setReportData(response.data); 
     } catch (error) {
       console.error('Error fetching all users report: ', error);
       setError(error.message);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      //Setloading to false after fetching
+      setLoading(false); 
     }
   };
-
-  /*const YourComponent = () => {
-    //State to hold report data
-    const [reportData, setReportData] = useState(null); 
-    //State to handle loading
-    const [loading, setLoading] = useState(true); */
-
-  //Adding this to generate a report of all users
-  /*const fetchAllUsersReport = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/admin/get-report-of-users', { withCredentials: true });
-      console.log('Users Report: ', response.data);
-      setUsers(response.data.users);
-    } catch (error) {
-      console.error('Error fetching all users report: ', error);
-      setError(error.message);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllUsersReport();
-  }, []);*/
   
+
+  const [expiredPasswords, setExpiredPasswords] = useState([]);
+  const [loadingExpired, setLoadingExpired] = useState(false);
+  const [errorExpired, setErrorExpired] = useState(null);
+
+  const fetchExpiredPasswordsReport = async () => {
+    //Set loading to true before fetching
+    setLoadingExpired(true); 
+    try {
+      const response = await axios.get('http://localhost:5000/admin/get-report-of-passwords', { withCredentials: true });
+      console.log('Expired Passwords Report: ', response.data.expiredPasswords);
+      //Store the expired passwords data in state
+      setExpiredPasswords(response.data.expiredPasswords); 
+    } catch (error) {
+      console.error('Error fetching expired passwords report: ', error);
+      setErrorExpired(error.message);
+    } finally {
+      //Set loading to false after fetching
+      setLoadingExpired(false); 
+    }
+  };
 
     return (
       <div>
         <h2>Welcome to the Admin Dashboard!</h2>
         {error && <p>Error: {error}</p>}
+
+        {/*USER REPORT GENERATION */}
         <button onClick={fetchAllUsersReport}>Generate Report of All Users</button>
 
          {/* Show loading indicator if fetching report */}
-      {loading && <p>Loading report...</p>}
+         {loading && <p>Loading report...</p>}
       
-      {/* Display report data if available */}
-      {reportData && (
-        <div>
-          <h3>User Report</h3>
-          <pre>{JSON.stringify(reportData, null, 2)}</pre> {/* You can format this for better presentation */}
-        </div>
-      )}
+        {/* Display report data if available */}
+        {reportData && (
+          <div>
+            <h3>User Report</h3>
+            <pre>{JSON.stringify(reportData, null, 2)}</pre> {/* We definitely want to come back and edit this to look nicer */}
+          </div>
+        )}
 
         <ul>
           {users.map((user) => (
@@ -194,6 +200,44 @@ const AdminDashboard = () => {
             ))}
           </tbody>
         </table>
+        <div>
+      {/* Button to fetch the expired passwords report */}
+      <button onClick={fetchExpiredPasswordsReport}>Generate Expired Passwords Report</button>
+
+      {/* Show loading indicator if fetching report */}
+      {loadingExpired && <p>Loading expired passwords report...</p>}
+
+      {/* Display expired passwords report if available */}
+      {expiredPasswords.length > 0 && (
+        <div>
+          <h3>Expired Passwords Report</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Password Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {expiredPasswords.map((user) => (
+                <tr key={user.user_id}>
+                  <td>{user.user_id}</td>
+                  <td>{user.first_name}</td>
+                  <td>{user.last_name}</td>
+                  <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Show error message if something went wrong */}
+      {errorExpired && <p>Error: {errorExpired}</p>}
+    </div>
+
 
  {/*Button to show the "Create New User" form - Ian 9/27/24*/}
  <button onClick={() => setShowCreateUserForm(true)}>Create New User</button>

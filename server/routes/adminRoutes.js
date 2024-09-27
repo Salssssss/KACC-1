@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
-const { fetchUsersByRole, modifyUser, createUser, getReportOfAllUsers } = require('../controllers/adminController')
+const { fetchUsersByRole, modifyUser, createUser, getReportOfAllUsers, getReportOfExpiredPasswords } = require('../controllers/adminController')
 
 
   
@@ -72,26 +72,15 @@ catch (err){
 }
 });
 
+//Route for getting expired passwords for report
+router.get('/get-report-of-passwords', authorizationMiddleware, async (req, res) => {
+  try{
+    const pool = req.app.get('dbPool');
+    const result = await getReportOfExpiredPasswords(pool);
+    res.status(result.status).json(result);
+}
+catch (err){
+    res.status(500).json({ message: 'Error when generating report' });
+}
+});
 
-/*router.get('/users-by-role', authorizationMiddleware, (req, res) => {
-    if (req.session && req.session.user) {
-      const userRole = req.session.user.role_name;
-      
-      if (userRole === 'administrator') {
-        // Fetch and return users by role from the database
-        const query = 'SELECT * FROM users';
-        db.query(query, (err, results) => {
-          if (err) {
-            return res.status(500).json({ message: 'Error fetching users' });
-          }
-          res.json({ users: results });
-        });
-      } else {
-        return res.status(403).json({ message: 'Access forbidden: Insufficient privileges' });
-      }
-    } else {
-      return res.status(403).json({ message: 'No valid session found' });
-    }
-  });
-  */
-/**/

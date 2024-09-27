@@ -134,6 +134,24 @@ exports.getReportOfAllUsers = async (pool) => {
   }
 };
 
+exports.getReportOfExpiredPasswords = async(pool) => {
+  try{
+    const query = `
+    SELECT u.user_id, u.first_name, u.last_name, up.created_at
+      FROM users u
+      JOIN user_passwords up ON u.user_id = up.user_id
+      WHERE up.is_current = 1
+      AND up.created_at < DATEADD(DAY, -90, GETDATE())
+  `;
+  
+  const result = await pool.query(query);
+  return { status: 200, expiredPasswords: result.recordset };
+  }
+  catch (error){
+    console.error('Error fetching expired passwords: ', error);
+    return { status: 500, message: 'Error fetching expired passwords' };
+  }
+};
 
 
 
