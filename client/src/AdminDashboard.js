@@ -55,6 +55,8 @@ const AdminDashboard = () => {
     fetchUsersByRole();
   }, []);
 
+  //--------Edit users--------------------------------------------------------------------------------------------------------------
+
   const handleEdit = (user) => {
     setEditUserID(user.user_id);
     setFormData({
@@ -88,6 +90,8 @@ const AdminDashboard = () => {
     setFormData({...formData, [name]: value});
   };
 
+  //--------Create a new user--------------------------------------------------------------------------------------------------------------
+
   //Adding this to handle the user creation form submission from the admin page - Ian 9/27/24
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -105,7 +109,8 @@ const AdminDashboard = () => {
     }
   };
 
-  
+  //--------View All Users Report--------------------------------------------------------------------------------------------------------------
+
   //State to hold report data for users report
   const [reportData, setReportData] = useState(null);
   //State to handle loading for users report
@@ -128,6 +133,7 @@ const AdminDashboard = () => {
     }
   };
   
+//--------Expired Passwords Report--------------------------------------------------------------------------------------------------------------
 
   const [expiredPasswords, setExpiredPasswords] = useState([]);
   const [loadingExpired, setLoadingExpired] = useState(false);
@@ -150,6 +156,26 @@ const AdminDashboard = () => {
     }
   };
 
+  //------------Active or Deactivate a user
+  const handleToggleStatus = async (user) => {
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+  
+    try {
+      await axios.put(`http://localhost:5000/admin/activate-or-deactivate-user/${user.user_id}`, { status: newStatus }, { withCredentials: true });
+      
+      alert(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+  
+      //Fetch the updated users list
+      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      setUsers(response.data.users);
+    } catch (err) {
+      console.error('Error updating user status: ', err);
+      alert('Error updating user status');
+    }
+  };
+
+  //----------------------HTML and UI------------------------------------------------------------------------------
+
     return (
       <div>
         <h2>Welcome to the Admin Dashboard!</h2>
@@ -169,6 +195,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
+{/*Table with user info and buttons to edit, activate, or deactivate user accounts */}
         <ul>
           {users.map((user) => (
             <li key={user.id}>{user.name}</li>
@@ -195,6 +222,7 @@ const AdminDashboard = () => {
                 <td>{user.role_name}</td>
                 <td>
                   <button onClick={() => handleEdit(user)}>Edit</button>
+                  <button onClick={() => handleToggleStatus(user)}> {user.status === 'active' ? 'Inactive' : 'Active'}</button>
                 </td>
               </tr>
             ))}

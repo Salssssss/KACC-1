@@ -153,43 +153,30 @@ exports.getReportOfExpiredPasswords = async(pool) => {
   }
 };
 
-
-
-
-
-
-/*exports.createUser = async (pool, userData) => {
-  const { firstName, lastName, username, email, role } = userData;
-
+//This is for activating/deactivating an account
+//I want to handle the suspension requirement in its own method, so that way it's easier to set it from a start date to an end date - Ian
+exports.activateOrDeactivateUser = async (pool, userId, status) => {
   try {
-    const createUserQuery = `
-      INSERT INTO users (first_name, last_name, username, email) 
-      VALUES (@firstName, @lastName, @username, @Email);
+    const query = `
+      UPDATE users
+      SET status = @status
+      WHERE user_id = @userId;
     `;
 
-    const result = await pool.request()
-      .input('firstName', sql.VarChar, firstName)
-      .input('lastName', sql.VarChar, lastName)
-      .input('username', sql.VarChar, username)
-      .input('Email', sql.VarChar, email)
-      .query(createUserQuery);
+    const request = pool.request();
+    request.input('status', status);
+    request.input('userId', userId);
+    
+    await request.query(query);
 
-    //Retrieve newly created user ID
-    const userId = result.recordset.insertId; 
-
-    const assignRoleQuery = `
-      INSERT INTO user_roles (user_id, role_id)
-      VALUES (@userId, (SELECT role_id FROM roles WHERE role_name = @role));
-    `;
-
-    await pool.request()
-      .input('userId', sql.Int, userId)
-      .input('role', sql.VarChar, role)
-      .query(assignRoleQuery);
-
-    return { status: 201, message: 'User created successfully' };
+    return { status: 200, message: 'User status updated successfully' };
   } catch (error) {
-    console.error('Error creating user: ', error);
-    return { status: 500, message: 'Error creating user' };
+    console.error('Error updating user status: ', error);
+    return { status: 500, message: 'Error updating user status' };
   }
-};*/
+};
+
+
+
+
+

@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
-const { fetchUsersByRole, modifyUser, createUser, getReportOfAllUsers, getReportOfExpiredPasswords } = require('../controllers/adminController')
+const { fetchUsersByRole, modifyUser, createUser, getReportOfAllUsers, getReportOfExpiredPasswords, activateOrDeactivateUser } = require('../controllers/adminController')
 
 
   
@@ -84,3 +84,17 @@ catch (err){
 }
 });
 
+//Route for updating user status
+router.put('/activate-or-deactivate-user/:userId', authorizationMiddleware, async (req, res) => {
+  try {
+    //Status sent from the frontend 
+    const { status } = req.body; 
+    const userId = req.params.userId;
+    const pool = req.app.get('dbPool');
+
+    const result = await activateOrDeactivateUser(pool, userId, status);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating user status' });
+  }
+});
