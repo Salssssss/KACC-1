@@ -38,7 +38,7 @@ const CreateAccount = () => {
 
     };
     return (
-        <div>
+        <div className="createAccount">
           <h2>Create Account</h2>
           <form onSubmit={handleCreateAccount}>
             <div>

@@ -69,13 +69,15 @@ nav {
   display: flex;
   padding: 20px;
   margin: 0px;
+  background-color: rgb(29, 28, 28);
 }
 
 nav button {
   text-align: center;
   border-width: 0px;
-  background-color: white;
+  background-color: rgb(29, 28, 28);
   font-size: 20px;
+  color: yellow;
 }
 
 nav button:hover {
@@ -90,4 +92,21 @@ nav .leftnav {
 nav .rightnav {
   display: flex;
   justify-content: right;
+}
+
+.login {
+  padding: 50px;
+}
+
+.login input {
+  margin: 10px;
+}
+
+.createAccount {
+  padding: 50px;
+}
+
+
+.createAccount input {
+  margin: 10px;
 }
