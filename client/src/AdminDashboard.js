@@ -205,7 +205,7 @@ const AdminDashboard = () => {
   //----------------------HTML and UI------------------------------------------------------------------------------
 
     return (
-      <div>
+      <div className='adminDash'>
         <h2>Welcome to the Admin Dashboard!</h2>
         {error && <p>Error: {error}</p>}
 
@@ -224,7 +224,7 @@ const AdminDashboard = () => {
         )}
 
 {/*Table with user info and buttons to edit, activate, or deactivate user accounts */}
-        <ul>
+        <ul className='fix'>
           {users.map((user) => (
             <li key={user.id}>{user.name}</li>
           ))}
@@ -265,10 +265,12 @@ const AdminDashboard = () => {
                 <td>
                 <th>Suspend User</th>
                   <DatePicker
+                    className='datePicker'
                     selected={suspensionStart}
                     onChange={(date) => setSuspensionStart(date)}
                     placeholderText="Select suspension start date"/>
                   <DatePicker
+                    className='datePicker'
                     selected={suspensionEnd}
                     onChange={(date) => setSuspensionEnd(date)}
                     placeholderText="Select suspension end date"/>
