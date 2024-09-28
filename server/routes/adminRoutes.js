@@ -85,16 +85,33 @@ catch (err){
 });
 
 //Route for updating user status
-router.put('/activate-or-deactivate-user/:userId', authorizationMiddleware, async (req, res) => {
+router.put('/activate-or-deactivate-user/:userID', authorizationMiddleware, async (req, res) => {
   try {
+    console.log('Request to activate or deactivate user:', req.params.userID, req.body.status);
     //Status sent from the frontend 
     const { status } = req.body; 
-    const userId = req.params.userId;
+    const userID = req.params.userID;
     const pool = req.app.get('dbPool');
 
-    const result = await activateOrDeactivateUser(pool, userId, status);
+    const result = await activateOrDeactivateUser(pool, userID, status);
+    console.log('Status updated in the DB:', result);
     res.status(result.status).json(result);
   } catch (error) {
     res.status(500).json({ message: 'Error updating user status' });
+  }
+});
+
+//Route for suspending a user for a set amount of time
+router.put('/suspend-user/:userID', authorizationMiddleware, async (req, res) => {
+  try {
+    //Get start and end dates from request body
+    const { suspensionStart, suspensionEnd } = req.body; 
+    const userID = req.params.userID;
+    const pool = req.app.get('dbPool');
+
+    const result = await suspendUser(pool, userID, suspensionStart, suspensionEnd);
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Error suspending user' });
   }
 });

@@ -155,17 +155,17 @@ exports.getReportOfExpiredPasswords = async(pool) => {
 
 //This is for activating/deactivating an account
 //I want to handle the suspension requirement in its own method, so that way it's easier to set it from a start date to an end date - Ian
-exports.activateOrDeactivateUser = async (pool, userId, status) => {
+exports.activateOrDeactivateUser = async (pool, userID, status) => {
   try {
     const query = `
       UPDATE users
       SET status = @status
-      WHERE user_id = @userId;
+      WHERE user_id = @userID;
     `;
 
     const request = pool.request();
     request.input('status', status);
-    request.input('userId', userId);
+    request.input('userID', userID);
     
     await request.query(query);
 
@@ -175,6 +175,30 @@ exports.activateOrDeactivateUser = async (pool, userId, status) => {
     return { status: 500, message: 'Error updating user status' };
   }
 };
+
+//Suspending a user for a set amount of time
+exports.suspendUser = async (pool, userID, suspensionStart, suspensionEnd) => {
+  try {
+    const query = `
+      UPDATE users
+      SET status = 'suspended', suspension_start = @suspensionStart, suspension_end = @suspensionEnd
+      WHERE user_id = @userID;
+    `;
+
+    const request = pool.request();
+    request.input('suspensionStart', suspensionStart);
+    request.input('suspensionEnd', suspensionEnd);
+    request.input('userID', userID);
+    
+    await request.query(query);
+
+    return { status: 200, message: 'User suspended successfully' };
+  } catch (error) {
+    console.error('Error suspending user: ', error);
+    return { status: 500, message: 'Error suspending user' };
+  }
+};
+
 
 
 

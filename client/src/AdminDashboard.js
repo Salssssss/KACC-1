@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+//Importing these for the suspension function
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 const AdminDashboard = () => {
   //store the users from the backend
   const [users, setUsers] = useState([]);
@@ -156,7 +160,7 @@ const AdminDashboard = () => {
     }
   };
 
-  //------------Active or Deactivate a user
+  //------------Active or Deactivate a user--------------------------------------------------------------------------
   const handleToggleStatus = async (user) => {
     const newStatus = user.status === 'active' ? 'inactive' : 'active';
   
@@ -171,6 +175,25 @@ const AdminDashboard = () => {
     } catch (err) {
       console.error('Error updating user status: ', err);
       alert('Error updating user status');
+    }
+  };
+
+  //----------------------Suspend User-----------------------------------------------------------------------------
+  const [suspensionStart, setSuspensionStart] = useState(null);
+  const [suspensionEnd, setSuspensionEnd] = useState(null);
+  
+  const handleSuspendUser = async (user) => {
+    try {
+      await axios.put(`http://localhost:5000/admin/suspend-user/${user.user_id}`, { suspensionStart, suspensionEnd }, { withCredentials: true });
+  
+      alert('User suspended successfully');
+  
+      //Fetch updated users
+      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      setUsers(response.data.users);
+    } catch (err) {
+      console.error('Error suspending user: ', err);
+      alert('Error suspending user');
     }
   };
 
@@ -222,7 +245,27 @@ const AdminDashboard = () => {
                 <td>{user.role_name}</td>
                 <td>
                   <button onClick={() => handleEdit(user)}>Edit</button>
-                  <button onClick={() => handleToggleStatus(user)}> {user.status === 'active' ? 'Inactive' : 'Active'}</button>
+                  {/*<button onClick={() => handleToggleStatus(user)}> {user.status === 'active' ? 'Inactive' : 'Active'}</button>*/}
+                  {/* Dropdown for status */}
+                  <select
+                    value={user.status}
+                    onChange={(e) => handleToggleStatus(user, e.target.value)}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </td>
+                <td>
+                <th>Suspend User</th>
+                  <DatePicker
+                    selected={suspensionStart}
+                    onChange={(date) => setSuspensionStart(date)}
+                    placeholderText="Select suspension start date"/>
+                  <DatePicker
+                    selected={suspensionEnd}
+                    onChange={(date) => setSuspensionEnd(date)}
+                    placeholderText="Select suspension end date"/>
+                    <button onClick={() => handleSuspendUser(user)}>Suspend User</button>
                 </td>
               </tr>
             ))}
