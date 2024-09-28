@@ -20,6 +20,7 @@ const AdminDashboard = () => {
     username: '',
     email: '',
     role: '',
+    status: '',
   });
 
 
@@ -162,15 +163,17 @@ const AdminDashboard = () => {
 
   //------------Active or Deactivate a user--------------------------------------------------------------------------
   const handleToggleStatus = async (user) => {
+    console.log(user.status);
     const newStatus = user.status === 'active' ? 'inactive' : 'active';
-  
+    console.log(user.status);
+
     try {
       await axios.put(`http://localhost:5000/admin/activate-or-deactivate-user/${user.user_id}`, { status: newStatus }, { withCredentials: true });
       
       alert(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
   
       //Fetch the updated users list
-      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      const response = await axios.get('http://localhost:5000/admin/users-by-role', { withCredentials: true });
       setUsers(response.data.users);
     } catch (err) {
       console.error('Error updating user status: ', err);
@@ -181,15 +184,15 @@ const AdminDashboard = () => {
   //----------------------Suspend User-----------------------------------------------------------------------------
   const [suspensionStart, setSuspensionStart] = useState(null);
   const [suspensionEnd, setSuspensionEnd] = useState(null);
-  
   const handleSuspendUser = async (user) => {
+   
     try {
       await axios.put(`http://localhost:5000/admin/suspend-user/${user.user_id}`, { suspensionStart, suspensionEnd }, { withCredentials: true });
   
       alert('User suspended successfully');
   
       //Fetch updated users
-      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      const response = await axios.get('http://localhost:5000/admin/users-by-role', { withCredentials: true });
       setUsers(response.data.users);
     } catch (err) {
       console.error('Error suspending user: ', err);
@@ -232,6 +235,7 @@ const AdminDashboard = () => {
               <th>Username</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -243,6 +247,7 @@ const AdminDashboard = () => {
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>{user.role_name}</td>
+                <td>{user.status}</td>
                 <td>
                   <button onClick={() => handleEdit(user)}>Edit</button>
                   {/*<button onClick={() => handleToggleStatus(user)}> {user.status === 'active' ? 'Inactive' : 'Active'}</button>*/}
@@ -274,6 +279,7 @@ const AdminDashboard = () => {
         <div>
       {/* Button to fetch the expired passwords report */}
       <button onClick={fetchExpiredPasswordsReport}>Generate Expired Passwords Report</button>
+      
 
       {/* Show loading indicator if fetching report */}
       {loadingExpired && <p>Loading expired passwords report...</p>}

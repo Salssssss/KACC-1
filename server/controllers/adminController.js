@@ -7,7 +7,7 @@ const sql = require('mssql');
 
 exports.fetchUsersByRole = async (pool) => {
         const userQuery = `
-      SELECT u.user_id, u.first_name, u.last_name, u.username, u.email, r.role_name
+      SELECT u.user_id, u.first_name, u.last_name, u.username, u.email, u.status, r.role_name
       FROM users u
       JOIN user_roles ur ON u.user_id = ur.user_id
       JOIN roles r ON ur.role_id = r.role_id
@@ -140,8 +140,8 @@ exports.getReportOfExpiredPasswords = async(pool) => {
     SELECT u.user_id, u.first_name, u.last_name, up.created_at
       FROM users u
       JOIN user_passwords up ON u.user_id = up.user_id
-      WHERE up.is_current = 1
-      AND up.created_at < DATEADD(DAY, -90, GETDATE())
+      WHERE up.is_current = 0
+      
   `;
   
   const result = await pool.query(query);
@@ -181,7 +181,7 @@ exports.suspendUser = async (pool, userID, suspensionStart, suspensionEnd) => {
   try {
     const query = `
       UPDATE users
-      SET status = 'suspended', suspension_start = @suspensionStart, suspension_end = @suspensionEnd
+      SET status = 'suspended', suspension_start_date = @suspensionStart, suspension_end_date = @suspensionEnd
       WHERE user_id = @userID;
     `;
 
