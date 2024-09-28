@@ -4,7 +4,15 @@
 const express = require('express');
 const router = express.Router();
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
-const { fetchUsersByRole, modifyUser, createUser, getReportOfAllUsers, getReportOfExpiredPasswords, activateOrDeactivateUser } = require('../controllers/adminController');
+const { 
+  fetchUsersByRole, 
+  modifyUser, 
+  createUser, 
+  getReportOfAllUsers, 
+  getReportOfExpiredPasswords, 
+  activateOrDeactivateUser, 
+  suspendUser 
+} = require('../controllers/adminController');
 
 
   
