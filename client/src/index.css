@@ -67,12 +67,15 @@ code {
 
 nav {
   display: flex;
+  padding: 20px;
+  margin: 0px;
 }
 
 nav button {
   text-align: center;
   border-width: 0px;
   background-color: white;
+  font-size: 20px;
 }
 
 nav button:hover {
