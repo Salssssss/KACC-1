@@ -76,12 +76,14 @@ const AdminDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/admin/modify-user/${editUserID}`, formData);
+      await axios.put(`http://localhost:5000/admin/modify-user/${editUserID}`, formData, { withCredentials: true });
+
       alert('User modified');
       setEditUserID(null);
 
       //Fetch users again to display modifications
-      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      const response = await axios.get('http://localhost:5000/admin/users-by-role', { withCredentials: true });
+
       setUsers(response.data.users);
     }
     catch (err) {

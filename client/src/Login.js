@@ -36,10 +36,14 @@ const Login = () => {
       }
 
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        setMessage(error.response.data.message);
+      if (error.response.data.message === 'Your account has been locked due to too many failed login attempts.') {
+        setMessage('Your account is locked. Please contact support.');
+      } else if (error.response.data.message === 'Your password has expired. Please reset your password.') {
+        setMessage('Your password is expired. Please reset it.');
+        // Redirect to password reset page
+        navigate('/reset-password');
       } else {
-        setMessage('Error connecting to server');
+        setMessage(error.response.data.message);
       }
     }
   };

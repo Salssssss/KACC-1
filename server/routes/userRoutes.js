@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, createAccount } = require('../controllers/userController');
+const { login, createAccount, setPassword } = require('../controllers/userController');
 
 // Route for user login
 router.post('/login', async (req, res) => {
@@ -44,5 +44,19 @@ router.post('/create-account', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+// Route for setting or resetting a password
+router.post('/set-password', async (req, res) => {
+  const pool = req.app.get('dbPool'); 
+  const { userId, newPassword } = req.body; // The request body should contain the userId and the new password
+
+  try {
+    await setPassword(pool, userId, newPassword);
+    res.status(200).json({ message: 'Password set successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 
 module.exports = router;
