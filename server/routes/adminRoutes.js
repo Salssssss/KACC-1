@@ -66,8 +66,6 @@ router.post('/create-user', authorizationMiddleware, async (req, res) => {
   }
 });
 
-module.exports = router;
-
 //Route for getting all the users for report
 router.get('/get-report-of-users', authorizationMiddleware, async (req, res) => {
   try{
@@ -123,3 +121,5 @@ router.put('/suspend-user/:userID', authorizationMiddleware, async (req, res) =>
     res.status(500).json({ message: 'Error suspending user' });
   }
 });
+
+module.exports = router;
