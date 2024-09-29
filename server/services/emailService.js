@@ -7,12 +7,12 @@ const nodemailer = require('nodemailer');
 
 //Create a transporter object
 const transporter = nodemailer.createTransport({
-   service: 'Outlook',
-   auth: { 
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-   } 
-}); 
+  service: process.env.EMAIL_SERVICE,
+  auth: {
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS, 
+  }
+});
 
 function sendApprovalRequestEmail(adminEmail, username, email) {
     const mailOptions = {
@@ -41,3 +41,54 @@ function sendApprovalRequestEmail(adminEmail, username, email) {
 
   module.exports = { sendApprovalRequestEmail };
 
+  function sendApprovalAcceptanceEmail(adminEmail, username, email) {
+    const mailOptions = {
+      from: adminEmail, 
+      to: email, 
+      subject: 'New Account Approved',
+      text: `Hello ${username}, the admin has aproved your requested to create an account.
+  
+             Username: ${username}
+             Email: ${email}
+
+             Use this link to log in: http://localhost:3000/login
+            
+             Thank you for creating an account with us.`,
+
+      html: '<body><h1>Welcome</h1><p>Hello' + username + ', the admin has aproved your requested to create an account.</p><p>Username: ' + username + '</p><p>Email: ' + email + '</p><p>Use this link to log in: </p><a href="http://localhost:3000/login">Link</a><p>Thank you for creating an account with us.</p></body>'
+    };
+  
+    //Sending the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } 
+      else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  }
+
+  module.exports = { sendApprovalAcceptanceEmail }; 
+
+  //function for sending emails in general
+  function sendEmail(senderEmail, reciverEmail, subject, body) {
+    const mailOptions = {
+      from: senderEmail, 
+      to: reciverEmail, 
+      subject: subject,
+      text: body
+    };
+  
+    //Sending the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } 
+      else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+  }
+
+  module.exports = { sendEmail };

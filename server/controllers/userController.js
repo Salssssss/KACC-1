@@ -159,6 +159,7 @@ exports.createAccount = async (pool, userData) => {
     .input('userId', sql.Int, newUserId)
     .query(insertRoleQuery);
 
+  const EMAIL_ADMIN = "KACCTest9282024@outlook.com"
   try {
     await sendAccountApprovalEmail({
       adminEmail: EMAIL_ADMIN,
