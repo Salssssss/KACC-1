@@ -37,19 +37,21 @@ const validatePassword = (password) => {
 
 //login logic
 exports.login = async (pool, username, password) => {
+
   try {
     // Query to get user info, failed login attempts, and account status
-    const userQuery = `
-      SELECT u.username, u.user_id, u.failed_login_attempts, u.status, r.role_name
-      FROM users u
-      JOIN user_roles ur ON u.user_id = ur.user_id
-      JOIN roles r ON ur.role_id = r.role_id
-      WHERE u.username = @username
-    `;
+  const userQuery = `
+    SELECT u.username, u.user_id, u.failed_login_attempts, u.status, u.profile_picture, r.role_name
+    FROM users u
+    JOIN user_roles ur ON u.user_id = ur.user_id
+    JOIN roles r ON ur.role_id = r.role_id
+    WHERE u.username = @username
+  `;
 
     const result = await pool.request()
       .input('username', sql.VarChar, username)
       .query(userQuery);
+
 
     if (result.recordset.length === 0) {
       return { success: false, message: 'Invalid username or password' };
@@ -207,21 +209,26 @@ exports.createAccount = async (pool, userData) => {
     .query(insertRoleQuery);
 
   // Notify the admin to approve the new account
-  try {
-    await sendAccountApprovalEmail({
-      adminEmail: EMAIL_ADMIN,
-      firstName,
-      lastName,
-      username: uniqueUsername, // Send the unique username to the admin
-      email
-    });
-    console.log('Account approval request sent, awaiting admin approval');
-  } catch (error) {
-    console.error('Error sending account approval request', error);
-  }
+    //Adding 9/20/2024 - Ian
+    //Integrating emailService.js
+    //added 9/28/24- Steven
+    //created an admin email password is: Kacc1234
+    const EMAIL_ADMIN = "KACCTest9282024@outlook.com"
 
-  return { message: 'Account created successfully. Awaiting admin approval.', userId: newUserId };
-};
+    try {
+      await sendAccountApprovalEmail({
+        adminEmail: EMAIL_ADMIN, 
+        firstName,
+        lastName,
+        username,
+        email
+      });
+      console.log('Account approval request sent, awaiting admin approval');
+    }
+    catch (error) {
+      console.error('Error sending account approval request', error);
+    }
+    return { message: 'User created successfully', userId: newUserId };
 
 //logic for creating a password
 exports.setPassword = async (pool, userId, newPassword) => {
@@ -252,6 +259,7 @@ exports.setPassword = async (pool, userId, newPassword) => {
       WHERE password_id = @passwordId
     `;
     await pool.request()
+
       .input('passwordId', sql.Int, currentPasswordId)
       .query(expirePasswordQuery);
   }
@@ -266,6 +274,7 @@ exports.setPassword = async (pool, userId, newPassword) => {
     .input('userId', sql.Int, userId)
     .input('hashedPassword', sql.VarChar, hashedPassword)
     .query(insertPasswordQuery);
+
 
   // Optionally, send a confirmation email to the user
   return { message: 'Password set successfully.' };

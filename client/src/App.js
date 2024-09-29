@@ -1,3 +1,4 @@
+import Nav from './Nav';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
@@ -8,6 +9,8 @@ import AdminDashboard from './AdminDashboard';
 import SetPassword from './SetPassword';
 import SelectSecurityQuestions from './SelectSecurityQuestions';
 import ForgotPassword from './ForgotPassword';
+import TopRightProfile from './TopRightProfile';
+
 
 const ProtectedRoute = ({ children, allowedRole }) => {
   const userRole = localStorage.getItem('userRole');
@@ -23,6 +26,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   return children;
 };
 
+
 function App() {
   const [userRole, setUserRole] = useState(null);
 
@@ -34,6 +38,9 @@ function App() {
 
   return (
     <Router>
+      <Nav />
+      {/* Render the UserProfile component to display username and profile picture */}
+      <TopRightProfile />
       <Routes>
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />

@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+//Importing these for the suspension function
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 const AdminDashboard = () => {
   //store the users from the backend
   const [users, setUsers] = useState([]);
@@ -13,9 +17,15 @@ const AdminDashboard = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     role: '',
+    status: '',
   });
+
+
+  //Adding this state to show or hide the create user form - Ian 9/27/24
+  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
 
   const navigate = useNavigate();
   //useEffect to verify the user's role once again
@@ -49,6 +59,8 @@ const AdminDashboard = () => {
 
     fetchUsersByRole();
   }, []);
+
+  //--------Edit users--------------------------------------------------------------------------------------------------------------
 
   const handleEdit = (user) => {
     setEditUserID(user.user_id);
@@ -85,11 +97,134 @@ const AdminDashboard = () => {
     setFormData({...formData, [name]: value});
   };
 
+  //--------Create a new user--------------------------------------------------------------------------------------------------------------
+
+  //Adding this to handle the user creation form submission from the admin page - Ian 9/27/24
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/admin/create-user', formData, {withCredentials: true});
+      alert('User created successfully');
+      //Hide form after submission
+      setShowCreateUserForm(false); 
+      //Fetch the updated users list
+      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      setUsers(response.data.users);
+    } catch (err) {
+      console.error('Error creating the user: ', err);
+      alert('Error creating user. Please try again.');
+    }
+  };
+
+  //--------View All Users Report--------------------------------------------------------------------------------------------------------------
+
+  //State to hold report data for users report
+  const [reportData, setReportData] = useState(null);
+  //State to handle loading for users report
+  const [loading, setLoading] = useState(false);
+
+  const fetchAllUsersReport = async () => {
+    //Set loading to true before fetching
+    setLoading(true); 
+    try {
+      const response = await axios.get('http://localhost:5000/admin/get-report-of-users', { withCredentials: true });
+      console.log('Users Report: ', response.data);
+      //Store the report data in state
+      setReportData(response.data); 
+    } catch (error) {
+      console.error('Error fetching all users report: ', error);
+      setError(error.message);
+    } finally {
+      //Setloading to false after fetching
+      setLoading(false); 
+    }
+  };
+  
+//--------Expired Passwords Report--------------------------------------------------------------------------------------------------------------
+
+  const [expiredPasswords, setExpiredPasswords] = useState([]);
+  const [loadingExpired, setLoadingExpired] = useState(false);
+  const [errorExpired, setErrorExpired] = useState(null);
+
+  const fetchExpiredPasswordsReport = async () => {
+    //Set loading to true before fetching
+    setLoadingExpired(true); 
+    try {
+      const response = await axios.get('http://localhost:5000/admin/get-report-of-passwords', { withCredentials: true });
+      console.log('Expired Passwords Report: ', response.data.expiredPasswords);
+      //Store the expired passwords data in state
+      setExpiredPasswords(response.data.expiredPasswords); 
+    } catch (error) {
+      console.error('Error fetching expired passwords report: ', error);
+      setErrorExpired(error.message);
+    } finally {
+      //Set loading to false after fetching
+      setLoadingExpired(false); 
+    }
+  };
+
+  //------------Active or Deactivate a user--------------------------------------------------------------------------
+  const handleToggleStatus = async (user) => {
+    console.log(user.status);
+    const newStatus = user.status === 'active' ? 'inactive' : 'active';
+    console.log(user.status);
+
+    try {
+      await axios.put(`http://localhost:5000/admin/activate-or-deactivate-user/${user.user_id}`, { status: newStatus }, { withCredentials: true });
+      
+      alert(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+  
+      //Fetch the updated users list
+      const response = await axios.get('http://localhost:5000/admin/users-by-role', { withCredentials: true });
+      setUsers(response.data.users);
+    } catch (err) {
+      console.error('Error updating user status: ', err);
+      alert('Error updating user status');
+    }
+  };
+
+  //----------------------Suspend User-----------------------------------------------------------------------------
+  const [suspensionStart, setSuspensionStart] = useState(null);
+  const [suspensionEnd, setSuspensionEnd] = useState(null);
+  const handleSuspendUser = async (user) => {
+   
+    try {
+      await axios.put(`http://localhost:5000/admin/suspend-user/${user.user_id}`, { suspensionStart, suspensionEnd }, { withCredentials: true });
+  
+      alert('User suspended successfully');
+  
+      //Fetch updated users
+      const response = await axios.get('http://localhost:5000/admin/users-by-role', { withCredentials: true });
+      setUsers(response.data.users);
+    } catch (err) {
+      console.error('Error suspending user: ', err);
+      alert('Error suspending user');
+    }
+  };
+
+  //----------------------HTML and UI------------------------------------------------------------------------------
+
     return (
-      <div>
+      <div className='adminDash'>
         <h2>Welcome to the Admin Dashboard!</h2>
         {error && <p>Error: {error}</p>}
-        <ul>
+
+        {/*USER REPORT GENERATION */}
+        <button onClick={fetchAllUsersReport}>Generate Report of All Users</button>
+
+         {/* Show loading indicator if fetching report */}
+         {loading && <p>Loading report...</p>}
+      
+        {/* Display report data if available */}
+        {reportData && (
+          <div>
+            <h3>User Report</h3>
+            <pre>{JSON.stringify(reportData, null, 2)}</pre> {/* We definitely want to come back and edit this to look nicer */}
+          </div>
+        )}
+
+{/*Table with user info and buttons to edit, activate, or deactivate user accounts */}
+        <ul className='fix'>
           {users.map((user) => (
             <li key={user.id}>{user.name}</li>
           ))}
@@ -102,6 +237,7 @@ const AdminDashboard = () => {
               <th>Username</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -113,14 +249,142 @@ const AdminDashboard = () => {
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>{user.role_name}</td>
+                <td>{user.status}</td>
                 <td>
                   <button onClick={() => handleEdit(user)}>Edit</button>
+                  {/*<button onClick={() => handleToggleStatus(user)}> {user.status === 'active' ? 'Inactive' : 'Active'}</button>*/}
+                  {/* Dropdown for status */}
+                  <select
+                    value={user.status}
+                    onChange={(e) => handleToggleStatus(user, e.target.value)}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </td>
+                <td>
+                <th>Suspend User</th>
+                  <DatePicker
+                    className='datePicker'
+                    selected={suspensionStart}
+                    onChange={(date) => setSuspensionStart(date)}
+                    placeholderText="Select suspension start date"/>
+                  <DatePicker
+                    className='datePicker'
+                    selected={suspensionEnd}
+                    onChange={(date) => setSuspensionEnd(date)}
+                    placeholderText="Select suspension end date"/>
+                    <button onClick={() => handleSuspendUser(user)}>Suspend User</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <div>
+      {/* Button to fetch the expired passwords report */}
+      <button onClick={fetchExpiredPasswordsReport}>Generate Expired Passwords Report</button>
+      
 
+      {/* Show loading indicator if fetching report */}
+      {loadingExpired && <p>Loading expired passwords report...</p>}
+
+      {/* Display expired passwords report if available */}
+      {expiredPasswords.length > 0 && (
+        <div>
+          <h3>Expired Passwords Report</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Password Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {expiredPasswords.map((user) => (
+                <tr key={user.user_id}>
+                  <td>{user.user_id}</td>
+                  <td>{user.first_name}</td>
+                  <td>{user.last_name}</td>
+                  <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Show error message if something went wrong */}
+      {errorExpired && <p>Error: {errorExpired}</p>}
+    </div>
+
+
+ {/*Button to show the "Create New User" form - Ian 9/27/24*/}
+ <button onClick={() => setShowCreateUserForm(true)}>Create New User</button>
+
+{/*Conditionally renders the form if showCreateUserForm is true. That way it's hidden most of the time*/}
+{showCreateUserForm && (
+  <div>
+    <h3>Create New User</h3>
+    <form onSubmit={handleCreateUser}>
+      <div>
+        <label>First Name:</label>
+        <input
+          type="text"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Last Name:</label>
+        <input
+          type="text"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Email:</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Role:</label>
+        <select name="role" value={formData.role} onChange={handleChange} required>
+          <option value="">Select Role</option>
+          <option value="Manager">Manager</option>
+          <option value="Accountant">Accountant</option>
+        </select>
+      </div>
+
+      <button type="submit">Create User</button>
+    </form>
+  </div>
+)};
         {editUserID && (
           <div>
             <h3>Edit User</h3>

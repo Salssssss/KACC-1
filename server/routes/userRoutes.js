@@ -21,7 +21,6 @@ const {
 } = require('../controllers/userController');
 
 // Route for user login
-// Route for user login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const pool = req.app.get('dbPool'); // Use the shared DB pool

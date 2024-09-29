@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
+// Import Navbar
+import Nav from './Nav';
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -21,6 +24,7 @@ const Login = () => {
       setMessage(response.data.message);
 
       const user = response.data.user;
+      
       console.log('Logged in user:', user);
       localStorage.setItem('userRole', response.data.user.role_name);
       
@@ -32,6 +36,11 @@ const Login = () => {
         // Redirect to password reset page
         navigate(`/set-password?userId=${user.user_id}`);
       }
+
+
+      //Adding 9/28/24 to display username and profile picture in the top right - Ian
+      localStorage.setItem('username', user.username); 
+      localStorage.setItem('profilePicture', user.profile_picture); 
 
       if (response.data.message === 'Login successful') {
         console.log(user.role_name);
@@ -53,7 +62,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="login">
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div>
