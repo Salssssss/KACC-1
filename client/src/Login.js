@@ -36,10 +36,10 @@ const Login = () => {
       if (response.data.message === 'Login successful') {
         console.log(user.role_name);
         if(user.role_name === 'administrator') {
-          navigate('/admin-dashboard')
+          navigate('/admin-dashboard');
         }
         else{
-          navigate('/dashboard')
+          navigate('/dashboard');
         }
       }
 
@@ -67,6 +67,11 @@ const Login = () => {
         <button type="submit">Login</button>
       </form>
       {message && <p>{message}</p>}
+
+      {/* Add Forgot Password button here */}
+      <div>
+        <button onClick={() => navigate('/forgot-password')}>Forgot Password?</button>
+      </div>
     </div>
   );
 };

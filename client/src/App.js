@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
 import SetPassword from './SetPassword';
 import SelectSecurityQuestions from './SelectSecurityQuestions';
+import ForgotPassword from './ForgotPassword';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
   const userRole = localStorage.getItem('userRole');
@@ -39,6 +40,9 @@ function App() {
         
         {/* Login Route */}
         <Route path="/login" element={<Login />} />
+
+        {/* Forgot Passowrd route*/}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         
         {/* Create Account Route */}
         <Route path="/create-account" element={<CreateAccount />} />
