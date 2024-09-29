@@ -12,6 +12,7 @@ code {
     monospace;
 }
 
+
 .slider {
   overflow: hidden;
   width: 100%;
@@ -109,4 +110,77 @@ nav .rightnav {
 
 .createAccount input {
   margin: 10px;
+
+
+.adminDash table, th, td {
+  border: 2px solid;
+  border-collapse: collapse;
+  padding: 5px;
+}
+
+.adminDash button {
+  border-radius: 0%;
+  border: 1px solid rgb(29, 28, 28);
+  color: rgb(29, 28, 28);
+  background-color: rgb(233, 233, 154);
+  font-size: 14px;
+  font-weight: bold;
+  margin: 5px;
+}
+
+.adminDash button:hover {
+  border: 1px solid rgb(233, 233, 154);
+  color: rgb(233, 233, 154);
+  background-color: rgb(29, 28, 28);
+}
+
+.adminDash .fix li::marker {
+  color: white;
+}
+
+.adminDash select {
+  border-radius: 0%;
+  border-bottom: 1px solid;
+  border-top: 0px;
+  border-right: 0px;
+  border-left: 0px;
+  margin: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.adminDash select:hover {
+  background-color: rgb(29, 28, 28);
+  color: rgb(233, 233, 154);
+}
+
+.adminDash option {
+  border-radius: 0%;
+}
+
+.adminDash input {
+  margin: 5px;
+}
+
+.adminDash .datePicker {
+  border-radius: 0%;
+  border-bottom: 1px solid;
+  border-top: 0px;
+  border-right: 0px;
+  border-left: 0px;
+  color: rgb(29, 28, 28);
+  margin: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.adminDash .datePicker:hover {
+  background-color:rgb(233, 233, 154);
+  border: 1px solid;
+  cursor: pointer;
+}
+
+.dash #welcome {
+  float: right;
+  padding: 20px;
 }

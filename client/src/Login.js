@@ -18,21 +18,35 @@ const Login = () => {
       const response = await axios.post('http://localhost:5000/users/login', {
         username,
         password
+      }, {
+        withCredentials: true
       });
-      
-      
       setMessage(response.data.message);
 
+      //Adding 9/20/24 to check if a user is an admin - Ian
+      const user = response.data.user;
+      console.log('Logged in user:', user);
+      localStorage.setItem('userRole', user.role_name);
+
       if (response.data.message === 'Login successful') {
-        // Redirect to dashboard
-        navigate('/dashboard');
+        console.log(user.role_name);
+        if(user.role_name === 'administrator') {
+          navigate('/admin-dashboard')
+        }
+        else{
+          navigate('/dashboard')
+        }
       }
 
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        setMessage('Invalid credentials');
+      if (error.response.data.message === 'Your account has been locked due to too many failed login attempts.') {
+        setMessage('Your account is locked. Please contact support.');
+      } else if (error.response.data.message === 'Your password has expired. Please reset your password.') {
+        setMessage('Your password is expired. Please reset it.');
+        // Redirect to password reset page
+        navigate('/reset-password');
       } else {
-        setMessage('Error connecting to server');
+        setMessage(error.response.data.message);
       }
     }
   };

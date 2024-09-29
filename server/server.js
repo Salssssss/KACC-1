@@ -1,16 +1,39 @@
 const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
+const session = require('express-session');
 require('dotenv').config(); // Load environment variables
-
+const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); // Import the user routes
-
 const app = express();
 const port = 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors()); // Enable CORS
+app.use(cors({
+  //allows requests from the frontend
+  origin: 'http://localhost:3000',
+  //allows cookies and sessions to be sent
+  credentials: true
+})); // Enable CORS
+
+//Make sure admin routes are included
+
+
+
+//const sessionMiddleware = require('./middleware/sessionMiddleware');
+//app.use(sessionMiddleware);
+
+app.use(session({
+  secret: 'placeholder-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24
+  }
+}));
 
 // Database connection configuration
 const dbConfig = {
@@ -28,6 +51,8 @@ sql.connect(dbConfig).then(pool => {
 
   // Use user routes for handling login and account creation
   app.use('/users', userRoutes);
+
+  app.use('/admin', adminRoutes);
 
   // Add a simple GET route for the root URL
   app.get('/', (req, res) => {

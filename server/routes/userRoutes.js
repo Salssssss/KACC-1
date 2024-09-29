@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, createAccount } = require('../controllers/userController');
+const { login, createAccount, setPassword } = require('../controllers/userController');
 
 // Route for user login
 router.post('/login', async (req, res) => {
@@ -8,12 +8,31 @@ router.post('/login', async (req, res) => {
   const pool = req.app.get('dbPool'); // Use the shared DB pool
 
   try {
-    const user = await login(pool, username, password);
-    res.json({ message: 'Login successful', user });
+    const result = await login(pool, username, password);
+    const user = result.user;
+
+    // Store user information in the session
+    req.session.user = {
+      id: user.user_id,
+      role_name: user.role_name,
+    };
+
+    // Save the session and respond to the client only once
+    req.session.save((err) => {
+      if (err) {
+        console.error('Error saving session:', err);
+        return res.status(600).send('Session could not be saved'); 
+      }
+
+      res.json({ message: 'Login successful', user });
+    });
+
   } catch (error) {
+    console.error('Login error:', error);
     res.status(401).json({ message: error.message });
   }
 });
+
 
 // Route for creating a new account
 router.post('/create-account', async (req, res) => {
@@ -25,5 +44,19 @@ router.post('/create-account', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+// Route for setting or resetting a password
+router.post('/set-password', async (req, res) => {
+  const pool = req.app.get('dbPool'); 
+  const { userId, newPassword } = req.body; // The request body should contain the userId and the new password
+
+  try {
+    await setPassword(pool, userId, newPassword);
+    res.status(200).json({ message: 'Password set successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 
 module.exports = router;
