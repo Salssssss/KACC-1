@@ -133,6 +133,10 @@ exports.createAccount = async (pool, userData) => {
   
     //Adding 9/20/2024 - Ian
     //Integrating emailService.js
+    //added 9/28/24- Steven
+    //created an admin email password is: Kacc1234
+    const EMAIL_ADMIN = "KACCTest9282024@outlook.com"
+
     try {
       await sendAccountApprovalEmail({
         adminEmail: EMAIL_ADMIN, 
