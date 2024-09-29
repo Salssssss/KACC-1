@@ -9,6 +9,7 @@ import CreateAccount from './CreateAccount';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
 import SetPassword from './SetPassword'; // Import the SetPassword component
+import TopRightProfile from './TopRightProfile';
 
 // ProtectedRoute component to restrict access to certain routes
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -40,6 +41,8 @@ function App() {
   return (
     <Router>
       <Nav />
+      {/* Render the UserProfile component to display username and profile picture */}
+      <TopRightProfile />
       <Routes>
         {/* Define the routes */}
         <Route path="/" element={<LandingPage />} />

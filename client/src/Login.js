@@ -25,8 +25,12 @@ const Login = () => {
 
       //Adding 9/20/24 to check if a user is an admin - Ian
       const user = response.data.user;
-      console.log('Logged in user:', user);
+      //console.log('Logged in user:', user);
       localStorage.setItem('userRole', user.role_name);
+
+      //Adding 9/28/24 to display username and profile picture in the top right - Ian
+      localStorage.setItem('username', user.username); 
+      localStorage.setItem('profilePicture', user.profile_picture); 
 
       if (response.data.message === 'Login successful') {
         console.log(user.role_name);
