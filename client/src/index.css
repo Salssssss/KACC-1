@@ -11,3 +11,178 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.slider {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: -1;
+  margin: -1em 0 0 0;
+}
+
+.slider figure div {
+  float: left;
+  width: 20%;
+  margin: 0;
+}
+
+.slider figure img {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  float: left;
+  margin: 0;
+}
+
+.slider figure {
+  position: relative;
+  width: 500%;
+  margin: 0;
+  animation: animate 20s infinite;
+  margin: 0;
+}
+
+@keyframes animate {
+  0% {left: 0%;}
+  10% {left: 0%;}
+  12% {left: -100%;}
+  22% {left: -100%;}
+  24% {left: -200%;}
+  34% {left: -200%;}
+  36% {left: -300%;}
+  46% {left: -300%;}
+  48% {left: -400%;}
+  58% {left: -400%;}
+  60% {left: -300%;}
+  70% {left: -300%;}
+  72% {left: -200%;}
+  82% {left: -200%;}
+  84% {left: -100%;}
+  94% {left: -100%;}
+  96% {left: 0;}
+}
+
+nav {
+  display: flex;
+  padding: 20px;
+  margin: 0px;
+  background-color: rgb(29, 28, 28);
+}
+
+nav button {
+  text-align: center;
+  border-width: 0px;
+  background-color: rgb(29, 28, 28);
+  font-size: 20px;
+  color: yellow;
+}
+
+nav button:hover {
+  background-color: gray;
+}
+
+nav .leftnav {
+  display: flex;
+  justify-content: left;
+}
+
+nav .rightnav {
+  display: flex;
+  justify-content: right;
+}
+
+.login {
+  padding: 50px;
+}
+
+.login input {
+  margin: 10px;
+}
+
+.createAccount {
+  padding: 50px;
+}
+
+
+.createAccount input {
+  margin: 10px;
+
+}
+
+.adminDash table, th, td {
+  border: 2px solid;
+  border-collapse: collapse;
+  padding: 5px;
+  margin: 10px;
+}
+
+.adminDash button {
+  border-radius: 0%;
+  border: 1px solid rgb(29, 28, 28);
+  color: rgb(29, 28, 28);
+  background-color: rgb(233, 233, 154);
+  font-size: 14px;
+  font-weight: bold;
+  margin: 5px;
+}
+
+.adminDash button:hover {
+  border: 1px solid rgb(233, 233, 154);
+  color: rgb(233, 233, 154);
+  background-color: rgb(29, 28, 28);
+}
+
+.adminDash .fix li::marker {
+  color: white;
+}
+
+.adminDash select {
+  border-radius: 0%;
+  border-bottom: 1px solid;
+  border-top: 0px;
+  border-right: 0px;
+  border-left: 0px;
+  margin: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.adminDash select:hover {
+  background-color: rgb(29, 28, 28);
+  color: rgb(233, 233, 154);
+}
+
+.adminDash option {
+  border-radius: 0%;
+}
+
+.adminDash input {
+  margin: 5px;
+}
+
+.adminDash .datePicker {
+  border-radius: 0%;
+  border-bottom: 1px solid;
+  border-top: 0px;
+  border-right: 0px;
+  border-left: 0px;
+  color: rgb(29, 28, 28);
+  margin: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.adminDash .datePicker:hover {
+  background-color:rgb(233, 233, 154);
+  border: 1px solid;
+  cursor: pointer;
+}
+
+.dash #welcome {
+  float: right;
+  padding: 20px;
+}

@@ -1,15 +1,35 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // For navigation
+
+// Import images from the local directory
+import imageOne from './tempAssets/depositphotos_2707374-stock-photo-accounting.jpg';
+import imageTwo from './tempAssets/SOIN20217_780x440.jpg';
+import imageThree from './tempAssets/loveandmoneyhub21_hero.jpg';
+import imageFour from './tempAssets/pexels-pixabay-53621.jpg';
+import imageFive from './tempAssets/Stock-ChartBoard-04-adobe.jpg';
 
 const LandingPage = () => {
-  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   return (
     <div>
-      <h2>Welcome</h2>
-      <p>Please select an option:</p>
-      <button onClick={() => navigate('/login')}>Login</button>
-      <button onClick={() => navigate('/create-account')}>Create Account</button>
+      <div className="slider">
+        <figure>
+          <div className="slide">
+            <img src={imageOne} alt="" />
+          </div>
+          <div className="slide">
+            <img src={imageTwo} alt="" />
+          </div>
+          <div className="slide">
+            <img src={imageThree} alt="" />
+          </div>
+          <div className="slide">
+            <img src={imageFour} alt="" />
+          </div>
+          <div className="slide">
+            <img src={imageFive} alt="" />
+          </div>
+        </figure>
+      </div>
     </div>
   );
 };
