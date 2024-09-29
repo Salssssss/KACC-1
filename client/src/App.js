@@ -1,3 +1,6 @@
+
+import Nav from './Nav';
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
@@ -24,6 +27,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   return children; // Render the protected component if role matches
 };
 
+
 function App() {
   const [userRole, setUserRole] = useState(null);
 
@@ -35,6 +39,7 @@ function App() {
 
   return (
     <Router>
+      <Nav />
       <Routes>
         {/* Define the routes */}
         <Route path="/" element={<LandingPage />} />
