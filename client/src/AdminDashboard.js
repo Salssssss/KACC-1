@@ -46,7 +46,7 @@ const AdminDashboard = () => {
       if (newStatus === 'active') {
         await axios.post(
           'http://localhost:5000/admin/send-activation-email',
-          { userId: user.user_id, email: user.email },
+          { userId: user.user_id, email: user.email, uniqueUsername: user.username },
           { withCredentials: true }
         );
         alert('Activation email sent to user');

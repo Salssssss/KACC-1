@@ -141,7 +141,7 @@ router.put('/suspend-user/:userID', authorizationMiddleware, async (req, res) =>
 });
 
 router.post('/send-activation-email', async (req, res) => {
-  const { userId, email } = req.body;
+  const { userId, email, uniqueUsername } = req.body;
 
   try {
     const resetLink = `http://localhost:3000/set-password?userId=${userId}`;
@@ -150,7 +150,7 @@ router.post('/send-activation-email', async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: 'Account Activation - Set Your Password',
-      text: `Your account has been activated. Your user ID is ${userId} save this if you need torecover your account. Please use the following link to set your password: ${resetLink}`,
+      text: `Your account has been activated. Your username is ${uniqueUsername}Your user ID is ${userId} save this if you need torecover your account. Please use the following link to set your password: ${resetLink}`,
     };
     await transporter.sendMail(mailOptions);
 
