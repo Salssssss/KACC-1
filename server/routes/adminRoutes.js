@@ -147,7 +147,7 @@ router.post('/send-activation-email', async (req, res) => {
     const resetLink = `http://localhost:3000/set-password?userId=${userId}`;
 
     const mailOptions = {
-      from: 'kaccreciever@gmail.com',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: 'Account Activation - Set Your Password',
       text: `Your account has been activated. Your user ID is ${userId} save this if you need torecover your account. Please use the following link to set your password: ${resetLink}`,

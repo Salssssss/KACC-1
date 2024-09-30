@@ -222,8 +222,8 @@ exports.createAccount = async (pool, userData) => {
 
     try {
       const mailOptions = {
-        from: 'kaccreciever@gmail.com',
-        to: 'kaccreciever@gmail.com', // Email address of the receiver (Admin)
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER, // Email address of the receiver (Admin)
         subject: 'Account waiting approval',
         text: `User ${firstName} ${lastName} has just submitted for account approval. Please check your Admin Dashboard.`,
       };
@@ -363,7 +363,7 @@ exports.checkForExpiringPasswords = async (pool) => {
     for (const user of usersWithExpiringPasswords) {
       const email = user.email;
       const mailOptions = {
-        from: 'kaccreciever@gmail.com',
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Your password will expire in 3 days',
         text: `Dear user, your password is set to expire in 3 days. Please reset your password to avoid losing access.`,

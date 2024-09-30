@@ -211,7 +211,7 @@ router.post('/verify-security-answers', async (req, res) => {
 
       const resetLink = `http://localhost:3000/set-password?userId=${userId}`;
       const mailOptions = {
-        from: 'kaccreciever@gmail.com',
+        from: process.env.EMAIL_USER,
         to: user.email,
         subject: 'Password Reset Request',
         text: `You answered the security questions correctly. Please use the following link to reset your password: ${resetLink}`,
