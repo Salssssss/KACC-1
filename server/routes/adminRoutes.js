@@ -3,6 +3,19 @@
 
 const express = require('express');
 const router = express.Router();
+const nodemailer = require('nodemailer');
+
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SENDGRID_HOST, // smtp.sendgrid.net
+  port: process.env.SENDGRID_PORT, // 587 (TLS)
+  secure: false, // Use TLS, not SSL
+  auth: {
+    user: process.env.SENDGRID_USERNAME, // 'apikey' (always)
+    pass: process.env.SENDGRID_API_KEY, // Your SendGrid API key
+  },
+});
+
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
 const { 
   fetchUsersByRole, 
@@ -126,5 +139,27 @@ router.put('/suspend-user/:userID', authorizationMiddleware, async (req, res) =>
     res.status(500).json({ message: 'Error suspending user' });
   }
 });
+
+router.post('/send-activation-email', async (req, res) => {
+  const { userId, email } = req.body;
+
+  try {
+    const resetLink = `http://localhost:3000/set-password?userId=${userId}`;
+
+    const mailOptions = {
+      from: 'kaccreciever@gmail.com',
+      to: email,
+      subject: 'Account Activation - Set Your Password',
+      text: `Your account has been activated. Your user ID is ${userId} save this if you need torecover your account. Please use the following link to set your password: ${resetLink}`,
+    };
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'Activation email sent' });
+  } catch (error) {
+    console.error('Error sending activation email:', error);
+    res.status(500).json({ message: 'Error sending activation email' });
+  }
+});
+
 
 module.exports = router;

@@ -5,13 +5,14 @@ const nodemailer = require('nodemailer');
 
 //transporter for nodemailer
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE,
+  host: process.env.SENDGRID_HOST, // smtp.sendgrid.net
+  port: process.env.SENDGRID_PORT, // 587 (TLS)
+  secure: false, // Use TLS, not SSL
   auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS, 
-  }
+    user: process.env.SENDGRID_USERNAME, // 'apikey' (always)
+    pass: process.env.SENDGRID_API_KEY, // Your SendGrid API key
+  },
 });
-
 //helper function to check password age
 const isPasswordExpired = (passwordCreatedAt) => {
   const createdDate = new Date(passwordCreatedAt);
@@ -221,8 +222,8 @@ exports.createAccount = async (pool, userData) => {
 
     try {
       const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Email address of the receiver (Admin)
+        from: 'kaccreciever@gmail.com',
+        to: 'kaccreciever@gmail.com', // Email address of the receiver (Admin)
         subject: 'Account waiting approval',
         text: `User ${firstName} ${lastName} has just submitted for account approval. Please check your Admin Dashboard.`,
       };
@@ -231,15 +232,15 @@ exports.createAccount = async (pool, userData) => {
       transporter.sendMail(mailOptions, (err, info) => {
         if (err) {
           console.error('Error sending email:', err);
-          return res.status(500).json({ message: 'Error sending approval email.' });
+          return ({ message: 'Error sending approval email.' });
         }
     
         // If email is successfully sent
-        return res.status(200).json({ message: 'Account approval email sent successfully.' });
+        return ({ message: 'Account approval email sent successfully.' });
       });
     } catch (error) {
       console.error('Error sending account approval request:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+      return ({ message: 'Internal server error' });
     }
     
     // This part should be outside the email sending block, return user creation status
@@ -362,7 +363,7 @@ exports.checkForExpiringPasswords = async (pool) => {
     for (const user of usersWithExpiringPasswords) {
       const email = user.email;
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: 'kaccreciever@gmail.com',
         to: email,
         subject: 'Your password will expire in 3 days',
         text: `Dear user, your password is set to expire in 3 days. Please reset your password to avoid losing access.`,

@@ -3,16 +3,18 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
-const cron = require('node-cron');
 
 // Transporter for Nodemailer
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE,
+  host: process.env.SENDGRID_HOST, // smtp.sendgrid.net
+  port: process.env.SENDGRID_PORT, // 587 (TLS)
+  secure: false, // Use TLS, not SSL
   auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS, 
-  }
+    user: process.env.SENDGRID_USERNAME, // 'apikey' (always)
+    pass: process.env.SENDGRID_API_KEY, // Your SendGrid API key
+  },
 });
+
 const { 
   login, 
   createAccount, 
@@ -209,7 +211,7 @@ router.post('/verify-security-answers', async (req, res) => {
 
       const resetLink = `http://localhost:3000/set-password?userId=${userId}`;
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: 'kaccreciever@gmail.com',
         to: user.email,
         subject: 'Password Reset Request',
         text: `You answered the security questions correctly. Please use the following link to reset your password: ${resetLink}`,
