@@ -345,3 +345,38 @@ exports.getSecurityQuestions = async (pool) => {
     throw error; // Let the error be handled by the router
   }
 };
+
+exports.checkForExpiringPasswords = async (pool) => {
+  try {
+    const result = await pool.request().query(`
+      SELECT u.email, p.user_id, p.created_at
+      FROM user_passwords p
+      JOIN users u ON p.user_id = u.user_id
+      WHERE p.is_current = 1
+      AND DATEDIFF(DATE_ADD(p.created_at, INTERVAL 90 DAY), NOW()) = 3;
+    `);
+
+    const usersWithExpiringPasswords = result.recordset;
+
+    // Send email to each user
+    for (const user of usersWithExpiringPasswords) {
+      const email = user.email;
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Your password will expire in 3 days',
+        text: `Dear user, your password is set to expire in 3 days. Please reset your password to avoid losing access.`,
+      };
+
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error('Error sending email:', err);
+        } else {
+          console.log(`Email sent to ${email}: ${info.response}`);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error checking for expiring passwords:', error);
+  }
+};
