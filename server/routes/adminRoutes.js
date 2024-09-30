@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 //const { authorizeUser } = require('../middleware/authorizationMiddleware')
+const { sendEmail } = require('../services/emailService'); 
 const { 
   fetchUsersByRole, 
   modifyUser, 
@@ -126,5 +127,19 @@ router.put('/suspend-user/:userID', authorizationMiddleware, async (req, res) =>
     res.status(500).json({ message: 'Error suspending user' });
   }
 });
+
+//Route for admin to send an email for a user
+router.post('/send-email', authorizationMiddleware, async (req, res) => {
+  const { senderEmail, receiverEmail, subject, body } = req.body; 
+  try {
+    //Send the email using the sendEmail function
+    sendEmail(senderEmail, receiverEmail, subject, body);
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Error sending email' });
+  }
+});
+
 
 module.exports = router;

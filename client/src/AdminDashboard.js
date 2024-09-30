@@ -202,6 +202,33 @@ const AdminDashboard = () => {
     }
   };
 
+  //----------------------Send an email for a user------------------------------------------------------------------------------
+  //State variables for email functionality
+  const [senderEmail, setSenderEmail] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:5000/admin/send-email', {
+        senderEmail,
+        recipientEmail,
+        subject: emailSubject,
+        body: emailBody
+      }, { withCredentials: true });
+
+      setEmailMessage(response.data.message);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setEmailMessage('Failed to send email.');
+    }
+};
+
+
   //----------------------HTML and UI------------------------------------------------------------------------------
 
     return (
@@ -320,8 +347,53 @@ const AdminDashboard = () => {
     </div>
 
 
- {/*Button to show the "Create New User" form - Ian 9/27/24*/}
- <button onClick={() => setShowCreateUserForm(true)}>Create New User</button>
+  {/*Button to show the "Create New User" form - Ian 9/27/24*/}
+  <button onClick={() => setShowCreateUserForm(true)}>Create New User</button>
+
+  {/* Email Sending Form */}
+  <div>
+    <h2>Send Email to User</h2>
+    <form onSubmit={handleSendEmail}>
+    <div>
+        <label>Sender Email:</label>
+        <input
+          type="email"
+          value={senderEmail}
+          onChange={(e) => setSenderEmail(e.target.value)}
+          required
+        />
+      </div>
+     <div>
+        <label>Recipient Email:</label>
+        <input
+          type="email"
+          value={recipientEmail}
+          onChange={(e) => setRecipientEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label>Subject:</label>
+        <input
+          type="text"
+          value={emailSubject}
+          onChange={(e) => setEmailSubject(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label>Body:</label>
+        <textarea
+          value={emailBody}
+          onChange={(e) => setEmailBody(e.target.value)}
+          required
+        />
+      </div>
+      <button type="submit">Send Email</button>
+    </form>
+    {emailMessage && <p>{emailMessage}</p>}
+  </div>
+
 
 {/*Conditionally renders the form if showCreateUserForm is true. That way it's hidden most of the time*/}
 {showCreateUserForm && (
