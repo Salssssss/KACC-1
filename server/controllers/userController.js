@@ -1,7 +1,16 @@
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const { sendAccountApprovalEmail } = require('../services/emailService');
+const nodemailer = require('nodemailer');
+
+//transporter for nodemailer
+const transporter = nodemailer.createTransport({
+  service: process.env.EMAIL_SERVICE,
+  auth: {
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS, 
+  }
+});
 
 //helper function to check password age
 const isPasswordExpired = (passwordCreatedAt) => {
@@ -208,27 +217,35 @@ exports.createAccount = async (pool, userData) => {
     .input('userId', sql.Int, newUserId)
     .query(insertRoleQuery);
 
-  // Notify the admin to approve the new account
-    //Adding 9/20/2024 - Ian
-    //Integrating emailService.js
-    //added 9/28/24- Steven
-    //created an admin email password is: Kacc1234
-    const EMAIL_ADMIN = "KACCTest9282024@outlook.com"
+
 
     try {
-      await sendAccountApprovalEmail({
-        adminEmail: EMAIL_ADMIN, 
-        firstName,
-        lastName,
-        username,
-        email
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER, // Email address of the receiver (Admin)
+        subject: 'Account waiting approval',
+        text: `User ${firstName} ${lastName} has just submitted for account approval. Please check your Admin Dashboard.`,
+      };
+    
+      // Send the email
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error('Error sending email:', err);
+          return res.status(500).json({ message: 'Error sending approval email.' });
+        }
+    
+        // If email is successfully sent
+        return res.status(200).json({ message: 'Account approval email sent successfully.' });
       });
-      console.log('Account approval request sent, awaiting admin approval');
+    } catch (error) {
+      console.error('Error sending account approval request:', error);
+      return res.status(500).json({ message: 'Internal server error' });
     }
-    catch (error) {
-      console.error('Error sending account approval request', error);
-    }
+    
+    // This part should be outside the email sending block, return user creation status
     return { message: 'User created successfully', userId: newUserId };
+    
+};
 
 //logic for creating a password
 exports.setPassword = async (pool, userId, newPassword) => {
@@ -328,14 +345,3 @@ exports.getSecurityQuestions = async (pool) => {
     throw error; // Let the error be handled by the router
   }
 };
-
-
-
-
-
-
-
-
-
-
-
