@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState(''); // Track user ID input
   const [securityQuestions, setSecurityQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [message, setMessage] = useState('');
-  const [userId, setUserId] = useState(null); // To track userId after email submission
-  const [step, setStep] = useState(1); // Step 1 = ask for email, Step 2 = security questions
+  const [step, setStep] = useState(1); // Step 1 = ask for email and user ID, Step 2 = security questions
   const navigate = useNavigate();
 
-  // Handle email submission to retrieve security questions or send the reset email
+  // Handle email and user ID submission to retrieve security questions or send the reset email
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     
@@ -21,7 +21,6 @@ const ForgotPassword = () => {
       if (response.data.securityQuestions) {
         // Security questions are present, ask the user to answer them
         setSecurityQuestions(response.data.securityQuestions);
-        setUserId(response.data.userId); // Set user ID for further requests
         setStep(2); // Move to the next step
       } else {
         // No security questions, just display the message from the backend
@@ -43,8 +42,8 @@ const ForgotPassword = () => {
       });
 
       if (response.data.success) {
-        window.alert('You have been sent a link to reset your password please check your email.');
-        navigate('/LandingPage');
+        window.alert('You have been sent a link to reset your password. Please check your email.');
+        navigate('/login'); // Navigate to login after success
       } else {
         setMessage(response.data.message);
       }
@@ -66,7 +65,7 @@ const ForgotPassword = () => {
       <h2>Forgot Password</h2>
       {message && <p>{message}</p>}
 
-      {/* Step 1: Ask for the user's email */}
+      {/* Step 1: Ask for the user's email and user ID */}
       {step === 1 && (
         <form onSubmit={handleEmailSubmit}>
           <div>
@@ -75,6 +74,15 @@ const ForgotPassword = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>User ID:</label>
+            <input
+              type="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               required
             />
           </div>

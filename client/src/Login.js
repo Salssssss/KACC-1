@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 // Import Navbar
 import Nav from './Nav';
 
-const Login = () => {
+const Login = ({setIsLoggedIn}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -41,6 +41,10 @@ const Login = () => {
       //Adding 9/28/24 to display username and profile picture in the top right - Ian
       localStorage.setItem('username', user.username); 
       localStorage.setItem('profilePicture', user.profile_picture); 
+
+      //update isloggedin
+      setIsLoggedIn(true);  
+      localStorage.setItem('isLoggedIn', 'true'); 
 
       if (response.data.message === 'Login successful') {
         console.log(user.role_name);

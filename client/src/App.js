@@ -29,24 +29,27 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
 function App() {
   const [userRole, setUserRole] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const role = localStorage.getItem('userRole');
     setUserRole(role);
+    const loggedInStatus = localStorage.getItem('isLoggedIn');
+  
   
   }, []);
 
   return (
     <Router>
       <Nav />
-      {/* Render the UserProfile component to display username and profile picture */}
-      <TopRightProfile />
+      {/* Conditionally render the profile only if the user is logged in */}
+      {isLoggedIn && <TopRightProfile />}  {/* This will only render after login */}
       <Routes>
         {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
         
         {/* Login Route */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
 
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />

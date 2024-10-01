@@ -69,7 +69,7 @@ sql.connect(dbConfig).then(pool => {
   console.error('Database connection failed:', err);
 });
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Running daily password expiration check...');
   const pool = req.app.get('dbPool');
   await checkForExpiringPasswords(pool);

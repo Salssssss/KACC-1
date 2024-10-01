@@ -354,7 +354,7 @@ exports.checkForExpiringPasswords = async (pool) => {
       FROM user_passwords p
       JOIN users u ON p.user_id = u.user_id
       WHERE p.is_current = 1
-      AND DATEDIFF(DATE_ADD(p.created_at, INTERVAL 90 DAY), NOW()) = 3;
+      AND DATEDIFF(DAY, GETDATE(), DATEADD(DAY, 90, p.created_at)) = 3;
     `);
 
     const usersWithExpiringPasswords = result.recordset;

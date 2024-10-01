@@ -6,7 +6,7 @@ import React from 'react';
 
 const TopRightProfile = () => {
   const username = localStorage.getItem('username');
-  const profilePicture = localStorage.getItem('profilePicture');
+  const profilePicture = require('./tempAssets/pfp.jpg')
 
   return (
     <div style={{ position: 'absolute', top: '10px', right: '20px', display: 'flex', alignItems: 'center' , color: 'yellow'}}>

@@ -161,5 +161,30 @@ router.post('/send-activation-email', async (req, res) => {
   }
 });
 
+router.post('/send-email', async (req, res) => {
+  const { userEmail, subject, message } = req.body;
+
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject: subject,
+      text: message,
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Error sending email.' });
+      }
+      res.status(200).json({ message: 'Email sent successfully.' });
+    });
+  } catch (error) {
+    console.error('Error processing email request:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 module.exports = router;
