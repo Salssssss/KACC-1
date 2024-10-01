@@ -43,7 +43,8 @@ const ForgotPassword = () => {
       });
 
       if (response.data.success) {
-        setMessage('You have been emailed a link to reset your password.');
+        window.alert('You have been sent a link to reset your password please check your email.');
+        navigate('/LandingPage');
       } else {
         setMessage(response.data.message);
       }
