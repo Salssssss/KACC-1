@@ -8,6 +8,7 @@ const userRoutes = require('./routes/userRoutes'); // Import the user routes
 const app = express();
 const port = 5000;
 const cron = require('node-cron');
+const {checkForExpiringPasswords} = require('./controllers/userController');
 
 // Middleware
 app.use(express.json());
@@ -69,8 +70,8 @@ sql.connect(dbConfig).then(pool => {
   console.error('Database connection failed:', err);
 });
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Running daily password expiration check...');
-  const pool = req.app.get('dbPool');
+  const pool = app.get('dbPool');
   await checkForExpiringPasswords(pool);
 });

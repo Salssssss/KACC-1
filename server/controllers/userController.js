@@ -350,32 +350,40 @@ exports.getSecurityQuestions = async (pool) => {
 exports.checkForExpiringPasswords = async (pool) => {
   try {
     const result = await pool.request().query(`
-      SELECT u.email, p.user_id, p.created_at
+      SELECT u.email
       FROM user_passwords p
       JOIN users u ON p.user_id = u.user_id
       WHERE p.is_current = 1
       AND DATEDIFF(DAY, GETDATE(), DATEADD(DAY, 90, p.created_at)) = 3;
     `);
 
+    console.log('The code is reaching this point');
+
+    // The result will have a `recordset` property which contains the rows
     const usersWithExpiringPasswords = result.recordset;
 
-    // Send email to each user
-    for (const user of usersWithExpiringPasswords) {
-      const email = user.email;
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: 'Your password will expire in 3 days',
-        text: `Dear user, your password is set to expire in 3 days. Please reset your password to avoid losing access.`,
-      };
+    // Make sure it's an array before iterating
+    if (Array.isArray(usersWithExpiringPasswords) && usersWithExpiringPasswords.length > 0) {
+      // Send email to each user
+      for (const user of usersWithExpiringPasswords) {
+        const email = user.email;
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Your password will expire in 3 days',
+          text: `Dear user, your password is set to expire in 3 days. Please reset your password to avoid losing access.`,
+        };
 
-      transporter.sendMail(mailOptions, (err, info) => {
-        if (err) {
-          console.error('Error sending email:', err);
-        } else {
-          console.log(`Email sent to ${email}: ${info.response}`);
-        }
-      });
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error('Error sending email:', err);
+          } else {
+            console.log(`Email sent to ${email}: ${info.response}`);
+          }
+        });
+      }
+    } else {
+      console.log('No users with expiring passwords found.');
     }
   } catch (error) {
     console.error('Error checking for expiring passwords:', error);
