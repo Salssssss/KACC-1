@@ -31,13 +31,15 @@ router.post('/login', async (req, res) => {
   try {
     const result = await login(pool, username, password);
     const user = result.user;
-    console.log(result)
 
     // Store user information in the session
-    req.session.user = {
-      id: user.user_id,
-      role_name: user.role_name,
-    };
+    if (result.success === true || result.success === 'true') {
+      req.session.user = {
+        id: user.user_id,
+        role_name: user.role_name,
+      };
+    }
+    
 
     // Save the session and respond to the client only once
     req.session.save((err) => {
@@ -51,8 +53,15 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(401).json({ message: error.message });
-  }
+    console.log(error.response.data.message)
+    // Forwarding the error message if available
+    if (error.response && error.response.data) {
+        res.status(401).json({ message: error.response.data.message });
+    } else {
+        // Fallback error handling
+        res.status(500).json({ message: 'An unexpected error occurred.' });
+    }
+}
 });
 
 

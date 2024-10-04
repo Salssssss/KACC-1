@@ -46,7 +46,7 @@ const validatePassword = (password) => {
 
 
 //login logic
-exports.login = async (pool, username, password) => {
+exports.login = async (pool, username, password, req, res) => {
 
   try {
     // Query to get user info, failed login attempts, and account status
@@ -64,14 +64,14 @@ exports.login = async (pool, username, password) => {
 
 
     if (result.recordset.length === 0) {
-      return { success: false, message: 'Invalid username or password' };
+      return res.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
     const user = result.recordset[0];
 
     // Check if account is suspended
     if (user.status === 'suspended') {
-      return { success: false, message: 'Your account is suspended due to too many failed login attempts.' };
+      return res.status(403).json({ success: false, message: 'Your account is suspended due to too many failed login attempts.' });
     }
 
     // Query for the current password from user_passwords table
@@ -84,7 +84,7 @@ exports.login = async (pool, username, password) => {
       .query(passwordQuery);
 
     if (passwordResult.recordset.length === 0) {
-      return { success: false, message: 'No current password found' };
+      return res.status(403).json({ success: false, message: 'No current password found' });
     }
 
     const currentPassword = passwordResult.recordset[0];
