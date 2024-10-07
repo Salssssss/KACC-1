@@ -1,4 +1,5 @@
 const sql = require('mssql');
+
 exports.createAccount = async (pool, accountData) => {
     const {
         account_name,
@@ -14,7 +15,6 @@ exports.createAccount = async (pool, accountData) => {
     } = accountData;
 
     try {
-        // Use pool.request() to interact with the database
         await pool.request()
             .input('account_name', sql.VarChar, account_name)
             .input('account_number', sql.VarChar, account_number)
@@ -34,5 +34,28 @@ exports.createAccount = async (pool, accountData) => {
         throw error;
     }
 };
+
+
+// Controller to retrieve accounts for a specific user
+exports.getAccountsByUser = async (pool, user_id) => {
+  try {
+    // Execute a query to retrieve accounts for the specified user
+    const result = await pool.request()
+      .input('user_id', sql.Int, user_id)
+      .query('SELECT * FROM accounts WHERE user_id = @user_id');
+    
+    const accounts = result.recordset;  // Get the rows (accounts) from the result
+
+    if (!accounts || accounts.length === 0) {
+      return { message: 'No accounts found for this user' };
+    }
+
+    return accounts;  // Return the accounts for the user
+  } catch (error) {
+    console.error('Error fetching accounts:', error);
+    throw error;
+  }
+};
+
 
   
