@@ -10,6 +10,7 @@ import SetPassword from './SetPassword';
 import SelectSecurityQuestions from './SelectSecurityQuestions';
 import ForgotPassword from './ForgotPassword';
 import TopRightProfile from './TopRightProfile';
+import AdminChartOfAcc from './AdminChartOfAcc';
 
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -78,6 +79,12 @@ function App() {
 
         {/* User Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Chart of accounts by user (admin view) */}
+        <Route 
+          path="/chart-of-accounts/:userId" 
+          element={<AdminChartOfAcc />} 
+          />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
