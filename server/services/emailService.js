@@ -20,8 +20,8 @@ function sendApprovalRequestEmail(adminEmail, username, email) {
       //This should be the sender address
       from: process.env.EMAIL_USER, 
       to: adminEmail, 
-      subject: 'New Account Approval Request',
-      text: `A new user as requested to create an account.
+      subject: 'New Profile Approval Request',
+      text: `A new user as requested to create an profile.
   
              Username: ${username}
              Email: ${email}
@@ -47,17 +47,17 @@ function sendApprovalRequestEmail(adminEmail, username, email) {
     const mailOptions = {
       from: adminEmail, 
       to: email, 
-      subject: 'New Account Approved',
-      text: `Hello ${username}, the admin has aproved your requested to create an account.
+      subject: 'New Profile Approved',
+      text: `Hello ${username}, the admin has aproved your requested to create an profile.
   
              Username: ${username}
              Email: ${email}
 
              Use this link to log in: http://localhost:3000/login
             
-             Thank you for creating an account with us.`,
+             Thank you for creating an profile with us.`,
 
-      html: '<body><h1>Welcome</h1><p>Hello' + username + ', the admin has aproved your requested to create an account.</p><p>Username: ' + username + '</p><p>Email: ' + email + '</p><p>Use this link to log in: </p><a href="http://localhost:3000/login">Link</a><p>Thank you for creating an account with us.</p></body>'
+      html: '<body><h1>Welcome</h1><p>Hello' + username + ', the admin has aproved your requested to create an profile.</p><p>Username: ' + username + '</p><p>Email: ' + email + '</p><p>Use this link to log in: </p><a href="http://localhost:3000/login">Link</a><p>Thank you for creating an profile with us.</p></body>'
     };
   
     //Sending the email

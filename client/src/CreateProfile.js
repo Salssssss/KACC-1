@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const CreateAccount = () => {
+const CreateProfile = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [dob, setDob] = useState(''); // Date of birth added
@@ -11,11 +11,11 @@ const CreateAccount = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate(); // initiate useNavigate for redirection
 
-  const handleCreateAccount = async (e) => {
+  const handleCreateProfile = async (e) => {
     e.preventDefault();
     
     try {
-      const response = await axios.post('http://localhost:5000/users/create-account', {
+      const response = await axios.post('http://localhost:5000/users/create-profile', {
         firstName,
         lastName,
         dob,
@@ -25,16 +25,16 @@ const CreateAccount = () => {
 
       setMessage(response.data.message);
 
-      if (response.data.message === 'Account created successfully. Awaiting admin approval.') {
+      if (response.data.message === 'Profile created successfully. Awaiting admin approval.') {
         // Show an alert with the message
-        window.alert('Your account is pending approval. You will receive an email from an admin once your account has been accepted.');
+        window.alert('Your profile is pending approval. You will receive an email from an admin once your profile has been accepted.');
         
         // Navigate the user back to the login page after they close the alert
         navigate('/LandingPage');
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        setMessage('Account creation failed: ' + error.response.data.message);
+        setMessage('Profile creation failed: ' + error.response.data.message);
       } else {
         setMessage('Error connecting to server');
       }
@@ -42,9 +42,9 @@ const CreateAccount = () => {
   };
 
   return (
-    <div className="createAccount">
-      <h2>Create Account</h2>
-      <form onSubmit={handleCreateAccount}>
+    <div className="createProfile">
+      <h2>Create Profile</h2>
+      <form onSubmit={handleCreateProfile}>
         <div>
           <label>First Name:</label>
           <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
@@ -65,11 +65,11 @@ const CreateAccount = () => {
           <label>Email:</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
-        <button type="submit">Create Account</button>
+        <button type="submit">Create Profile</button>
       </form>
       {message && <p>{message}</p>}
     </div>
   );
 };
 
-export default CreateAccount;
+export default CreateProfile;

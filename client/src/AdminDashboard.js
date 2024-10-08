@@ -278,7 +278,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
-{/*Table with user info and buttons to edit, activate, or deactivate user accounts */}
+{/*Table with user info and buttons to edit, activate, or deactivate user profiles */}
         <ul className='fix'>
           {users.map((user) => (
             <li key={user.id}>{user.name}</li>

@@ -51,7 +51,7 @@ const dbConfig = {
 sql.connect(dbConfig).then(pool => {
   app.set('dbPool', pool); // Make the database pool accessible globally
 
-  // Use user routes for handling login and account creation
+  // Use user routes for handling login and profile creation
   app.use('/users', userRoutes);
 
   app.use('/admin', adminRoutes);

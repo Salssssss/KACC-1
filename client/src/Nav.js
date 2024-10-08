@@ -16,7 +16,7 @@ const Nav = () => {
             </div>
             <div className="rightNav">
                 <button onClick={() => navigate('/login')}>Login</button>
-                <button onClick={() => navigate('/create-account')}>Create Account</button>
+                <button onClick={() => navigate('/create-profile')}>Create Account</button>
             </div>
         </nav>
     );

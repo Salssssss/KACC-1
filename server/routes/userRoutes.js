@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 
 const { 
   login, 
-  createAccount, 
+  createProfile, 
   setPassword, 
   selectSecurityQuestions, 
   getSecurityQuestions
@@ -65,12 +65,12 @@ router.post('/login', async (req, res) => {
 });
 
 
-// Route for creating a new account
-router.post('/create-account', async (req, res) => {
+// Route for creating a new profile
+router.post('/create-profile', async (req, res) => {
   const pool = req.app.get('dbPool'); // Use the shared DB pool
   try {
-    await createAccount(pool, req.body);
-    res.status(201).json({ message: 'Account created successfully' });
+    await createProfile(pool, req.body);
+    res.status(201).json({ message: 'Profile created successfully' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -155,10 +155,10 @@ router.post('/forgot-password', async (req, res) => {
           userId: user.user_id
         });
       } else {
-        res.status(400).json({message: 'No security questions set for this account'});
+        res.status(400).json({message: 'No security questions set for this profile'});
       }
     } else {
-      res.status(400).json({ message: 'No account associated with this email.' });
+      res.status(400).json({ message: 'No profile associated with this email.' });
     }
   } catch (error) {
     console.error('Error processing forgot password:', error);

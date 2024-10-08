@@ -70,7 +70,7 @@ router.put('/modify-user/:userID', authorizationMiddleware, async (req, res) => 
 });
 
 
-//Route for creating a new account from the admin dashboard
+//Route for creating a new profile from the admin dashboard
 router.post('/create-user', authorizationMiddleware, async (req, res) => {
   const pool = req.app.get('dbPool');
   try{
@@ -149,8 +149,8 @@ router.post('/send-activation-email', async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Account Activation - Set Your Password',
-      text: `Your account has been activated. Your username is ${uniqueUsername}Your user ID is ${userId} save this if you need torecover your account. Please use the following link to set your password: ${resetLink}`,
+      subject: 'Profile Activation - Set Your Password',
+      text: `Your profile has been activated. Your username is ${uniqueUsername}Your user ID is ${userId} save this if you need to recover your profile. Please use the following link to set your password: ${resetLink}`,
     };
     await transporter.sendMail(mailOptions);
 

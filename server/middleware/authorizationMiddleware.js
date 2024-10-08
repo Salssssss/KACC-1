@@ -1,4 +1,4 @@
-//Authorizes a user account's role, primarily for checking if they're an admin or not
+//Authorizes a user profile's role, primarily for checking if they're an admin or not
 //Read about middleware: https://www.scaler.com/topics/nodejs/middleware-in-nodejs/
 
 const authorizeUser = (req, res, next) => {

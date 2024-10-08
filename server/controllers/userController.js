@@ -49,7 +49,7 @@ const validatePassword = (password) => {
 exports.login = async (pool, username, password, req, res) => {
 
   try {
-    // Query to get user info, failed login attempts, and account status
+    // Query to get user info, failed login attempts, and profile status
   const userQuery = `
     SELECT u.username, u.user_id, u.failed_login_attempts, u.status, u.profile_picture, r.role_name
     FROM users u
@@ -69,9 +69,9 @@ exports.login = async (pool, username, password, req, res) => {
 
     const user = result.recordset[0];
 
-    // Check if account is suspended
+    // Check if profile is suspended
     if (user.status === 'suspended') {
-      return res.status(403).json({ success: false, message: 'Your account is suspended due to too many failed login attempts.' });
+      return res.status(403).json({ success: false, message: 'Your profile is suspended due to too many failed login attempts.' });
     }
 
     // Query for the current password from user_passwords table
@@ -95,12 +95,12 @@ exports.login = async (pool, username, password, req, res) => {
       const failedAttempts = user.failed_login_attempts + 1;
 
       if (failedAttempts >= 3) {
-        // Lock the account after 3 failed attempts
+        // Lock the profile after 3 failed attempts
         await pool.request()
           .input('userId', sql.Int, user.user_id)
           .query(`UPDATE users SET status = 'suspended', failed_login_attempts = 3 WHERE user_id = @userId`);
 
-        return { success: false, message: 'Your account has been locked due to too many failed login attempts.' };
+        return { success: false, message: 'Your profile has been locked due to too many failed login attempts.' };
       }
 
       // Update the failed login attempts count
@@ -158,8 +158,8 @@ exports.login = async (pool, username, password, req, res) => {
 
 
 
-// creating a new account
-exports.createAccount = async (pool, userData) => {
+// creating a new profile
+exports.createProfile = async (pool, userData) => {
   const { firstName, lastName, dob, address, email } = userData;
 
   // Generate the base username: first initial + full last name + MMYY
@@ -224,8 +224,8 @@ exports.createAccount = async (pool, userData) => {
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: process.env.EMAIL_USER, // Email address of the receiver (Admin)
-        subject: 'Account waiting approval',
-        text: `User ${firstName} ${lastName} has just submitted for account approval. Please check your Admin Dashboard.`,
+        subject: 'Profile waiting approval',
+        text: `User ${firstName} ${lastName} has just submitted for profile approval. Please check your Admin Dashboard.`,
       };
     
       // Send the email
@@ -236,10 +236,10 @@ exports.createAccount = async (pool, userData) => {
         }
     
         // If email is successfully sent
-        return ({ message: 'Account approval email sent successfully.' });
+        return ({ message: 'Profile approval email sent successfully.' });
       });
     } catch (error) {
-      console.error('Error sending account approval request:', error);
+      console.error('Error sending profile approval request:', error);
       return ({ message: 'Internal server error' });
     }
     

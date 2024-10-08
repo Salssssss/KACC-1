@@ -1,8 +1,8 @@
-//Handles requests from admin accounts
+//Handles requests from admin profiles
 
 //This is a function to fetch the users in the database for the Admin to view them at their dashboard. 
-//I wrote the query to only fetch users of account type 'Manager' or 'Accountant'
-//I figured if an admin needs to modify their own account it would make more sense to do it elsewhere, we can change this if we want though
+//I wrote the query to only fetch users of profile type 'Manager' or 'Accountant'
+//I figured if an admin needs to modify their own profile it would make more sense to do it elsewhere, we can change this if we want though
 const sql = require('mssql');
 
 exports.fetchUsersByRole = async (pool) => {
@@ -26,7 +26,7 @@ exports.fetchUsersByRole = async (pool) => {
 };
 
 
-//This function is to modify the accounts of accountants and managers
+//This function is to modify the profiles of accountants and managers
 exports.modifyUser = async (pool, userID, updatedData) => {
     const {firstName, lastName, username, email, role } = updatedData;
 
@@ -172,7 +172,7 @@ exports.getReportOfExpiredPasswords = async(pool) => {
   }
 };
 
-//This is for activating/deactivating an account
+//This is for activating/deactivating an profile
 //I want to handle the suspension requirement in its own method, so that way it's easier to set it from a start date to an end date - Ian
 exports.activateOrDeactivateUser = async (pool, userID, status) => {
   try {
