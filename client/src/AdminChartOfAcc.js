@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const AdminChartOfAcc = () => {
-  const { userId } = useParams(); // Get the user ID from the URL
+  //Get the user ID from the URL
+  const { userId } = useParams();
   const [userAccounts, setUserAccounts] = useState([]);
 
   useEffect(() => {
@@ -17,8 +18,9 @@ const AdminChartOfAcc = () => {
     };
 
     fetchUserAccounts();
-  }, [userId]); // Fetch accounts when the component loads or userId changes
-
+  }, 
+  //Fetch accounts when the component loads or userId changes
+  [userId]); 
   return (
     <div>
       <h1>Chart of Accounts for User {userId}</h1>
