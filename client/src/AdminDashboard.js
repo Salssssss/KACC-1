@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const AdminDashboard = () => {
+  //create a navigate variable 
   //store the users from the backend
   const [users, setUsers] = useState([]);
   //Store the ID of the user that gets edited
@@ -263,7 +264,7 @@ const AdminDashboard = () => {
 
 
   //-------------------------------Fetch User Accounts----------------------//
-  const fetchUserAccounts = async (userId) => {
+  /*const fetchUserAccounts = async (userId) => {
     try {
       // Fetch accounts for the selected user
       const response = await axios.get(`http://localhost:5000/account/${userId}/accounts`, { withCredentials: true });
@@ -273,6 +274,11 @@ const AdminDashboard = () => {
       console.error('Error fetching user accounts: ', error);
       alert('Error fetching accounts. Please try again.');
     }
+  };*/
+
+   // Navigate to the AdminChartOfAcc.js page with the selected userId
+   const handleViewAccountsClick = (userId) => {
+    navigate(`/chart-of-accounts/${userId}`); // Navigate to the chart of accounts page
   };
 
   //----------------------HTML and UI------------------------------------------------------------------------------
@@ -296,7 +302,7 @@ const AdminDashboard = () => {
           </div>
         )}
 
-{/* Table with user info and buttons to edit, activate, deactivate, and view user accounts */}
+{/* Table with user info and buttons to edit, activate, deactivate, and view user profiles */}
 <ul className='fix'>
   {users.map((user) => (
     <li key={user.id}>{user.name}</li>
@@ -329,7 +335,11 @@ const AdminDashboard = () => {
             <button onClick={() => handleToggleStatus(user)}>
               {user.status === 'active' ? 'Deactivate' : 'Activate'}
             </button>
-            <button onClick={() => fetchUserAccounts(user.user_id)}>View Accounts</button>
+            {/*<button onClick={() => fetchUserAccounts(user.user_id)}>View Accounts</button>*/}
+            {/* View Accounts Button */}
+        <button onClick={() => handleViewAccountsClick(user.user_id)}>
+                  View Accounts
+                </button>
           </td>
           <td>
             <th>Suspend User</th>
@@ -348,8 +358,10 @@ const AdminDashboard = () => {
             <button onClick={() => handleSuspendUser(user)}>Suspend User</button>
           </td>
         </tr>
+        
+        
         {/* Conditionally display the user's accounts if they are selected */}
-        {selectedUserId === user.user_id && userAccounts.length > 0 && (
+        {/*{selectedUserId === user.user_id && userAccounts.length > 0 && (
           <tr>
             <td colSpan="7">
               <h4>Accounts for {user.first_name} {user.last_name}</h4>
@@ -375,7 +387,7 @@ const AdminDashboard = () => {
               </table>
             </td>
           </tr>
-        )}
+        )}*/}
       </React.Fragment>
     ))}
   </tbody>
