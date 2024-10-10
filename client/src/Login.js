@@ -40,6 +40,7 @@ const Login = ({setIsLoggedIn}) => {
       //Adding 9/28/24 to display username and profile picture in the top right - Ian
       localStorage.setItem('username', user.username); 
       localStorage.setItem('profilePicture', user.profile_picture);
+      localStorage.setItem('user_id', user.user_id);
       console.log('Logged in user:', user);
       localStorage.setItem('userRole', response.data.user.role_name); 
 
