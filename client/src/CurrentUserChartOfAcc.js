@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-//import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const UserChartOfAcc = () => {
@@ -9,6 +9,7 @@ const UserChartOfAcc = () => {
   //Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
   const userRole = localStorage.getItem('userRole');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserAccounts = async () => {
@@ -17,32 +18,16 @@ const UserChartOfAcc = () => {
         setUserAccounts(response.data);
       } catch (error) {
         console.error('Error fetching user accounts: ', error);
+        setError('Error fetching user accounts. Please try again.');
       }
     };
 
     fetchUserAccounts();
-  }, 
-  //Fetch accounts when the component loads or userId changes
-  [userID]);
+  }, [userID]);
 
-  const handleEdit = (accountId) => {
-    //Logic for editing an account (only accessible to admin users)
-    console.log('Edit account:', accountId);
+  const handleViewLedger = (accountId) => {
+    navigate(`/account/${accountId}/ledger`);
   };
-  
-  const handleDeactivate = (accountId) => {
-    //Logic for deactivating an account (only accessible to admin users)
-    console.log('Deactivate account:', accountId);
-  };
-  
-  const handleAddAccount = () => {
-    //Logic for adding a new account (only accessible to admin users)
-    console.log('Add new account');
-  };
-
-  //Conditional rendering for buttons based on role
-  //Only admins can edit, add, or deactivate
-  const canEditOrAdd = userRole === 'administrator';  
 
   return (
     <div>
@@ -58,10 +43,7 @@ const UserChartOfAcc = () => {
               <th>Account Number</th>
               <th>Category</th>
               <th>Initial Balance</th>
-
-              {/* Only show action buttons for admin users */}
-              {canEditOrAdd && <th>Actions</th>}
-              
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -71,14 +53,9 @@ const UserChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
-
-                {/* Only show buttons for admin users */}
-                {canEditOrAdd && (
-                  <td>
-                    <button onClick={() => handleEdit(account.account_id)}>Edit</button>
-                    <button onClick={() => handleDeactivate(account.account_id)}>Deactivate</button>
-                  </td>
-                )}
+                <td>
+                  <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -86,16 +63,8 @@ const UserChartOfAcc = () => {
       ) : (
         <p>No accounts found for your user profile.</p>
       )}
-
-      {/* Only show add button for admin users */}
-      {canEditOrAdd && (
-        <button onClick={handleAddAccount}>Add New Account</button>
-      )}
     </div>
   );
 };
 
-
-
 export default UserChartOfAcc;
-

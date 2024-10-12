@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
 import Login from './Login';
-import CreateAccount from './CreateAccount';
+import CreateProfile from './CreateProfile';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
 import SetPassword from './SetPassword';
@@ -56,8 +56,8 @@ function App() {
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
-        {/* Create Account Route */}
-        <Route path="/create-account" element={<CreateAccount />} />
+        {/* Create Profile Route */}
+        <Route path="/create-profile" element={<CreateProfile />} />
         
         {/* Password Setup */}
         <Route path="/set-password" element={<SetPassword />} />
