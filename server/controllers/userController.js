@@ -1,8 +1,18 @@
 const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const { sendAccountApprovalEmail } = require('../services/emailService');
+const nodemailer = require('nodemailer');
 
+//transporter for nodemailer
+const transporter = nodemailer.createTransport({
+  host: process.env.SENDGRID_HOST, // smtp.sendgrid.net
+  port: process.env.SENDGRID_PORT, // 587 (TLS)
+  secure: false, // Use TLS, not SSL
+  auth: {
+    user: process.env.SENDGRID_USERNAME, // 'apikey' (always)
+    pass: process.env.SENDGRID_API_KEY, // Your SendGrid API key
+  },
+});
 //helper function to check password age
 const isPasswordExpired = (passwordCreatedAt) => {
   const createdDate = new Date(passwordCreatedAt);
@@ -35,87 +45,117 @@ const validatePassword = (password) => {
 };
 
 
+//login logic
+exports.login = async (pool, username, password, req, res) => {
 
-// login logic
-exports.login = async (pool, username, password) => {
-  // Query to get user info, failed login attempts, and account status
+  try {
+    // Query to get user info, failed login attempts, and account status
   const userQuery = `
-    SELECT u.username, u.user_id, u.failed_login_attempts, u.status, r.role_name
+    SELECT u.username, u.user_id, u.failed_login_attempts, u.status, u.profile_picture, r.role_name
     FROM users u
     JOIN user_roles ur ON u.user_id = ur.user_id
     JOIN roles r ON ur.role_id = r.role_id
     WHERE u.username = @username
   `;
 
-  const result = await pool.request()
-    .input('username', sql.VarChar, username)
-    .query(userQuery);
+    const result = await pool.request()
+      .input('username', sql.VarChar, username)
+      .query(userQuery);
 
-  if (result.recordset.length > 0) {
+
+    if (result.recordset.length === 0) {
+      return res.status(401).json({ success: false, message: 'Invalid username or password' });
+    }
+
     const user = result.recordset[0];
 
     // Check if account is suspended
     if (user.status === 'suspended') {
-      throw new Error('Your account is suspended due to too many failed login attempts.');
+      return res.status(403).json({ success: false, message: 'Your account is suspended due to too many failed login attempts.' });
     }
 
-    // Get the current password from user_passwords table
+    // Query for the current password from user_passwords table
     const passwordQuery = `
-    SELECT * FROM user_passwords
-    WHERE user_id = @userId AND is_current = 1
+      SELECT * FROM user_passwords
+      WHERE user_id = @userId AND is_current = 1
     `;
     const passwordResult = await pool.request()
       .input('userId', sql.Int, user.user_id)
       .query(passwordQuery);
 
-    if (passwordResult.recordset.length > 0) {
-      const currentPassword = passwordResult.recordset[0];
+    if (passwordResult.recordset.length === 0) {
+      return res.status(403).json({ success: false, message: 'No current password found' });
+    }
 
-      // Compare the entered password with the hashed password from the database
-      const passwordMatch = await bcrypt.compare(password, currentPassword.password_hash);
+    const currentPassword = passwordResult.recordset[0];
 
-      if (!passwordMatch) {
-        // Increment failed login attempts if password is incorrect
-        const failedAttempts = user.failed_login_attempts + 1;
+    // Compare entered password with the hashed password from the database
+    const passwordMatch = await bcrypt.compare(password, currentPassword.password_hash);
+    if (!passwordMatch) {
+      const failedAttempts = user.failed_login_attempts + 1;
 
-        if (failedAttempts >= 3) {
-          // Lock the account after 3 failed attempts
-          await pool.request()
-            .input('userId', sql.Int, user.user_id)
-            .query(`UPDATE users SET status = 'suspended', failed_login_attempts = 3 WHERE user_id = @userId`);
+      if (failedAttempts >= 3) {
+        // Lock the account after 3 failed attempts
+        await pool.request()
+          .input('userId', sql.Int, user.user_id)
+          .query(`UPDATE users SET status = 'suspended', failed_login_attempts = 3 WHERE user_id = @userId`);
 
-          throw new Error('Your account has been locked due to too many failed login attempts.');
-        } else {
-          // Update the failed login attempts count
-          await pool.request()
-            .input('userId', sql.Int, user.user_id)
-            .input('failedAttempts', sql.Int, failedAttempts)
-            .query(`UPDATE users SET failed_login_attempts = @failedAttempts WHERE user_id = @userId`);
-
-          throw new Error('Invalid username or password');
-        }
+        return { success: false, message: 'Your account has been locked due to too many failed login attempts.' };
       }
 
-      // If login is successful, reset the failed login attempts
+      // Update the failed login attempts count
       await pool.request()
         .input('userId', sql.Int, user.user_id)
-        .query(`UPDATE users SET failed_login_attempts = 0 WHERE user_id = @userId`);
+        .input('failedAttempts', sql.Int, failedAttempts)
+        .query(`UPDATE users SET failed_login_attempts = @failedAttempts WHERE user_id = @userId`);
 
-      // Check if the password is older than 90 days
-      if (isPasswordExpired(currentPassword.created_at)) {
-        throw new Error('Your password has expired. Please reset your password.');
-      }
-
-      // Return the user data if everything is correct
-      return { user };
-    } else {
-      throw new Error('No current password found');
+      return { success: false, message: 'Invalid username or password' };
     }
-  } else {
-    throw new Error('Invalid username or password');
+
+    // If login is successful, reset the failed login attempts
+    await pool.request()
+      .input('userId', sql.Int, user.user_id)
+      .query(`UPDATE users SET failed_login_attempts = 0 WHERE user_id = @userId`);
+
+        // Check if the password is older than 90 days
+    if (isPasswordExpired(currentPassword.created_at)) {
+      return {
+        success: true,
+        message: 'Your password has expired. Please reset your password.',
+        user: user
+      };
+    }
+
+    // Check if the user has set security questions
+    const securityQuestionsQuery = `
+      SELECT COUNT(*) AS questionCount
+      FROM user_security_questions
+      WHERE user_id = @userId
+    `;
+    const securityResult = await pool.request()
+      .input('userId', sql.Int, user.user_id)
+      .query(securityQuestionsQuery);
+
+    if (securityResult.recordset[0].questionCount === 0) {
+      return {
+        success: true,
+        message: 'Login successful, but security questions need to be set',
+        user: user
+      };
+    }
+
+
+    // Login is successful, return user data
+    return { 
+      success: true,
+      message: 'Login successful',
+      user: user };
+
+  } catch (error) {
+    return { success: false, message: 'Database error', error: error.message };
   }
 };
- 
+
 
 
 // creating a new account
@@ -178,21 +218,34 @@ exports.createAccount = async (pool, userData) => {
     .input('userId', sql.Int, newUserId)
     .query(insertRoleQuery);
 
-  // Notify the admin to approve the new account
-  try {
-    await sendAccountApprovalEmail({
-      adminEmail: EMAIL_ADMIN,
-      firstName,
-      lastName,
-      username: uniqueUsername, // Send the unique username to the admin
-      email
-    });
-    console.log('Account approval request sent, awaiting admin approval');
-  } catch (error) {
-    console.error('Error sending account approval request', error);
-  }
 
-  return { message: 'Account created successfully. Awaiting admin approval.', userId: newUserId };
+
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER, // Email address of the receiver (Admin)
+        subject: 'Account waiting approval',
+        text: `User ${firstName} ${lastName} has just submitted for account approval. Please check your Admin Dashboard.`,
+      };
+    
+      // Send the email
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.error('Error sending email:', err);
+          return ({ message: 'Error sending approval email.' });
+        }
+    
+        // If email is successfully sent
+        return ({ message: 'Account approval email sent successfully.' });
+      });
+    } catch (error) {
+      console.error('Error sending account approval request:', error);
+      return ({ message: 'Internal server error' });
+    }
+    
+    // This part should be outside the email sending block, return user creation status
+    return { message: 'User created successfully', userId: newUserId };
+    
 };
 
 //logic for creating a password
@@ -224,6 +277,7 @@ exports.setPassword = async (pool, userId, newPassword) => {
       WHERE password_id = @passwordId
     `;
     await pool.request()
+
       .input('passwordId', sql.Int, currentPasswordId)
       .query(expirePasswordQuery);
   }
@@ -239,14 +293,99 @@ exports.setPassword = async (pool, userId, newPassword) => {
     .input('hashedPassword', sql.VarChar, hashedPassword)
     .query(insertPasswordQuery);
 
+
   // Optionally, send a confirmation email to the user
   return { message: 'Password set successfully.' };
 };
 
+exports.selectSecurityQuestions = async (pool, userId, selectedQuestions) => {
 
+  try {
+    // Loop through selected questions, hash the answers, and store them in the database
+    for (const question of selectedQuestions) {
+      const { questionId, answer } = question;
 
+      // Hash the answer before storing it
+      const hashedAnswer = await bcrypt.hash(answer, saltRounds);
 
+      // Insert into user_security_questions table
+      const insertQuery = `
+        INSERT INTO user_security_questions (user_id, question_id, answer_hash)
+        VALUES (@userId, @questionId, @hashedAnswer)
+      `;
 
+      await pool.request()
+        .input('userId', sql.Int, userId)
+        .input('questionId', sql.Int, questionId)
+        .input('hashedAnswer', sql.VarChar, hashedAnswer)
+        .query(insertQuery);
+    }
+    return { message: 'Questions set successfully.' };
+  } catch (error) {
+    console.error('Error saving questions', error);
+  }
+};
 
+// Function to get security questions from the database
+exports.getSecurityQuestions = async (pool) => {
+  try {
+    const query = `
+      SELECT question_id, question_text
+      FROM security_questions
+    `;
 
+    const result = await pool.request().query(query);
 
+    // Log the result for debugging purposes (optional)
+    console.log('Fetched security questions:', result.recordset);
+
+    // Return the final result (recordset), not the whole result object
+    return result.recordset; 
+  } catch (error) {
+    console.error('Error fetching security questions:', error);
+    throw error; // Let the error be handled by the router
+  }
+};
+
+exports.checkForExpiringPasswords = async (pool) => {
+  try {
+    const result = await pool.request().query(`
+      SELECT u.email
+      FROM user_passwords p
+      JOIN users u ON p.user_id = u.user_id
+      WHERE p.is_current = 1
+      AND DATEDIFF(DAY, GETDATE(), DATEADD(DAY, 90, p.created_at)) = 3;
+    `);
+
+    console.log('The code is reaching this point');
+
+    // The result will have a `recordset` property which contains the rows
+    const usersWithExpiringPasswords = result.recordset;
+
+    // Make sure it's an array before iterating
+    if (Array.isArray(usersWithExpiringPasswords) && usersWithExpiringPasswords.length > 0) {
+      // Send email to each user
+      for (const user of usersWithExpiringPasswords) {
+        const email = user.email;
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Your password will expire in 3 days',
+          text: `Dear user, your password is set to expire in 3 days. Please reset your password to avoid losing access.`,
+        };
+
+        transporter.sendMail(mailOptions, (err, info) => {
+          if (err) {
+            console.error('Error sending email:', err);
+          } else {
+            console.log(`Email sent to ${email}: ${info.response}`);
+          }
+        });
+      }
+    } else {
+      console.log('No users with expiring passwords found.');
+    }
+  } catch (error) {
+    console.error('Error checking for expiring passwords:', error);
+  }
+};

@@ -9,6 +9,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const AdminDashboard = () => {
+  //create a navigate variable 
   //store the users from the backend
   const [users, setUsers] = useState([]);
   //Store the ID of the user that gets edited
@@ -24,6 +25,10 @@ const AdminDashboard = () => {
     role: '',
     status: '',
   });
+  //create storage for the user accounts
+  const [userAccounts, setUserAccounts] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+
 
 
   //Adding this state to show or hide the create user form - Ian 9/27/24
@@ -31,7 +36,6 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
   //useEffect to verify the user's role once again
-  console.log(localStorage.getItem('userRole'))
   useEffect(() => {
     const userRole = localStorage.getItem('userRole'); 
 
@@ -110,7 +114,7 @@ const AdminDashboard = () => {
       //Hide form after submission
       setShowCreateUserForm(false); 
       //Fetch the updated users list
-      const response = await axios.get('http://localhost:5000/admin/users-by-role');
+      const response = await axios.get('http://localhost:5000/admin/users-by-role', {withCredentials: true});
       setUsers(response.data.users);
     } catch (err) {
       console.error('Error creating the user: ', err);
@@ -166,24 +170,40 @@ const AdminDashboard = () => {
   };
 
   //------------Active or Deactivate a user--------------------------------------------------------------------------
+  
   const handleToggleStatus = async (user) => {
-    console.log(user.status);
-    const newStatus = user.status === 'active' ? 'inactive' : 'active';
-    console.log(user.status);
-
+    const newStatus = user.status === 'active' ? 'inactive' : 'active'; // Toggle between active and inactive
+  
     try {
-      await axios.put(`http://localhost:5000/admin/activate-or-deactivate-user/${user.user_id}`, { status: newStatus }, { withCredentials: true });
-      
+      await axios.put(
+        `http://localhost:5000/admin/activate-or-deactivate-user/${user.user_id}`,
+        { status: newStatus },
+        { withCredentials: true }
+      );
+  
       alert(`User ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
   
-      //Fetch the updated users list
-      const response = await axios.get('http://localhost:5000/admin/users-by-role', { withCredentials: true });
-      setUsers(response.data.users);
+      if (newStatus === 'active') {
+        await axios.post(
+          'http://localhost:5000/admin/send-activation-email',
+          { userId: user.user_id, email: user.email, uniqueUsername: user.username },
+          { withCredentials: true }
+        );
+        alert('Activation email sent to user');
+      }
+  
+      // Update the user list after activation or deactivation
+      const updatedUsers = users.map(u =>
+        u.user_id === user.user_id ? { ...u, status: newStatus } : u
+      );
+      setUsers(updatedUsers);
+  
     } catch (err) {
       console.error('Error updating user status: ', err);
       alert('Error updating user status');
     }
   };
+  
 
   //----------------------Suspend User-----------------------------------------------------------------------------
   const [suspensionStart, setSuspensionStart] = useState(null);
@@ -202,6 +222,65 @@ const AdminDashboard = () => {
       console.error('Error suspending user: ', err);
       alert('Error suspending user');
     }
+  };
+
+  //--------------------Send Email to User------------------------//
+
+  // State for email sending
+  const [emailDetails, setEmailDetails] = useState({
+    userEmail: '',
+    subject: '',
+    message: '',
+  });
+  const [emailMessage, setEmailMessage] = useState('');
+
+  // Handle email form submission
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/admin/send-email',
+        {
+          userEmail: emailDetails.userEmail,
+          subject: emailDetails.subject,
+          message: emailDetails.message,
+        },
+        { withCredentials: true }
+      );
+
+      setEmailMessage('Email sent successfully!');
+    } catch (err) {
+      console.error('Error sending email: ', err);
+      setEmailMessage('Error sending email. Please try again.');
+    }
+  };
+
+  // Update email details as the admin types
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    setEmailDetails({
+      ...emailDetails,
+      [name]: value,
+    });
+  };
+
+
+  //-------------------------------Fetch User Accounts----------------------//
+  /*const fetchUserAccounts = async (userId) => {
+    try {
+      // Fetch accounts for the selected user
+      const response = await axios.get(`http://localhost:5000/account/${userId}/accounts`, { withCredentials: true });
+      setUserAccounts(response.data); // Store the fetched accounts in state
+      setSelectedUserId(userId); // Track which user’s accounts are being displayed
+    } catch (error) {
+      console.error('Error fetching user accounts: ', error);
+      alert('Error fetching accounts. Please try again.');
+    }
+  };*/
+
+   // Navigate to the AdminChartOfAcc.js page with the selected userId
+   const handleViewAccountsClick = (userId) => {
+    navigate(`/chart-of-accounts/${userId}`); // Navigate to the chart of accounts page
   };
 
   //----------------------HTML and UI------------------------------------------------------------------------------
@@ -230,63 +309,97 @@ const AdminDashboard = () => {
           </div>
         )}
 
-{/*Table with user info and buttons to edit, activate, or deactivate user accounts */}
-        <ul className='fix'>
-          {users.map((user) => (
-            <li key={user.id}>{user.name}</li>
-          ))}
-        </ul>
-        <table>
-          <thead>
-            <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.user_id}>
-                <td>{user.first_name}</td>
-                <td>{user.last_name}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>{user.role_name}</td>
-                <td>{user.status}</td>
-                <td>
-                  <button onClick={() => handleEdit(user)}>Edit</button>
-                  {/*<button onClick={() => handleToggleStatus(user)}> {user.status === 'active' ? 'Inactive' : 'Active'}</button>*/}
-                  {/* Dropdown for status */}
-                  <select
-                    value={user.status}
-                    onChange={(e) => handleToggleStatus(user, e.target.value)}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </td>
-                <td>
-                <th>Suspend User</th>
-                  <DatePicker
-                    className='datePicker'
-                    selected={suspensionStart}
-                    onChange={(date) => setSuspensionStart(date)}
-                    placeholderText="Select suspension start date"/>
-                  <DatePicker
-                    className='datePicker'
-                    selected={suspensionEnd}
-                    onChange={(date) => setSuspensionEnd(date)}
-                    placeholderText="Select suspension end date"/>
-                    <button onClick={() => handleSuspendUser(user)}>Suspend User</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+{/* Table with user info and buttons to edit, activate, deactivate, and view user profiles */}
+<ul className='fix'>
+  {users.map((user) => (
+    <li key={user.id}>{user.name}</li>
+  ))}
+</ul>
+<table>
+  <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {users.map((user) => (
+      <React.Fragment key={user.user_id}>
+        <tr>
+          <td>{user.first_name}</td>
+          <td>{user.last_name}</td>
+          <td>{user.username}</td>
+          <td>{user.email}</td>
+          <td>{user.role_name}</td>
+          <td>{user.status}</td>
+          <td>
+            <button onClick={() => handleEdit(user)}>Edit</button>
+            <button onClick={() => handleToggleStatus(user)}>
+              {user.status === 'active' ? 'Deactivate' : 'Activate'}
+            </button>
+            {/*<button onClick={() => fetchUserAccounts(user.user_id)}>View Accounts</button>*/}
+            {/* View Accounts Button */}
+        <button onClick={() => handleViewAccountsClick(user.user_id)}>
+                  View Accounts
+                </button>
+          </td>
+          <td>
+            <th>Suspend User</th>
+            <DatePicker
+              className='datePicker'
+              selected={suspensionStart}
+              onChange={(date) => setSuspensionStart(date)}
+              placeholderText="Select suspension start date"
+            />
+            <DatePicker
+              className='datePicker'
+              selected={suspensionEnd}
+              onChange={(date) => setSuspensionEnd(date)}
+              placeholderText="Select suspension end date"
+            />
+            <button onClick={() => handleSuspendUser(user)}>Suspend User</button>
+          </td>
+        </tr>
+        
+        
+        {/* Conditionally display the user's accounts if they are selected */}
+        {/*{selectedUserId === user.user_id && userAccounts.length > 0 && (
+          <tr>
+            <td colSpan="7">
+              <h4>Accounts for {user.first_name} {user.last_name}</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Category</th>
+                    <th>Initial Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userAccounts.map((account) => (
+                    <tr key={account.account_id}>
+                      <td>{account.account_name}</td>
+                      <td>{account.account_number}</td>
+                      <td>{account.category}</td>
+                      <td>{account.initial_balance}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        )}*/}
+      </React.Fragment>
+    ))}
+  </tbody>
+</table>
+
         <div>
       {/* Button to fetch the expired passwords report */}
       <div className='tooltipButton'>
@@ -358,17 +471,6 @@ const AdminDashboard = () => {
           type="text"
           name="lastName"
           value={formData.lastName}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div>
-        <label>Username:</label>
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
           onChange={handleChange}
           required
         />
@@ -447,7 +549,44 @@ const AdminDashboard = () => {
             </form>
           </div>
         )}
-      </div>
+            {/* Email sending form */}
+            <h3>Send Email to a User</h3>
+            <form onSubmit={handleSendEmail}>
+              <div>
+                <label>User Email:</label>
+                <input
+                  type="email"
+                  name="userEmail"
+                  value={emailDetails.userEmail}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+              <div>
+                <label>Subject:</label>
+                <input
+                  type="text"
+                  name="subject"
+                  value={emailDetails.subject}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+              <div>
+                <label>Message:</label>
+                <textarea
+                  name="message"
+                  value={emailDetails.message}
+                  onChange={handleEmailChange}
+                  required
+                />
+              </div>
+              <button type="submit">Send Email</button>
+            </form>
+      
+            {/* Display email status message */}
+            {emailMessage && <p>{emailMessage}</p>}
+          </div>
     );
   };
 

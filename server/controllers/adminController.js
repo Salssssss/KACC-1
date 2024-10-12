@@ -67,37 +67,55 @@ exports.modifyUser = async (pool, userID, updatedData) => {
 
 //Create a user from the admin page
 exports.createUser = async (pool, userData) => {
-  const { firstName, lastName, username, email, role } = userData;
+  const { firstName, lastName, dob, address, email, role } = userData;
 
   try {
-    // Check if the username or email already exists
-    const checkUserQuery = `
-      SELECT * FROM users WHERE username = @username OR email = @Email
-    `;
-    const checkUserResult = await pool.request()
-      .input('username', sql.VarChar, username)
-      .input('Email', sql.VarChar, email)
-      .query(checkUserQuery);
+    // Generate the base username: first initial + full last name + MMYY
+    const currentDate = new Date();
+    const monthYear = `${(currentDate.getMonth() + 1).toString().padStart(2, '0')}${currentDate.getFullYear().toString().slice(-2)}`;
+    let username = `${firstName[0].toLowerCase()}${lastName.toLowerCase()}${monthYear}`;
+    let uniqueUsername = username;
 
-    if (checkUserResult.recordset.length > 0) {
-      throw new Error('Username or email already exists');
+    // Check if the base username already exists and increment the number until a unique one is found
+    let suffix = 1; // Start incrementing from 1
+    let isUnique = false;
+
+    while (!isUnique) {
+      const checkUserQuery = `
+        SELECT COUNT(*) AS count FROM users WHERE username = @username
+      `;
+      const checkUserResult = await pool.request()
+        .input('username', sql.VarChar, uniqueUsername)
+        .query(checkUserQuery);
+
+      if (checkUserResult.recordset[0].count > 0) {
+        // Username exists, increment the suffix and try again
+        uniqueUsername = `${username}${suffix}`;
+        suffix += 1;
+      } else {
+        // Username is unique, exit the loop
+        isUnique = true;
+      }
     }
 
-    // Insert new user
-    const createUserQuery = `
-      INSERT INTO users (first_name, last_name, username, email)
-      VALUES (@firstName, @lastName, @username, @Email);
+    // Insert new user with the unique username (without password, pending activation by admin)
+    const insertUserQuery = `
+      INSERT INTO users (first_name, last_name, username, email, date_of_birth, address, status)
+      VALUES (@firstName, @lastName, @uniqueUsername, @Email, @dob, @address, 'pending');
       SELECT SCOPE_IDENTITY() AS user_id;  -- Get the newly inserted user_id
     `;
 
-    const result = await pool.request()
+    const insertUserResult = await pool.request()
       .input('firstName', sql.VarChar, firstName)
       .input('lastName', sql.VarChar, lastName)
-      .input('username', sql.VarChar, username)
+      .input('uniqueUsername', sql.VarChar, uniqueUsername)
       .input('Email', sql.VarChar, email)
-      .query(createUserQuery);
+      .input('dob', sql.Date, dob)
+      .input('address', sql.VarChar, address)
+      .query(insertUserQuery);
 
-    const userId = result.recordset[0].user_id; // Correct way to get the user ID
+    // Correct way to get the user ID
+    const userId = insertUserResult.recordset[0].user_id;
 
     // Insert role for the new user
     const assignRoleQuery = `
@@ -116,6 +134,7 @@ exports.createUser = async (pool, userData) => {
     return { status: 500, message: 'Error creating user' };
   }
 };
+
 
 
 exports.getReportOfAllUsers = async (pool) => {

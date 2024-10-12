@@ -7,7 +7,7 @@ import tooltipLogo from './images/help.png';
 // Import Navbar
 import Nav from './Nav';
 
-const Login = () => {
+const Login = ({setIsLoggedIn}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -25,33 +25,50 @@ const Login = () => {
       });
       setMessage(response.data.message);
 
-      //Adding 9/20/24 to check if a user is an admin - Ian
       const user = response.data.user;
+      
+
+      
+      if (response.data.message === 'Login successful, but security questions need to be set'){
+        navigate(`/select-security-questions?userId=${user.user_id}`);
+      }
+      if (response.data.message === 'Your password has expired. Please reset your password.'){
+        setMessage('Your password is expired. Please contact an administrator to reset it.');
+        // Redirect to password reset page
+        navigate(`/set-password?userId=${user.user_id}`);
+      }
+
+
+      //Adding 9/28/24 to display username and profile picture in the top right - Ian
+      localStorage.setItem('username', user.username); 
+      localStorage.setItem('profilePicture', user.profile_picture);
+      localStorage.setItem('user_id', user.user_id);
       console.log('Logged in user:', user);
-      localStorage.setItem('userRole', user.role_name);
+      localStorage.setItem('userRole', response.data.user.role_name); 
+
+      //update isloggedin
+      setIsLoggedIn(true);  
+      localStorage.setItem('isLoggedIn', 'true'); 
 
       if (response.data.message === 'Login successful') {
         console.log(user.role_name);
         if(user.role_name === 'administrator') {
-          navigate('/admin-dashboard')
+          navigate('/admin-dashboard');
         }
         else{
-          navigate('/dashboard')
+          navigate('/dashboard');
         }
       }
 
     } catch (error) {
-      if (error.response.data.message === 'Your account has been locked due to too many failed login attempts.') {
-        setMessage('Your account is locked. Please contact support.');
-      } else if (error.response.data.message === 'Your password has expired. Please reset your password.') {
-        setMessage('Your password is expired. Please reset it.');
-        // Redirect to password reset page
-        navigate('/reset-password');
+      if (error.response && error.response.data && error.response.data.message) {
+          setMessage(error.response.data.message);
       } else {
-        setMessage(error.response.data.message);
+          setMessage('An unknown error occurred. Please try again.');
       }
-    }
-  };
+  }
+  
+};
 
   return (
     <div className="login">

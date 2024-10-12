@@ -26,8 +26,11 @@ const CreateAccount = () => {
       setMessage(response.data.message);
 
       if (response.data.message === 'Account created successfully. Awaiting admin approval.') {
-        // Optionally, navigate to a "Thank you" or information page
-        navigate('/account-pending');
+        // Show an alert with the message
+        window.alert('Your account is pending approval. You will receive an email from an admin once your account has been accepted.');
+        
+        // Navigate the user back to the login page after they close the alert
+        navigate('/LandingPage');
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
@@ -39,7 +42,7 @@ const CreateAccount = () => {
   };
 
   return (
-    <div>
+    <div className="createAccount">
       <h2>Create Account</h2>
       <form onSubmit={handleCreateAccount}>
         <div>

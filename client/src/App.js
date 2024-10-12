@@ -1,6 +1,4 @@
-
 import Nav from './Nav';
-
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
@@ -14,40 +12,43 @@ import ForgotPassword from './ForgotPassword';
 import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
 import About from './About';
+import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 
 
-// ProtectedRoute component to restrict access to certain routes
 const ProtectedRoute = ({ children, allowedRole }) => {
-  const userRole = localStorage.getItem('userRole'); // Get user role from localStorage or another state
+  const userRole = localStorage.getItem('userRole');
 
   if (!userRole) {
-    // If no role is found, redirect to login
     return <Navigate to="/login" />;
   }
 
-  // Check if the user has the required role
   if (userRole !== allowedRole) {
-    return <Navigate to="/dashboard" />; // Redirect to dashboard for non-admin users
+    return <Navigate to="/dashboard" />;
   }
 
-  return children; // Render the protected component if role matches
+  return children;
 };
 
 
 function App() {
   const [userRole, setUserRole] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check user role from localStorage on app load
   useEffect(() => {
     const role = localStorage.getItem('userRole');
     setUserRole(role);
+    const loggedInStatus = localStorage.getItem('isLoggedIn');
+  
+  
   }, []);
 
   return (
     <Router>
       <Nav />
+      {/* Conditionally render the profile only if the user is logged in */}
+      {isLoggedIn && <TopRightProfile />}  {/* This will only render after login */}
       <Routes>
-        {/* Define the routes */}
+        {/* Landing Page */}
         <Route path="/" element={<LandingPage />} />
         
         {/* Login Route */}
@@ -62,10 +63,22 @@ function App() {
         {/* Create Account Route */}
         <Route path="/create-account" element={<CreateAccount />} />
 
-        {/* Add SetPassword route for password setup */}
+        {/* Forgot Passowrd route*/}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        {/* Create Account Route */}
+        <Route path="/create-account" element={<CreateAccount />} />
+        
+        {/* Password Setup */}
         <Route path="/set-password" element={<SetPassword />} />
 
-        {/* Protected Admin Route */}
+        {/* Security Questions Setup Route */}
+        <Route
+          path="/select-security-questions"
+          element={<SelectSecurityQuestions /> }
+        />
+
+        {/* Admin Dashboard */}
         <Route
           path="/admin-dashboard"
           element={
@@ -75,10 +88,22 @@ function App() {
           }
         />
 
-        {/* Dashboard route, accessible to all users */}
+        {/* User Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Fallback route */}
+        {/* Chart of accounts by user (admin view) */}
+        <Route 
+          path="/chart-of-accounts/:userId" 
+          element={<AdminChartOfAcc />} 
+          />
+
+        {/* Current User's Chart of Accounts */}
+        <Route 
+          path="/user-accounts" 
+          element={<CurrentUserChartOfAcc />} 
+          />
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
