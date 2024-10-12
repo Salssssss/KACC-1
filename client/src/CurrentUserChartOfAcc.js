@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 //import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
   
   //Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
@@ -24,6 +26,10 @@ const UserChartOfAcc = () => {
   }, 
   //Fetch accounts when the component loads or userId changes
   [userID]);
+
+  const handleViewLedger = (accountId) => {
+    navigate(`/ledger/${accountId}`);  // Navigate to GeneralLedger.js page with account_id as param
+  };
 
   const handleEdit = (accountId) => {
     //Logic for editing an account (only accessible to admin users)
@@ -61,7 +67,7 @@ const UserChartOfAcc = () => {
 
               {/* Only show action buttons for admin users */}
               {canEditOrAdd && <th>Actions</th>}
-              
+
             </tr>
           </thead>
           <tbody>
@@ -71,6 +77,9 @@ const UserChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
+                <td>
+                  <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
+                </td>
 
                 {/* Only show buttons for admin users */}
                 {canEditOrAdd && (

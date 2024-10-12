@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const AdminChartOfAcc = () => {
@@ -10,6 +11,7 @@ const AdminChartOfAcc = () => {
   //Not the best naming, I was locked in and just wanted to test it. Might change later. 
   const { userId } = useParams();
   const [userAccounts, setUserAccounts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserAccounts = async () => {
@@ -25,6 +27,12 @@ const AdminChartOfAcc = () => {
   }, 
   //Fetch accounts when the component loads or userId changes
   [userId]); 
+
+  const handleViewLedger = (accountId) => {
+    navigate(`/ledger/${accountId}`);  // Navigate to GeneralLedger.js page with account_id as param
+  };
+
+
   return (
     <div>
       <h1>Chart of Accounts for User {userId}</h1>
@@ -45,6 +53,9 @@ const AdminChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
+                <td>
+                  <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
+                </td>
               </tr>
             ))}
           </tbody>
