@@ -8,7 +8,13 @@ import Login from './Login';
 import CreateAccount from './CreateAccount';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
-import SetPassword from './SetPassword'; // Import the SetPassword component
+import SetPassword from './SetPassword';
+import SelectSecurityQuestions from './SelectSecurityQuestions';
+import ForgotPassword from './ForgotPassword';
+import TopRightProfile from './TopRightProfile';
+import AdminChartOfAcc from './AdminChartOfAcc';
+import About from './About';
+
 
 // ProtectedRoute component to restrict access to certain routes
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -43,7 +49,17 @@ function App() {
       <Routes>
         {/* Define the routes */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
+        
+        {/* Login Route */}
+        <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+
+        {/* Forgot Passowrd route*/}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* About Route */}
+        <Route path='/about' element={<About />} />
+        
+        {/* Create Account Route */}
         <Route path="/create-account" element={<CreateAccount />} />
 
         {/* Add SetPassword route for password setup */}

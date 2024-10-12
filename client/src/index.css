@@ -110,7 +110,7 @@ nav .rightnav {
 
 .createAccount input {
   margin: 10px;
-
+}
 
 .adminDash table, th, td {
   border: 2px solid;
@@ -183,4 +183,18 @@ nav .rightnav {
 .dash #welcome {
   float: right;
   padding: 20px;
+}
+
+.tooltipButton {
+  display: flex;
+}
+
+.tooltip {
+  position: absolute;
+  transform: translateX(-50%);
+  background-color: rgb(29, 28, 28);
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 1;
 }
