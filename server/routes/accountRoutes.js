@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router(); 
 const { 
     createAccount, 
-    getAccountsByUser
+    getAccountsByUser,
+    editAccount,
+    getAccountLedger, 
+    getAccountEvents
 } = require('../controllers/accountController');
 
 // POST route for creating a new account
@@ -35,5 +38,47 @@ router.post('/create', async (req, res) => {
       res.status(500).json({ message: 'Error fetching accounts for user' });
     }
   });
+
+  // PUT route to edit an account
+router.put('/edit/:account_id', async (req, res) => {
+  const pool = req.app.get('dbPool');  // Get the database pool
+  const userId = req.session.user_id;  // Get the user ID from the session
+  const { account_id } = req.params;   // Get the account ID from the route parameter
+
+  try {
+    await editAccount(pool, account_id, req.body, userId);  // Call the controller to edit the account
+    res.status(200).json({ message: 'Account updated successfully' });
+  } catch (error) {
+    console.error('Error updating account:', error);
+    res.status(500).json({ message: 'Error updating account' });
+  }
+});
+
+router.get('/:account_id/ledger', async (req, res) => {
+  const pool = req.app.get('dbPool');
+  const { account_id } = req.params;
+
+  try {
+    const ledger = await getAccountLedger(pool, account_id);
+    res.status(200).json(ledger);
+  } catch (error) {
+    console.error('Error fetching account ledger:', error);
+    res.status(500).json({ message: 'Error fetching account ledger' });
+  }
+});
+
+// Route to get the account events for an account
+router.get('/:account_id/events', async (req, res) => {
+  const pool = req.app.get('dbPool');
+  const { account_id } = req.params;
+
+  try {
+    const events = await getAccountEvents(pool, account_id);
+    res.status(200).json(events);
+  } catch (error) {
+    console.error('Error fetching account events:', error);
+    res.status(500).json({ message: 'Error fetching account events' });
+  }
+});
 
 module.exports = router;
