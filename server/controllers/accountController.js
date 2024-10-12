@@ -187,10 +187,10 @@ exports.getAccountLedger = async (pool, account_id) => {
   try {
     const result = await pool.request()
       .input('account_id', sql.Int, account_id)
-      .query(`SELECT transaction_id, date, description, debit, credit, balance
+      .query(`SELECT entry_id, entry_date, description, debit, credit, balance_after
               FROM ledger_entries  
               WHERE account_id = @account_id
-              ORDER BY date ASC`);
+              ORDER BY entry_date ASC`);
 
     return result.recordset;  // Return the ledger entries for the account
   } catch (error) {
