@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+//import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);
   const [error, setError] = useState('');
-
-  //Get the user ID from the URL
-  const { userId } = useParams();
   
   //Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
@@ -16,7 +13,7 @@ const UserChartOfAcc = () => {
   useEffect(() => {
     const fetchUserAccounts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/account/${userId}/accounts`, { withCredentials: true });
+        const response = await axios.get(`http://localhost:5000/account/${userID}/accounts`, { withCredentials: true });
         setUserAccounts(response.data);
       } catch (error) {
         console.error('Error fetching user accounts: ', error);
@@ -26,7 +23,7 @@ const UserChartOfAcc = () => {
     fetchUserAccounts();
   }, 
   //Fetch accounts when the component loads or userId changes
-  [userId]);
+  [userID]);
 
   const handleEdit = (accountId) => {
     //Logic for editing an account (only accessible to admin users)
@@ -44,7 +41,8 @@ const UserChartOfAcc = () => {
   };
 
   //Conditional rendering for buttons based on role
-  const canEditOrAdd = userRole === 'administrator';  // Only admins can edit, add, or deactivate
+  //Only admins can edit, add, or deactivate
+  const canEditOrAdd = userRole === 'administrator';  
 
   return (
     <div>
@@ -60,8 +58,10 @@ const UserChartOfAcc = () => {
               <th>Account Number</th>
               <th>Category</th>
               <th>Initial Balance</th>
+
               {/* Only show action buttons for admin users */}
               {canEditOrAdd && <th>Actions</th>}
+              
             </tr>
           </thead>
           <tbody>
@@ -71,6 +71,7 @@ const UserChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
+
                 {/* Only show buttons for admin users */}
                 {canEditOrAdd && (
                   <td>

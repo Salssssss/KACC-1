@@ -4,6 +4,10 @@ import axios from 'axios';
 
 const AdminChartOfAcc = () => {
   //Get the user ID from the URL
+  //Using this instead of localstorage because the userid needs to be dynamic for this page
+  //userId -> admin viewing another user's account
+  //userID -> current user viewing their account 
+  //Not the best naming, I was locked in and just wanted to test it. Might change later. 
   const { userId } = useParams();
   const [userAccounts, setUserAccounts] = useState([]);
 
