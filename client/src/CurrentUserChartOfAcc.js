@@ -4,11 +4,11 @@ import axios from 'axios';
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(''); // New state to store search query
   const [error, setError] = useState('');
-  
-  //Fetch logged-in user information from localStorage
+
+  // Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
-  const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +25,12 @@ const UserChartOfAcc = () => {
     fetchUserAccounts();
   }, [userID]);
 
+  // Filter accounts based on search query
+  const filteredAccounts = userAccounts.filter(account =>
+    account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    account.account_number.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleViewLedger = (accountId) => {
     navigate(`/account/${accountId}/ledger`);
   };
@@ -35,7 +41,17 @@ const UserChartOfAcc = () => {
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {userAccounts.length > 0 ? (
+      {/* Search input for filtering accounts */}
+      <div>
+        <input
+          type="text"
+          placeholder="Search by account name or number"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {filteredAccounts.length > 0 ? (
         <table>
           <thead>
             <tr>
@@ -47,7 +63,7 @@ const UserChartOfAcc = () => {
             </tr>
           </thead>
           <tbody>
-            {userAccounts.map((account) => (
+            {filteredAccounts.map((account) => (
               <tr key={account.account_id}>
                 <td>{account.account_name}</td>
                 <td>{account.account_number}</td>
@@ -61,7 +77,7 @@ const UserChartOfAcc = () => {
           </tbody>
         </table>
       ) : (
-        <p>No accounts found for your user profile.</p>
+        <p>No accounts found for your search query.</p>
       )}
     </div>
   );

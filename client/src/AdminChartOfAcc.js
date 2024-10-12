@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-  //Get the user ID from the URL
-  //Using this instead of localstorage because the userid needs to be dynamic for this page
-  //userId -> admin viewing another user's account
-  //userID -> current user viewing their account 
-  //Not the best naming, I was locked in and just wanted to test it. Might change later.
+
 const AdminChartOfAcc = () => {
   const { userId } = useParams();
   const [userAccounts, setUserAccounts] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState(null); // State to store selected account for editing
+  const [editData, setEditData] = useState({}); // State to store form data for editing
   const [error, setError] = useState(null);
   const canEditOrAdd = true; // Set based on user role (example: admin can edit/add)
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUserAccounts = async () => {
       try {
@@ -28,18 +27,33 @@ const AdminChartOfAcc = () => {
     }
   }, [userId]);
 
-  const handleEdit = async (accountId) => {
-    // Add logic to get new account data (e.g., open a modal to input new values)
-    const updatedData = {
-      account_name: 'Updated Account Name',
-      initial_balance: 0
-    };
+  const handleEditClick = async (accountId) => {
     try {
-      await axios.put(`http://localhost:5000/account/edit/${accountId}`, updatedData, { withCredentials: true });
+      const response = await axios.get(`http://localhost:5000/account/${accountId}`, { withCredentials: true });
+      setSelectedAccount(accountId);
+      setEditData(response.data); // Set initial form data to current values of the account
+    } catch (error) {
+      console.error('Error fetching account details:', error);
+      setError('Error fetching account details. Please try again.');
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({
+      ...editData,
+      [name]: value
+    });
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await axios.put(`http://localhost:5000/account/edit/${selectedAccount}`, editData, { withCredentials: true });
       alert('Account updated successfully');
       // Re-fetch accounts to reflect changes
       const response = await axios.get(`http://localhost:5000/account/${userId}/accounts`, { withCredentials: true });
       setUserAccounts(response.data);
+      setSelectedAccount(null); // Close the edit form after successful update
     } catch (error) {
       console.error('Error updating account:', error);
       alert('Error updating account');
@@ -88,7 +102,7 @@ const AdminChartOfAcc = () => {
                 <td>{account.initial_balance}</td>
                 {canEditOrAdd && (
                   <td>
-                    <button onClick={() => handleEdit(account.account_id)}>Edit</button>
+                    <button onClick={() => handleEditClick(account.account_id)}>Edit</button>
                     <button onClick={() => handleDeactivate(account.account_id)}>Deactivate</button>
                   </td>
                 )}
@@ -97,11 +111,104 @@ const AdminChartOfAcc = () => {
           </tbody>
         </table>
       ) : (
-        <p>No accounts found for your user profile.</p>
+        <p>No accounts found for this user.</p>
       )}
 
       {canEditOrAdd && (
         <button onClick={handleAddAccount}>Add New Account</button>
+      )}
+
+      {selectedAccount && (
+        <div className="edit-form">
+          <h3>Edit Account</h3>
+          <form onSubmit={(e) => { e.preventDefault(); handleEditSubmit(); }}>
+            <div>
+              <label>Account Name:</label>
+              <input
+                type="text"
+                name="account_name"
+                value={editData.account_name || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div>
+              <label>Account Number:</label>
+              <input
+                type="text"
+                name="account_number"
+                value={editData.account_number || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div>
+              <label>Account Description:</label>
+              <input
+                type="text"
+                name="account_description"
+                value={editData.account_description || ''}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label>Normal Side:</label>
+              <select name="normal_side" value={editData.normal_side || ''} onChange={handleInputChange}>
+                <option value="debit">Debit</option>
+                <option value="credit">Credit</option>
+              </select>
+            </div>
+            <div>
+              <label>Category:</label>
+              <input
+                type="text"
+                name="category"
+                value={editData.category || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div>
+              <label>Subcategory:</label>
+              <input
+                type="text"
+                name="subcategory"
+                value={editData.subcategory || ''}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label>Initial Balance:</label>
+              <input
+                type="number"
+                name="initial_balance"
+                value={editData.initial_balance || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div>
+              <label>Order:</label>
+              <input
+                type="number"
+                name="order"
+                value={editData.order || ''}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div>
+              <label>Statement:</label>
+              <select name="statement" value={editData.statement || ''} onChange={handleInputChange}>
+                <option value="BS">Balance Sheet</option>
+                <option value="IS">Income Statement</option>
+                <option value="RE">Retained Earnings</option>
+              </select>
+            </div>
+            <button type="submit">Save Changes</button>
+            <button type="button" onClick={() => setSelectedAccount(null)}>Cancel</button>
+          </form>
+        </div>
       )}
     </div>
   );

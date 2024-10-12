@@ -6,7 +6,8 @@ const {
     editAccount,
     getAccountLedger, 
     getAccountEvents,
-    deactivateAccount
+    deactivateAccount,
+    getAccountById
 } = require('../controllers/accountController');
 
 // POST route for creating a new account
@@ -42,8 +43,9 @@ router.post('/create', async (req, res) => {
 
   // PUT route to edit an account
 router.put('/edit/:account_id', async (req, res) => {
+  console.log('session id:', req.session.user.id)
   const pool = req.app.get('dbPool');  // Get the database pool
-  const userId = req.session.user_id;  // Get the user ID from the session
+  const userId = req.session.user.id  // Get the user ID from the session
   const { account_id } = req.params;   // Get the account ID from the route parameter
 
   try {
@@ -85,7 +87,7 @@ router.get('/:account_id/events', async (req, res) => {
 router.put('/deactivate/:account_id', async (req, res) => {
   const pool = req.app.get('dbPool');  // Get the database pool from the app
   const { account_id } = req.params;   // Get the account ID from the route parameter
-  const changed_by_user_id = req.session.user_id;  // Get the user ID from the session (assuming you use session-based auth)
+  const changed_by_user_id = req.session.user.id;  // Get the user ID from the session (assuming you use session-based auth)
 
   try {
     // Call the deactivateAccount function with the correct parameters
@@ -94,6 +96,20 @@ router.put('/deactivate/:account_id', async (req, res) => {
   } catch (error) {
     console.error('Error during PUT /deactivate:', error);
     res.status(400).json({ message: error.message || 'An error occurred during account deactivation' });
+  }
+});
+
+// Route to get a single account by account_id
+router.get('/:accountId', async (req, res) => {
+  const pool = req.app.get('dbPool');
+  const { accountId } = req.params;
+
+  try {
+    const account = await getAccountById(pool, accountId);
+    res.status(200).json(account);
+  } catch (error) {
+    console.error('Error fetching account by ID:', error);
+    res.status(400).json({ message: error.message || 'An error occurred while fetching the account details' });
   }
 });
 
