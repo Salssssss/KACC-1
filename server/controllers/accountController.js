@@ -97,19 +97,8 @@ exports.getAccountsByUser = async (pool, user_id) => {
 };
 
 exports.editAccount = async (pool, account_id, newAccountData, changed_by_user_id) => {
-  const {
-    account_name,
-    account_number,
-    account_description,
-    normal_side,
-    category,
-    subcategory,
-    initial_balance,
-    order,
-    statement
-  } = newAccountData;
-
   let transaction;
+
   try {
     // Start transaction
     transaction = pool.transaction();
@@ -126,30 +115,35 @@ exports.editAccount = async (pool, account_id, newAccountData, changed_by_user_i
 
     const currentAccount = currentAccountResult.recordset[0];
 
+    // Merge current account data with new data, only updating provided fields
+    const updatedAccount = {
+      account_name: newAccountData.account_name || currentAccount.account_name,
+      account_number: newAccountData.account_number || currentAccount.account_number,
+      account_description: newAccountData.account_description || currentAccount.account_description,
+      normal_side: newAccountData.normal_side || currentAccount.normal_side,
+      category: newAccountData.category || currentAccount.category,
+      subcategory: newAccountData.subcategory || currentAccount.subcategory,
+      initial_balance: newAccountData.initial_balance !== undefined ? newAccountData.initial_balance : currentAccount.initial_balance,
+      balance: newAccountData.balance !== undefined ? newAccountData.balance : currentAccount.balance,
+      order: newAccountData.order || currentAccount.order,
+      statement: newAccountData.statement || currentAccount.statement
+    };
+
     // Create before_image from the current account state
-    const beforeImage = JSON.stringify({
-      account_name: currentAccount.account_name,
-      account_number: currentAccount.account_number,
-      account_description: currentAccount.account_description,
-      normal_side: currentAccount.normal_side,
-      category: currentAccount.category,
-      subcategory: currentAccount.subcategory,
-      initial_balance: currentAccount.initial_balance,
-      order: currentAccount.order,
-      statement: currentAccount.statement
-    });
+    const beforeImage = JSON.stringify(currentAccount);
 
     // Update the account with the new values
     await transaction.request()
-      .input('account_name', sql.VarChar, account_name)
-      .input('account_number', sql.VarChar, account_number)
-      .input('account_description', sql.VarChar, account_description)
-      .input('normal_side', sql.VarChar, normal_side)
-      .input('category', sql.VarChar, category)
-      .input('subcategory', sql.VarChar, subcategory)
-      .input('initial_balance', sql.Decimal(15, 2), initial_balance)
-      .input('order', sql.Int, order)
-      .input('statement', sql.VarChar, statement)
+      .input('account_name', sql.VarChar, updatedAccount.account_name)
+      .input('account_number', sql.VarChar, updatedAccount.account_number)
+      .input('account_description', sql.VarChar, updatedAccount.account_description)
+      .input('normal_side', sql.VarChar, updatedAccount.normal_side)
+      .input('category', sql.VarChar, updatedAccount.category)
+      .input('subcategory', sql.VarChar, updatedAccount.subcategory)
+      .input('initial_balance', sql.Decimal(15, 2), updatedAccount.initial_balance)
+      .input('balance', sql.Decimal(15, 2), updatedAccount.balance)
+      .input('order', sql.Int, updatedAccount.order)
+      .input('statement', sql.VarChar, updatedAccount.statement)
       .input('account_id', sql.Int, account_id)
       .query(`UPDATE accounts 
               SET account_name = @account_name,
@@ -159,23 +153,14 @@ exports.editAccount = async (pool, account_id, newAccountData, changed_by_user_i
                   category = @category,
                   subcategory = @subcategory,
                   initial_balance = @initial_balance,
+                  balance = @balance,
                   [order] = @order,
                   statement = @statement,
                   updated_at = GETDATE()
               WHERE account_id = @account_id`);
 
     // Create after_image from the updated account data
-    const afterImage = JSON.stringify({
-      account_name,
-      account_number,
-      account_description,
-      normal_side,
-      category,
-      subcategory,
-      initial_balance,
-      order,
-      statement
-    });
+    const afterImage = JSON.stringify(updatedAccount);
 
     // Insert the event into account_events
     await transaction.request()
@@ -231,3 +216,52 @@ exports.getAccountLedger = async (pool, account_id) => {
   }
 };
   
+exports.deactivateAccount = async (pool, account_id, changed_by_user_id) => {
+  let transaction;
+
+  try {
+    // Begin a transaction to ensure atomicity
+    transaction = pool.transaction();
+    await transaction.begin();
+
+    // Check the current balance of the account
+    const accountResult = await transaction.request()
+      .input('account_id', sql.Int, account_id)
+      .query('SELECT balance FROM accounts WHERE account_id = @account_id');
+
+    if (accountResult.recordset.length === 0) {
+      throw new Error('Account not found');
+    }
+
+    const currentBalance = accountResult.recordset[0].balance;
+
+    // If the balance is greater than zero, throw an error
+    if (currentBalance > 0) {
+      throw new Error('Account cannot be deactivated as the balance is greater than zero');
+    }
+
+    // Deactivate the account
+    await transaction.request()
+      .input('account_id', sql.Int, account_id)
+      .query(`UPDATE accounts SET is_active = 0, updated_at = GETDATE() WHERE account_id = @account_id`);
+
+    // Log the deactivation event in account_events
+    await transaction.request()
+      .input('account_id', sql.Int, account_id)
+      .input('before_image', sql.VarChar, JSON.stringify({ is_active: 1 })) // Before deactivation
+      .input('after_image', sql.VarChar, JSON.stringify({ is_active: 0 })) // After deactivation
+      .input('changed_by_user_id', sql.Int, changed_by_user_id)
+      .input('event_time', sql.DateTime, new Date())
+      .query(`INSERT INTO account_events (account_id, before_image, after_image, changed_by_user_id, event_time)
+              VALUES (@account_id, @before_image, @after_image, @changed_by_user_id, @event_time)`);
+
+    // Commit the transaction
+    await transaction.commit();
+  } catch (error) {
+    console.error('Error during account deactivation:', error);
+    if (transaction) {
+      await transaction.rollback(); // Roll back the transaction if something goes wrong
+    }
+    throw error;
+  }
+};

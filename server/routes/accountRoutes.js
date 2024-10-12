@@ -5,7 +5,8 @@ const {
     getAccountsByUser,
     editAccount,
     getAccountLedger, 
-    getAccountEvents
+    getAccountEvents,
+    deactivateAccount
 } = require('../controllers/accountController');
 
 // POST route for creating a new account
@@ -80,5 +81,21 @@ router.get('/:account_id/events', async (req, res) => {
     res.status(500).json({ message: 'Error fetching account events' });
   }
 });
+
+router.put('/deactivate/:account_id', async (req, res) => {
+  const pool = req.app.get('dbPool');  // Get the database pool from the app
+  const { account_id } = req.params;   // Get the account ID from the route parameter
+  const changed_by_user_id = req.session.user_id;  // Get the user ID from the session (assuming you use session-based auth)
+
+  try {
+    // Call the deactivateAccount function with the correct parameters
+    await deactivateAccount(pool, account_id, changed_by_user_id);
+    res.status(200).json({ message: 'Account deactivated successfully' });
+  } catch (error) {
+    console.error('Error during PUT /deactivate:', error);
+    res.status(400).json({ message: error.message || 'An error occurred during account deactivation' });
+  }
+});
+
 
 module.exports = router;
