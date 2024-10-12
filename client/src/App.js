@@ -11,6 +11,7 @@ import SelectSecurityQuestions from './SelectSecurityQuestions';
 import ForgotPassword from './ForgotPassword';
 import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
+import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -84,6 +85,12 @@ function App() {
         <Route 
           path="/chart-of-accounts/:userId" 
           element={<AdminChartOfAcc />} 
+          />
+
+        {/* Current User's Chart of Accounts */}
+        <Route 
+          path="/user-accounts" 
+          element={<CurrentUserChartOfAcc />} 
           />
 
         {/* Fallback */}
