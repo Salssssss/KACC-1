@@ -22,6 +22,7 @@ const Nav = () => {
     }
   };
 
+
   // Handler for logging out
   const handleLogout = () => {
     localStorage.removeItem('user_id');
@@ -50,9 +51,11 @@ const Nav = () => {
             <button onClick={handleLogout}>Logout</button>
           </>
         )}
+        <button onClick={() => navigate('/About')}>About</button>
       </div>
     </nav>
   );
+
 };
 
 export default Nav;

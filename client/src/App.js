@@ -11,6 +11,7 @@ import SelectSecurityQuestions from './SelectSecurityQuestions';
 import ForgotPassword from './ForgotPassword';
 import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
+import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 import CreateAccount from './CreateAccount';
 
@@ -53,6 +54,15 @@ function App() {
         
         {/* Login Route */}
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+
+        {/* Forgot Passowrd route*/}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* About Route */}
+        <Route path='/about' element={<About />} />
+        
+        {/* Create Account Route */}
+        <Route path="/create-account" element={<CreateAccount />} />
 
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />
