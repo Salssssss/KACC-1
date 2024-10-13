@@ -15,6 +15,7 @@ import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 import GeneralLedger from './GeneralLedger';
 import CreateAccount from './CreateAccount';
+import Journal from './Journal';
 
 
 
@@ -77,6 +78,9 @@ function App() {
 
         {/* create account Setup */}
         <Route path="/create-account/:user_id" element={<CreateAccount />} />
+
+        {/*Journal*/}
+        <Route path ="/journal/:user_id" element={<Journal />} />
 
 
         {/* Security Questions Setup Route */}

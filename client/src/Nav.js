@@ -13,6 +13,8 @@ const Nav = () => {
   // Get the user role from localStorage (if logged in)
   const userRole = localStorage.getItem('userRole'); 
 
+  const user_id = localStorage.getItem('user_id');
+
   // Handler for navigating to the dashboard
   const handleDashboardNavigation = () => {
     if (userRole === 'administrator') {
@@ -51,6 +53,7 @@ const Nav = () => {
             <button onClick={handleLogout}>Logout</button>
           </>
         )}
+        <button onClick={() => navigate(`/Journal/${user_id}`)}>Journal</button>
         <button onClick={() => navigate('/About')}>About</button>
       </div>
     </nav>
