@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Tooltip from "./Tooltip";
+import tooltipLogo from './images/help.png';
 
 //Importing these for the suspension function
 import DatePicker from 'react-datepicker';
@@ -289,7 +291,12 @@ const AdminDashboard = () => {
         {error && <p>Error: {error}</p>}
 
         {/*USER REPORT GENERATION */}
-        <button onClick={fetchAllUsersReport}>Generate Report of All Users</button>
+        <div className='tooltipButton'>
+          <button onClick={fetchAllUsersReport}>Generate Report of All Users</button>
+          <Tooltip text={"Show a list of all user details"}>
+            <img src={tooltipLogo} alt="Tool Logo" style={{ width: '30px' }} />
+          </Tooltip>
+        </div>
 
          {/* Show loading indicator if fetching report */}
          {loading && <p>Loading report...</p>}
@@ -395,7 +402,13 @@ const AdminDashboard = () => {
 
         <div>
       {/* Button to fetch the expired passwords report */}
-      <button onClick={fetchExpiredPasswordsReport}>Generate Expired Passwords Report</button>
+      <div className='tooltipButton'>
+        <button onClick={fetchExpiredPasswordsReport}>Generate Expired Passwords Report</button>
+        <Tooltip text={"Show accounts with expired passwords"}>
+          <img src={tooltipLogo} alt="Tool Logo" style={{ width: '30px' }} />
+        </Tooltip>
+      </div>
+      
       
 
       {/* Show loading indicator if fetching report */}

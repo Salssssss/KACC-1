@@ -1,73 +1,96 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const CreateAccount = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [dob, setDob] = useState(''); // Date of birth added
-  const [address, setAddress] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // initiate useNavigate for redirection
+  const { user_id } = useParams(); // Extract user_id from URL params
+  const navigate = useNavigate();
 
-  const handleCreateAccount = async (e) => {
+  const [accountData, setAccountData] = useState({
+    account_name: '',
+    account_number: '',
+    account_description: '',
+    normal_side: 'debit',
+    category: '',
+    subcategory: '',
+    initial_balance: 0,
+    order: '',
+    statement: 'BS',
+    user_id: user_id // Set user_id from params
+  });
+
+  const [error, setError] = useState(null);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setAccountData({
+      ...accountData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      const response = await axios.post('http://localhost:5000/users/create-account', {
-        firstName,
-        lastName,
-        dob,
-        address,
-        email,
-      });
-
-      setMessage(response.data.message);
-
-      if (response.data.message === 'Account created successfully. Awaiting admin approval.') {
-        // Show an alert with the message
-        window.alert('Your account is pending approval. You will receive an email from an admin once your account has been accepted.');
-        
-        // Navigate the user back to the login page after they close the alert
-        navigate('/LandingPage');
-      }
+      await axios.post('http://localhost:5000/account/create', accountData, { withCredentials: true });
+      alert('Account created successfully');
+      navigate(`/chart-of-accounts/${user_id}`);
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        setMessage('Account creation failed: ' + error.response.data.message);
-      } else {
-        setMessage('Error connecting to server');
-      }
+      console.error('Error creating account:', error);
+      setError('Error creating account. Please try again.');
     }
   };
 
   return (
-    <div className="createAccount">
-      <h2>Create Account</h2>
-      <form onSubmit={handleCreateAccount}>
+    <div>
+      <h1>Create New Account</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
         <div>
-          <label>First Name:</label>
-          <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+          <label>Account Name:</label>
+          <input type="text" name="account_name" value={accountData.account_name} onChange={handleInputChange} required />
         </div>
         <div>
-          <label>Last Name:</label>
-          <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+          <label>Account Number:</label>
+          <input type="text" name="account_number" value={accountData.account_number} onChange={handleInputChange} required />
         </div>
         <div>
-          <label>Date of Birth:</label>
-          <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
+          <label>Account Description:</label>
+          <input type="text" name="account_description" value={accountData.account_description} onChange={handleInputChange} />
         </div>
         <div>
-          <label>Address:</label>
-          <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} required />
+          <label>Normal Side:</label>
+          <select name="normal_side" value={accountData.normal_side} onChange={handleInputChange}>
+            <option value="debit">Debit</option>
+            <option value="credit">Credit</option>
+          </select>
         </div>
         <div>
-          <label>Email:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label>Category:</label>
+          <input type="text" name="category" value={accountData.category} onChange={handleInputChange} required />
+        </div>
+        <div>
+          <label>Subcategory:</label>
+          <input type="text" name="subcategory" value={accountData.subcategory} onChange={handleInputChange} />
+        </div>
+        <div>
+          <label>Initial Balance:</label>
+          <input type="number" name="initial_balance" value={accountData.initial_balance} onChange={handleInputChange} required />
+        </div>
+        <div>
+          <label>Order:</label>
+          <input type="number" name="order" value={accountData.order} onChange={handleInputChange} required />
+        </div>
+        <div>
+          <label>Statement:</label>
+          <select name="statement" value={accountData.statement} onChange={handleInputChange}>
+            <option value="BS">Balance Sheet</option>
+            <option value="IS">Income Statement</option>
+            <option value="RE">Retained Earnings</option>
+          </select>
         </div>
         <button type="submit">Create Account</button>
       </form>
-      {message && <p>{message}</p>}
     </div>
   );
 };

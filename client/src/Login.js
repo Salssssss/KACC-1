@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Tooltip from "./Tooltip";
+import tooltipLogo from './images/help.png';
 
 // Import Navbar
 import Nav from './Nav';
@@ -85,8 +87,11 @@ const Login = ({setIsLoggedIn}) => {
       {message && <p>{message}</p>}
 
       {/* Add Forgot Password button here */}
-      <div>
+      <div className='tooltipButton'>
         <button onClick={() => navigate('/forgot-password')}>Forgot Password?</button>
+        <Tooltip text={"Receive an email to reset password"}>
+        <img src={tooltipLogo} alt="Tool Logo" style={{ width: '30px' }} />
+        </Tooltip>
       </div>
     </div>
   );

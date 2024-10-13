@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
 import Login from './Login';
-import CreateAccount from './CreateAccount';
+import CreateProfile from './CreateProfile';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
 import SetPassword from './SetPassword';
@@ -11,8 +11,13 @@ import SelectSecurityQuestions from './SelectSecurityQuestions';
 import ForgotPassword from './ForgotPassword';
 import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
+import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
+
 import GeneralLedger from './GeneralLedger';
+
+import CreateAccount from './CreateAccount';
+
 
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -56,12 +61,24 @@ function App() {
 
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* About Route */}
+        <Route path='/about' element={<About />} />
         
         {/* Create Account Route */}
         <Route path="/create-account" element={<CreateAccount />} />
+
+        {/* Forgot Passowrd route*/}
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        {/* Create Profile Route */}
+        <Route path="/create-profile" element={<CreateProfile />} />
         
         {/* Password Setup */}
         <Route path="/set-password" element={<SetPassword />} />
+
+        {/* create account Setup */}
+        <Route path="/create-account/:user_id" element={<CreateAccount />} />
 
         {/* Security Questions Setup Route */}
         <Route
