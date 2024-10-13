@@ -13,11 +13,8 @@ import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
 import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
-
 import GeneralLedger from './GeneralLedger';
-
 import CreateAccount from './CreateAccount';
-import AccountLedger from'./AccountLedger';
 
 
 
@@ -81,8 +78,6 @@ function App() {
         {/* create account Setup */}
         <Route path="/create-account/:user_id" element={<CreateAccount />} />
 
-        {/*Account Ledger*/}
-        <Route path ="account-ledger/:account_id" element={<AccountLedger />} />
 
         {/* Security Questions Setup Route */}
         <Route
