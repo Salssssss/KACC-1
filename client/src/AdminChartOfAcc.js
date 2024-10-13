@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { generateCalendarHTML } from './calendar'; // Assuming you have a calendar.js file
+import './calendar.css'; // Import the CSS file for the calendar
 
 const AdminChartOfAcc = () => {
   const { userId } = useParams();
@@ -9,6 +11,7 @@ const AdminChartOfAcc = () => {
   const [editData, setEditData] = useState({}); // State to store form data for editing
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [calendarVisible, setCalendarVisible] = useState(false); // State to toggle calendar visibility
   const canEditOrAdd = true; // Set based on user role (example: admin can edit/add)
   const navigate = useNavigate();
 
@@ -85,7 +88,27 @@ const AdminChartOfAcc = () => {
   );
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* Calendar Button */}
+      <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+        <button onClick={() => setCalendarVisible(!calendarVisible)}>Toggle Calendar</button>
+        {calendarVisible && (
+          <div
+            className="calendar-container"
+            dangerouslySetInnerHTML={generateCalendarHTML()}
+            style={{
+              position: 'absolute',
+              top: '50px',
+              right: '10px',
+              backgroundColor: 'white',
+              border: '1px solid black',
+              padding: '10px',
+              zIndex: 1000
+            }}
+          />
+        )}
+      </div>
+
       <h1>Chart of Accounts for User {userId}</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
@@ -119,7 +142,7 @@ const AdminChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
-                <td>{account.balance}</td> 
+                <td>{account.balance}</td>
                 {canEditOrAdd && (
                   <td>
                     <button onClick={() => handleEditClick(account.account_id)}>Edit</button>
@@ -224,6 +247,15 @@ const AdminChartOfAcc = () => {
                 <option value="IS">Income Statement</option>
                 <option value="RE">Retained Earnings</option>
               </select>
+            </div>
+            <div>
+              <label>Current Balance:</label>
+              <input
+                type="number"
+                name="balance"
+                value={editData.balance || ''}
+                readOnly
+              />
             </div>
             <button type="submit">Save Changes</button>
             <button type="button" onClick={() => setSelectedAccount(null)}>Cancel</button>

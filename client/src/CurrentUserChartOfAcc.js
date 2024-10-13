@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { generateCalendarHTML } from './calendar'; // Assuming you have a calendar.js file
+import './calendar.css'; // Import the CSS file for the calendar
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);
   const [searchQuery, setSearchQuery] = useState(''); // New state to store search query
   const [error, setError] = useState('');
+  const [calendarVisible, setCalendarVisible] = useState(false); // State to toggle calendar visibility
 
   // Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
@@ -36,21 +39,41 @@ const UserChartOfAcc = () => {
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {/* Calendar Button */}
+      <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+        <button onClick={() => setCalendarVisible(!calendarVisible)}>Toggle Calendar</button>
+        {calendarVisible && (
+          <div
+            className="calendar-container"
+            dangerouslySetInnerHTML={generateCalendarHTML()}
+            style={{
+              position: 'absolute',
+              top: '50px',
+              right: '10px',
+              backgroundColor: 'white',
+              border: '1px solid black',
+              padding: '10px',
+              zIndex: 1000
+            }}
+          />
+        )}
+      </div>
+
       <h2>Your Chart of Accounts</h2>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Search input for filtering accounts */}
       <div>
-  <input
-    type="text"
-    placeholder="Search by account name or number"
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    style={{ width: '400px' }} // Adjust the width as needed
-  />
-</div>
+        <input
+          type="text"
+          placeholder="Search by account name or number"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ width: '400px' }} // Adjust the width as needed
+        />
+      </div>
 
       {filteredAccounts.length > 0 ? (
         <table>

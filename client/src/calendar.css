@@ -1,0 +1,33 @@
+/* calendar.css */
+
+.calendar-header {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.calendar-month {
+    margin-right: 5px;
+}
+
+.calendar-year {
+    color: #555;
+}
+
+.today {
+    background-color: #ffeb3b; /* Highlight today's date */
+    border-radius: 50%;
+    font-weight: bold;
+    color: #000;
+}
+
+.calendar-container {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 10px;
+    z-index: 1000;
+}
