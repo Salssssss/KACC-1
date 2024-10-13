@@ -51,9 +51,9 @@ const Nav = () => {
             <button onClick={() => navigate('/user-accounts')}>Chart Of Accounts</button>
             <button onClick={handleDashboardNavigation}>Dashboard</button>
             <button onClick={handleLogout}>Logout</button>
+            <button onClick={() => navigate(`/Journal/${user_id}`)}>Journal</button>
           </>
         )}
-        <button onClick={() => navigate(`/Journal/${user_id}`)}>Journal</button>
         <button onClick={() => navigate('/About')}>About</button>
       </div>
     </nav>
