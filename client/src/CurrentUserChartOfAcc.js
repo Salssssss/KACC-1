@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 import { generateCalendarHTML } from './calendar'; // Assuming you have a calendar.js file
 import './calendar.css'; // Import the CSS file for the calendar
@@ -10,7 +11,6 @@ const UserChartOfAcc = () => {
   const [error, setError] = useState('');
   const [calendarVisible, setCalendarVisible] = useState(false); // State to toggle calendar visibility
 
-  // Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
   const navigate = useNavigate();
 
@@ -28,11 +28,13 @@ const UserChartOfAcc = () => {
     fetchUserAccounts();
   }, [userID]);
 
+
   // Filter accounts based on search query
   const filteredAccounts = userAccounts.filter(account =>
     account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     account.account_number.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   const handleViewLedger = (accountId) => {
     navigate(`/account/${accountId}/ledger`);
@@ -85,6 +87,7 @@ const UserChartOfAcc = () => {
               <th>Initial Balance</th>
               <th>Current Balance</th>
               <th>Actions</th>
+
             </tr>
           </thead>
           <tbody>
