@@ -13,7 +13,7 @@ const {
 // POST route for creating a new account
 router.post('/create', async (req, res) => {
     const pool = req.app.get('dbPool');  // Get the database pool from app settings
-      
+    console.log(req.body)  
     try {
       await createAccount(pool, req.body);  // Call the createAccount function and pass the pool
       res.status(201).json({ message: 'Account created successfully' });

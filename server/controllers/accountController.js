@@ -1,6 +1,7 @@
 const sql = require('mssql');
 
 exports.createAccount = async (pool, accountData) => {
+  console.log('code is making it here:', accountData)
   const {
     account_name,
     account_number,
@@ -30,13 +31,14 @@ exports.createAccount = async (pool, accountData) => {
       .input('category', sql.VarChar, category)
       .input('subcategory', sql.VarChar, subcategory)
       .input('initial_balance', sql.Decimal(15, 2), initial_balance)
+      .input('balance', sql.Decimal(15, 2), initial_balance)
       .input('user_id', sql.Int, user_id)
       .input('order', sql.Int, order)
       .input('statement', sql.VarChar, statement)
       .query(`INSERT INTO accounts 
-              (account_name, account_number, account_description, normal_side, category, subcategory, initial_balance, user_id, [order], statement, created_at, updated_at)
+              (account_name, account_number, account_description, normal_side, category, subcategory, initial_balance, balance, user_id, [order], statement, created_at, updated_at)
               OUTPUT INSERTED.account_id
-              VALUES (@account_name, @account_number, @account_description, @normal_side, @category, @subcategory, @initial_balance, @user_id, @order, @statement, GETDATE(), GETDATE())`);
+              VALUES (@account_name, @account_number, @account_description, @normal_side, @category, @subcategory, @initial_balance, @balance, @user_id, @order, @statement, GETDATE(), GETDATE())`);
 
     // Extract the account ID from the result
     const accountId = result.recordset[0].account_id;

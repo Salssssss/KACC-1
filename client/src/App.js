@@ -12,6 +12,7 @@ import ForgotPassword from './ForgotPassword';
 import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
+import CreateAccount from './CreateAccount';
 
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -61,6 +62,9 @@ function App() {
         
         {/* Password Setup */}
         <Route path="/set-password" element={<SetPassword />} />
+
+        {/* create account Setup */}
+        <Route path="/create-account/:user_id" element={<CreateAccount />} />
 
         {/* Security Questions Setup Route */}
         <Route

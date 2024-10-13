@@ -60,6 +60,7 @@ const UserChartOfAcc = () => {
               <th>Account Number</th>
               <th>Category</th>
               <th>Initial Balance</th>
+              <th>Current Balance</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -70,6 +71,7 @@ const UserChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
+                <td>{account.balance}</td>
                 <td>
                   <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
                 </td>

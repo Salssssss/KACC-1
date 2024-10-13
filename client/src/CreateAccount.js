@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CreateAccount = () => {
+  const { user_id } = useParams(); // Extract user_id from URL params
+  const navigate = useNavigate();
+
   const [accountData, setAccountData] = useState({
     account_name: '',
     account_number: '',
@@ -12,11 +15,11 @@ const CreateAccount = () => {
     subcategory: '',
     initial_balance: 0,
     order: '',
-    statement: 'BS'
+    statement: 'BS',
+    user_id: user_id // Set user_id from params
   });
 
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +34,7 @@ const CreateAccount = () => {
     try {
       await axios.post('http://localhost:5000/account/create', accountData, { withCredentials: true });
       alert('Account created successfully');
-      navigate('/accounts');  // Navigate back to the chart of accounts page after successful creation
+      navigate(`/chart-of-accounts/${user_id}`);
     } catch (error) {
       console.error('Error creating account:', error);
       setError('Error creating account. Please try again.');

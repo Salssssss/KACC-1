@@ -8,6 +8,7 @@ const AdminChartOfAcc = () => {
   const [selectedAccount, setSelectedAccount] = useState(null); // State to store selected account for editing
   const [editData, setEditData] = useState({}); // State to store form data for editing
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
   const canEditOrAdd = true; // Set based on user role (example: admin can edit/add)
   const navigate = useNavigate();
 
@@ -74,15 +75,32 @@ const AdminChartOfAcc = () => {
   };
 
   const handleAddAccount = () => {
-    navigate('/accounts/create'); // Navigate to the create account page
+    navigate(`/create-account/${userId}`); // Navigate to the create account page
   };
+
+  // Filter accounts based on the search query
+  const filteredAccounts = userAccounts.filter(account =>
+    account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    account.account_number.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div>
       <h1>Chart of Accounts for User {userId}</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {userAccounts.length > 0 ? (
+      {/* Search input for filtering accounts */}
+      <div>
+        <input
+          type="text"
+          placeholder="Search by account name or number"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ width: '400px' }} // Makes the search bar wider
+        />
+      </div>
+
+      {filteredAccounts.length > 0 ? (
         <table>
           <thead>
             <tr>
@@ -90,16 +108,18 @@ const AdminChartOfAcc = () => {
               <th>Account Number</th>
               <th>Category</th>
               <th>Initial Balance</th>
+              <th>Current Balance</th>
               {canEditOrAdd && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
-            {userAccounts.map((account) => (
+            {filteredAccounts.map((account) => (
               <tr key={account.account_id}>
                 <td>{account.account_name}</td>
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
+                <td>{account.balance}</td> 
                 {canEditOrAdd && (
                   <td>
                     <button onClick={() => handleEditClick(account.account_id)}>Edit</button>
