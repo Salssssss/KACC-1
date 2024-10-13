@@ -43,13 +43,14 @@ const UserChartOfAcc = () => {
 
       {/* Search input for filtering accounts */}
       <div>
-        <input
-          type="text"
-          placeholder="Search by account name or number"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+  <input
+    type="text"
+    placeholder="Search by account name or number"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    style={{ width: '400px' }} // Adjust the width as needed
+  />
+</div>
 
       {filteredAccounts.length > 0 ? (
         <table>
