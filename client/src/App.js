@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './LandingPage';
 import Login from './Login';
-import CreateAccount from './CreateAccount';
+import CreateProfile from './CreateProfile';
 import Dashboard from './Dashboard';
 import AdminDashboard from './AdminDashboard';
 import SetPassword from './SetPassword';
@@ -13,6 +13,7 @@ import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
 import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
+import CreateAccount from './CreateAccount';
 
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -66,11 +67,14 @@ function App() {
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
-        {/* Create Account Route */}
-        <Route path="/create-account" element={<CreateAccount />} />
+        {/* Create Profile Route */}
+        <Route path="/create-profile" element={<CreateProfile />} />
         
         {/* Password Setup */}
         <Route path="/set-password" element={<SetPassword />} />
+
+        {/* create account Setup */}
+        <Route path="/create-account/:user_id" element={<CreateAccount />} />
 
         {/* Security Questions Setup Route */}
         <Route
