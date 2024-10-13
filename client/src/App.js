@@ -13,7 +13,11 @@ import TopRightProfile from './TopRightProfile';
 import AdminChartOfAcc from './AdminChartOfAcc';
 import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
+
+import GeneralLedger from './GeneralLedger';
+
 import CreateAccount from './CreateAccount';
+
 
 
 const ProtectedRoute = ({ children, allowedRole }) => {
@@ -106,6 +110,10 @@ function App() {
           path="/user-accounts" 
           element={<CurrentUserChartOfAcc />} 
           />
+
+        {/* Ledger */}
+        <Route path="/ledger/:accountId" element={<GeneralLedger />} /> {/* Route for ledger */}
+
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />

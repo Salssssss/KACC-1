@@ -10,6 +10,7 @@ const AdminChartOfAcc = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState(''); // State for search query
   const canEditOrAdd = true; // Set based on user role (example: admin can edit/add)
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,6 +79,10 @@ const AdminChartOfAcc = () => {
     navigate(`/create-account/${userId}`); // Navigate to the create account page
   };
 
+  const handleViewLedger = (accountId) => {
+    navigate(`/ledger/${accountId}`);  // Navigate to GeneralLedger.js page with account_id as param
+  };
+
   // Filter accounts based on the search query
   const filteredAccounts = userAccounts.filter(account =>
     account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -119,13 +124,16 @@ const AdminChartOfAcc = () => {
                 <td>{account.account_number}</td>
                 <td>{account.category}</td>
                 <td>{account.initial_balance}</td>
-                <td>{account.balance}</td> 
-                {canEditOrAdd && (
-                  <td>
-                    <button onClick={() => handleEditClick(account.account_id)}>Edit</button>
-                    <button onClick={() => handleDeactivate(account.account_id)}>Deactivate</button>
-                  </td>
-                )}
+                <td>{account.balance}</td>
+                <td>
+                  <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
+                  {canEditOrAdd && (
+                    <>
+                      <button onClick={() => handleEditClick(account.account_id)}>Edit</button>
+                      <button onClick={() => handleDeactivate(account.account_id)}>Deactivate</button>
+                    </>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

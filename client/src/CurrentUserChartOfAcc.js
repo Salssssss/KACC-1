@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 
 const UserChartOfAcc = () => {
@@ -7,7 +8,6 @@ const UserChartOfAcc = () => {
   const [searchQuery, setSearchQuery] = useState(''); // New state to store search query
   const [error, setError] = useState('');
 
-  // Fetch logged-in user information from localStorage
   const userID = localStorage.getItem('user_id');
   const navigate = useNavigate();
 
@@ -25,11 +25,13 @@ const UserChartOfAcc = () => {
     fetchUserAccounts();
   }, [userID]);
 
+
   // Filter accounts based on search query
   const filteredAccounts = userAccounts.filter(account =>
     account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     account.account_number.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   const handleViewLedger = (accountId) => {
     navigate(`/account/${accountId}/ledger`);
@@ -62,6 +64,7 @@ const UserChartOfAcc = () => {
               <th>Initial Balance</th>
               <th>Current Balance</th>
               <th>Actions</th>
+
             </tr>
           </thead>
           <tbody>
