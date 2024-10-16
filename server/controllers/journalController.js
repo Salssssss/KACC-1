@@ -12,7 +12,7 @@ exports.getJournalEntries = async (status, dateFrom, dateTo) => {
     } 
     catch (error) {
         console.error('Error fetching journal entries:', error);
-        throw new Error('Error fetching journal entries');
+        return { status: 500, message: 'Error fetching journal entries' };
     }
 };
 
@@ -27,7 +27,7 @@ exports.createJournalEntry = async (description, accounts, debits, credits, docu
     } 
     catch (error) {
         console.error('Error creating journal entry:', error);
-        throw new Error('Error creating journal entry');
+        return { status: 500, message: 'Error creating journal entry' };
     }
 };
 
@@ -42,7 +42,7 @@ exports.getJournalEntryByID = async (id) => {
     } 
     catch (error) {
         console.error('Error fetching journal entry by ID:', error);
-        throw new Error('Error fetching journal entry by ID');
+        return { status: 500, message: 'Error fetching journal entry by ID' };
     }
 };
 
@@ -58,7 +58,7 @@ exports.approveJournalEntry = async (journalID) => {
     } 
     catch (error) {
         console.error('Error approving journal entry:', error);
-        throw new Error('Error approving journal entry');
+        return { status: 500, message: 'Error approving journal entry' };
     }
 };
 
@@ -73,7 +73,7 @@ exports.rejectJournalEntry = async (journalID, comment) => {
     } 
     catch (error) {
         console.error('Error rejecting journal entry:', error);
-        throw new Error('Error rejecting journal entry');
+        return { status: 500, message: 'Error rejecting journal entry' };
     }
 };
 
@@ -88,7 +88,7 @@ exports.filterJournalEntries = async (status, dateFrom, dateTo) => {
     } 
     catch (error) {
         console.error('Error filtering journal entries:', error);
-        throw new Error('Error filtering journal entries');
+        return { status: 500, message: 'Error filtering journal entries' };
     }
 };
 
@@ -103,7 +103,7 @@ exports.searchJournalEntries = async (query) => {
     } 
     catch (error) {
         console.error('Error searching journal entries:', error);
-        throw new Error('Error searching journal entries');
+        return { status: 500, message: 'Error searching journal entries' };
     }
 };
 
@@ -118,6 +118,6 @@ exports.attachSourceDocuments = async (journalID, documents) => {
     } 
     catch (error) {
         console.error('Error attaching source documents:', error);
-        throw new Error('Error attaching source documents');
+        return { status: 500, message: 'Error attaching source documents' };
     }
 };
