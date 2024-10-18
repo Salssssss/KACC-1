@@ -65,7 +65,7 @@ function App() {
         <Route path='/about' element={<About />} />
         
         {/* Create Account Route */}
-        <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/create-profile" element={<CreateProfile />} />
 
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />

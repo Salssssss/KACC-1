@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 
 const { 
   login, 
-  createAccount, 
+  createProfile, 
   setPassword, 
   selectSecurityQuestions, 
   getSecurityQuestions
@@ -66,10 +66,10 @@ router.post('/login', async (req, res) => {
 
 
 // Route for creating a new account
-router.post('/create-account', async (req, res) => {
+router.post('/create-profile', async (req, res) => {
   const pool = req.app.get('dbPool'); // Use the shared DB pool
   try {
-    await createAccount(pool, req.body);
+    await createProfile(pool, req.body);
     res.status(201).json({ message: 'Account created successfully' });
   } catch (error) {
     res.status(400).json({ message: error.message });

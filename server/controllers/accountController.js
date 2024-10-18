@@ -1,7 +1,6 @@
 const sql = require('mssql');
 
-exports.createAccount = async (pool, accountData) => {
-  console.log('code is making it here:', accountData)
+exports.createAccount = async (pool, accountData, user_id) => {
   const {
     account_name,
     account_number,
@@ -10,11 +9,10 @@ exports.createAccount = async (pool, accountData) => {
     category,
     subcategory,
     initial_balance,
-    user_id,
+    team_id,
     order,
     statement
   } = accountData;
-
   let transaction;  // Declare the transaction variable
 
   try {
@@ -32,13 +30,13 @@ exports.createAccount = async (pool, accountData) => {
       .input('subcategory', sql.VarChar, subcategory)
       .input('initial_balance', sql.Decimal(15, 2), initial_balance)
       .input('balance', sql.Decimal(15, 2), initial_balance)
-      .input('user_id', sql.Int, user_id)
+      .input('team_id', sql.Int, team_id)
       .input('order', sql.Int, order)
       .input('statement', sql.VarChar, statement)
       .query(`INSERT INTO accounts 
-              (account_name, account_number, account_description, normal_side, category, subcategory, initial_balance, balance, user_id, [order], statement, created_at, updated_at)
+              (account_name, account_number, account_description, normal_side, category, subcategory, initial_balance, balance, team_id, [order], statement, created_at, updated_at)
               OUTPUT INSERTED.account_id
-              VALUES (@account_name, @account_number, @account_description, @normal_side, @category, @subcategory, @initial_balance, @balance, @user_id, @order, @statement, GETDATE(), GETDATE())`);
+              VALUES (@account_name, @account_number, @account_description, @normal_side, @category, @subcategory, @initial_balance, @balance, @team_id, @order, @statement, GETDATE(), GETDATE())`);
 
     // Extract the account ID from the result
     const accountId = result.recordset[0].account_id;
@@ -77,21 +75,34 @@ exports.createAccount = async (pool, accountData) => {
 
 
 
-// Controller to retrieve accounts for a specific user
+// Controller to retrieve accounts for a specific user's team
 exports.getAccountsByUser = async (pool, user_id) => {
   try {
-    // Execute a query to retrieve accounts for the specified user
-    const result = await pool.request()
+    // First, get the team_id from the team_members table for the user
+    const teamResult = await pool.request()
       .input('user_id', sql.Int, user_id)
-      .query('SELECT * FROM accounts WHERE user_id = @user_id');
-    
-    const accounts = result.recordset;  // Get the rows (accounts) from the result
+      .query('SELECT team_id FROM team_members WHERE user_id = @user_id');
 
-    if (!accounts || accounts.length === 0) {
-      return { message: 'No accounts found for this user' };
+    const team = teamResult.recordset[0];  // Get the team_id
+
+    if (!team) {
+      return { message: 'No team found for this user' };
     }
 
-    return accounts;  // Return the accounts for the user
+    const team_id = team.team_id;
+
+    // Now retrieve the accounts for that team_id
+    const accountsResult = await pool.request()
+      .input('team_id', sql.Int, team_id)
+      .query('SELECT * FROM accounts WHERE team_id = @team_id');
+
+    const accounts = accountsResult.recordset;  // Get the account from the result
+
+    if (!accounts || accounts.length === 0) {
+      return { message: 'No accounts found for this team' };
+    }
+
+    return accounts;  // Return the accounts for the team
   } catch (error) {
     console.error('Error fetching accounts:', error);
     throw error;

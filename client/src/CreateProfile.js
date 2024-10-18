@@ -15,7 +15,7 @@ const CreateProfile = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.post('http://localhost:5000/users/create-Profile', {
+      const response = await axios.post('http://localhost:5000/users/create-profile', {
         firstName,
         lastName,
         dob,

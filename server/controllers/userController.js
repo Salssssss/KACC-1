@@ -159,7 +159,7 @@ exports.login = async (pool, username, password, req, res) => {
 
 
 // creating a new account
-exports.createAccount = async (pool, userData) => {
+exports.createProfile = async (pool, userData) => {
   const { firstName, lastName, dob, address, email } = userData;
 
   // Generate the base username: first initial + full last name + MMYY

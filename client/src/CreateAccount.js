@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const CreateAccount = () => {
-  const { user_id } = useParams(); // Extract user_id from URL params
   const navigate = useNavigate();
 
+  // Initialize state with account data, 
   const [accountData, setAccountData] = useState({
     account_name: '',
     account_number: '',
@@ -16,11 +16,12 @@ const CreateAccount = () => {
     initial_balance: 0,
     order: '',
     statement: 'BS',
-    user_id: user_id // Set user_id from params
+    team_id: ''  // New field for team_id
   });
 
   const [error, setError] = useState(null);
 
+  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setAccountData({
@@ -29,12 +30,14 @@ const CreateAccount = () => {
     });
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Post the form data to the backend,
       await axios.post('http://localhost:5000/account/create', accountData, { withCredentials: true });
       alert('Account created successfully');
-      navigate(`/chart-of-accounts/${user_id}`);
+      navigate(`/chart-of-accounts/${accountData.team_id}`); // Redirect to team-specific chart of accounts
     } catch (error) {
       console.error('Error creating account:', error);
       setError('Error creating account. Please try again.');
@@ -88,6 +91,10 @@ const CreateAccount = () => {
             <option value="IS">Income Statement</option>
             <option value="RE">Retained Earnings</option>
           </select>
+        </div>
+        <div>
+          <label>Team ID:</label>
+          <input type="text" name="team_id" value={accountData.team_id} onChange={handleInputChange} required />
         </div>
         <button type="submit">Create Account</button>
       </form>
