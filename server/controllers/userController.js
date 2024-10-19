@@ -51,10 +51,11 @@ exports.login = async (pool, username, password, req, res) => {
   try {
     // Query to get user info, failed login attempts, and account status
   const userQuery = `
-    SELECT u.username, u.user_id, u.failed_login_attempts, u.status, u.profile_picture, r.role_name
+    SELECT u.username, u.user_id, u.failed_login_attempts, u.status, u.profile_picture, r.role_name, t.team_id
     FROM users u
     JOIN user_roles ur ON u.user_id = ur.user_id
     JOIN roles r ON ur.role_id = r.role_id
+    JOIN team_members t ON u.user = t.user_id
     WHERE u.username = @username
   `;
 
