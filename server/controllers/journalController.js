@@ -197,12 +197,13 @@ exports.searchJournalEntries = async (pool, query) => {
 };
 
 // Function to attach source documents to a journal entry
+//I might move this into the createJournal controller depending on how the uplaod works
 exports.attachSourceDocuments = async (pool, journalID, documents) => {
     try {
         const request = pool.request();
         request.input('journalID', sql.Int, journalID);
-        request.input('documents', sql.NVarChar, JSON.stringify(documents));
-        const query = "UPDATE journal SET journal_data = JSON_MODIFY(journal_data, '$.documents', @documents) WHERE journal_id = @journalID";
+        request.input('fileData', sql.VarBinary, Buffer.from(JSON.stringify(documents)));
+        const query = "UPDATE journal SET file_data = @fileData WHERE journal_id = @journalID";
 
         await request.query(query);
         return { message: 'Source documents attached successfully' };
@@ -211,3 +212,4 @@ exports.attachSourceDocuments = async (pool, journalID, documents) => {
         return { status: 500, message: 'Error attaching source documents' };
     }
 };
+
