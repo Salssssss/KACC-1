@@ -7,12 +7,13 @@ const JournalEntries = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [newEntry, setNewEntry] = useState({
+    //Remember to add a state hook for documents as well 
       description: '',
       debits: [],
       credits: []
     });
-    const [documents, setDocuments] = useState([]);
-  
+
+    
     //Fetch all journal entries on load, or based on filter changes
     useEffect(() => {
       const fetchJournalEntries = async () => {
@@ -57,7 +58,13 @@ const JournalEntries = () => {
   const handleApprove = async (id) => {
     try {
       await axios.patch(`http://localhost:5000/journal/approve/${id}`);
-      setJournalEntries(journalEntries.map(entry => entry.id === id ? { ...entry, status: 'approved' } : entry));
+      setJournalEntries(journalEntries.map(entry => {
+        if (entry.id === id) {
+          return { ...entry, status: 'approved' };
+        } else {
+          return entry;
+        }
+      }));
     } catch (error) {
       console.error('Error approving journal entry:', error);
     }
