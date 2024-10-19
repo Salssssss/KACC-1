@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const JournalEntries = () => {
+    //Needed user info
+    //const userID = localStorage.getItem('user_id');
+    const userRole = localStorage.getItem('userRole');
+    const userTeamID = localStorage.getItem('userTeamID');
+    
     //State hooks for managing journal entries, filters, search, etc.
     const [journalEntries, setJournalEntries] = useState([]);
     const [statusFilter, setStatusFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [newEntry, setNewEntry] = useState({
     //Remember to add a state hook for documents as well 
+      account: '',
       description: '',
       debits: [],
       credits: []
@@ -19,7 +25,7 @@ const JournalEntries = () => {
       const fetchJournalEntries = async () => {
         try {
           const response = await axios.get('http://localhost:5000/journal/entries', {
-            params: { status: statusFilter }
+            params: { status: statusFilter, userTeamID: userTeamID }
           });
           setJournalEntries(response.data);
         } catch (error) {
@@ -35,6 +41,7 @@ const JournalEntries = () => {
     e.preventDefault();
     try {
       const formData = new FormData();
+      formData.append('account', newEntry.account);
       formData.append('description', newEntry.description);
       formData.append('debits', JSON.stringify(newEntry.debits));
       formData.append('credits', JSON.stringify(newEntry.credits));
@@ -106,7 +113,7 @@ const JournalEntries = () => {
 
   return (
     <div>
-      <h1>Journal Entries</h1>
+      <h1>Journal Entries for Team {userTeamID}</h1>
 
       {/* Filter by status */}
       <label>Status Filter: </label>
@@ -120,7 +127,7 @@ const JournalEntries = () => {
       {/* Search bar */}
       <input
         type="text"
-        placeholder="Search by name, amount, or date"
+        placeholder="Search by account name, amount, or date"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{ width: '400px' }} // Adjust the width as needed
@@ -132,6 +139,7 @@ const JournalEntries = () => {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Account</th>
             <th>Description</th>
             <th>Status</th>
             <th>Date</th>
@@ -142,16 +150,18 @@ const JournalEntries = () => {
           {journalEntries.map(entry => (
             <tr key={entry.id}>
               <td>{entry.id}</td>
+              <td>{entry.account}</td>
               <td>{entry.description}</td>
               <td>{entry.status}</td>
               <td>{entry.date}</td>
               <td>
-                {entry.status === 'pending' && (
+                {entry.status === 'pending' && userRole === 'manager' && (
                   <>
                     <button onClick={() => handleApprove(entry.id)}>Approve</button>
                     <button onClick={() => handleReject(entry.id, 'Some reason')}>Reject</button>
                   </>
                 )}
+                {entry.status === 'rejected' && <p>Rejection Comment: {entry.comment}</p>}
               </td>
             </tr>
           ))}
@@ -161,6 +171,13 @@ const JournalEntries = () => {
       {/* Form for creating a new journal entry */}
       <h2>Create New Journal Entry</h2>
       <form onSubmit={handleCreateEntry}>
+      <input
+          type="text"
+          placeholder="Account"
+          value={newEntry.account}
+          onChange={(e) => setNewEntry({ ...newEntry, account: e.target.value })}
+          required
+        />
         <input
           type="text"
           placeholder="Description"
