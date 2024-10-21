@@ -16,6 +16,7 @@ import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 import GeneralLedger from './GeneralLedger';
 import CreateAccount from './CreateAccount';
 import Journal from './Journal';
+import EventLogs from './EventLogs';
 
 
 
@@ -117,7 +118,15 @@ function App() {
         {/* Ledger */}
         <Route path="/ledger/:accountId" element={<GeneralLedger />} /> {/* Route for ledger */}
 
-
+       
+       
+       
+       
+       {/* Current User's Chart of Accounts */}
+        <Route 
+          path="/event-logs" 
+          element={<EventLogs />} 
+        />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
