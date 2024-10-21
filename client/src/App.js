@@ -16,6 +16,7 @@ import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 import GeneralLedger from './GeneralLedger';
 import CreateAccount from './CreateAccount';
 import Journal from './Journal';
+import JournalEntries from './JournalEntries';
 
 
 
@@ -65,7 +66,7 @@ function App() {
         <Route path='/about' element={<About />} />
         
         {/* Create Account Route */}
-        <Route path="/create-account" element={<CreateAccount />} />
+        <Route path="/create-profile" element={<CreateProfile />} />
 
         {/* Forgot Passowrd route*/}
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -116,6 +117,8 @@ function App() {
 
         {/* Ledger */}
         <Route path="/ledger/:accountId" element={<GeneralLedger />} /> {/* Route for ledger */}
+
+        <Route path="/journal-entries" element={<JournalEntries />} />
 
 
         {/* Fallback */}

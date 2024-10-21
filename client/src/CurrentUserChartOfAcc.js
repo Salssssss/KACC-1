@@ -37,7 +37,7 @@ const UserChartOfAcc = () => {
 
 
   const handleViewLedger = (accountId) => {
-    navigate(`/account/${accountId}/ledger`);
+    navigate(`/ledger/${accountId}`);
   };
 
   return (

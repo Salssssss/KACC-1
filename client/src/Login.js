@@ -45,6 +45,8 @@ const Login = ({setIsLoggedIn}) => {
       localStorage.setItem('user_id', user.user_id);
       console.log('Logged in user:', user);
       localStorage.setItem('userRole', response.data.user.role_name); 
+      localStorage.setItem('userTeamID', response.data.user.team_id);
+      console.log('Team ID of user: ', response.data.user.team_id );
 
       //update isloggedin
       setIsLoggedIn(true);  

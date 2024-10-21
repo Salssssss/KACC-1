@@ -43,7 +43,7 @@ const Nav = () => {
         {!isLoggedIn && (
           <>
             <button onClick={() => navigate('/login')}>Login</button>
-            <button onClick={() => navigate('/create-account')}>Create Account</button>
+            <button onClick={() => navigate('/create-profile')}>Create Profile</button>
           </>
         )}
         {isLoggedIn && (
