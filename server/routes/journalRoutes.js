@@ -9,7 +9,8 @@ const { getJournalEntries,
         searchJournalEntries, 
         attachSourceDocuments } 
         = require('../controllers/journalController');
-
+const multer = require('multer'); //testing multer for uplaoding documents
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Route for getting all journal entries (View all or filter by status - pending, approved, rejected)
 router.get('/entries', async (req, res) => {
@@ -114,18 +115,27 @@ router.get('/search', async (req, res) => {
 });
 
 // Route for attaching source documents to a journal entry
-router.post('/entry/:id/documents', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const documents = req.files;  // Uploaded documents would be files
-        const pool = req.app.locals.pool;
-        const updatedEntry = await attachSourceDocuments(pool, id, documents);
-        res.status(200).json(updatedEntry);
-    } 
-    catch (error) {
-        console.error('Error attaching documents:', error);
-        res.status(500).json({ message: 'Error attaching documents' });
-    }
+router.post('/entry/:id/documents', upload.single('file'), async (req, res) => {
+  try {
+      const { id } = req.params;
+      const file = req.file;
+
+      if (!file) {
+          return res.status(400).json({ message: 'No document uploaded' });
+      }
+
+      const pool = req.app.locals.pool;
+
+      const fileName = file.originalname; // Get the original file name
+      const fileType = file.mimetype; // Get the file type (e.g., 'image/png', 'application/pdf')
+      const fileData = file.buffer; // File buffer
+
+      const updatedEntry = await attachSourceDocuments(pool, id, fileName, fileType, fileData);
+      res.status(200).json(updatedEntry);
+  } catch (error) {
+      console.error('Error attaching documents:', error);
+      res.status(500).json({ message: 'Error attaching documents' });
+  }
 });
 
 module.exports = router;
