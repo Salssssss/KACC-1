@@ -14,10 +14,11 @@ const EventLogs = () => {
     const fetchEventLogs = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/events/${teamID}`);
-        const logs = await response.json();
+        const logs = response.data;
         setEventLogs(logs);
         
-      } catch (err) {
+      } 
+      catch (err) {
         setError('Error fetching event logs');
       }
     };
