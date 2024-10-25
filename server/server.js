@@ -6,6 +6,7 @@ require('dotenv').config(); // Load environment variables
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); // Import the user routes
 const accountRoutes = require('./routes/accountRoutes');
+const eventRoutes = require('./routes/EventRoutes');
 const app = express();
 const port = 5000;
 const cron = require('node-cron');
@@ -58,6 +59,8 @@ sql.connect(dbConfig).then(pool => {
   app.use('/admin', adminRoutes);
 
   app.use('/account', accountRoutes);
+
+  app.use('/events', eventRoutes);
 
   // Add a simple GET route for the root URL
   app.get('/', (req, res) => {
