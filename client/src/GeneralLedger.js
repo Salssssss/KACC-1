@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const GeneralLedger = () => {
@@ -18,7 +18,9 @@ const GeneralLedger = () => {
     };
 
     fetchLedgerEntries();
+    
   }, [accountId]);
+  
   return (
     <div>
       <h1>General Ledger for Account {accountId}</h1>
@@ -31,6 +33,7 @@ const GeneralLedger = () => {
               <th>Debit</th>
               <th>Credit</th>
               <th>Balance After</th>
+              <th>Journal Entry</th>
             </tr>
           </thead>
           <tbody>
@@ -41,6 +44,9 @@ const GeneralLedger = () => {
                 <td>{entry.debit}</td> 
                 <td>{entry.credit}</td> 
                 <td>{entry.balance_after}</td> 
+                <td>
+                <Link to={`/journalentry/${entry.journal_id}`}>View Journal Entry</Link>
+                </td>
               </tr>
             ))}
           </tbody>

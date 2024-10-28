@@ -78,7 +78,7 @@ exports.getJournalEntryByID = async (pool, id) => {
     try {
         const request = new sql.Request(pool);
         request.input('journalID', sql.Int, id);
-        const query = 'SELECT * FROM journal WHERE journal_id = @journalID';
+        const query = 'SELECT description, transaction_date, created_at, file_name, file_type, status, journal_data FROM journal WHERE journal_id = @journalID';
 
         const result = await request.query(query);
         return result.recordset[0] || { message: 'Journal entry not found' };

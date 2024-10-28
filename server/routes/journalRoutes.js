@@ -48,9 +48,10 @@ router.post('/create', async (req, res) => {
 // Route for getting a single journal entry by ID (This is for the requirement where you click on a post reference in the ledger)
 router.get('/entry/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+      const { id } = req.params; 
         const pool = req.app.locals.pool;
         const journalEntry = await getJournalEntryByID(pool, id);
+
         res.status(200).json(journalEntry);
     } 
     catch (error) {

@@ -17,6 +17,7 @@ import GeneralLedger from './GeneralLedger';
 import CreateAccount from './CreateAccount';
 import JournalEntries from './JournalEntries';
 import EventLogs from './EventLogs';
+import JournalFromLedger from './JournalFromLedger';
 
 
 
@@ -83,6 +84,9 @@ function App() {
 
         {/*Journal*/}
         <Route path ="/journal/:user_id" element={<JournalEntries />} />
+
+        {/*JournalFromLedger*/}
+        <Route path = "/journalentry/:journal_id" element={<JournalFromLedger/>}/>
 
 
         {/* Security Questions Setup Route */}
