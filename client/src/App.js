@@ -15,10 +15,7 @@ import About from './About';
 import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 import GeneralLedger from './GeneralLedger';
 import CreateAccount from './CreateAccount';
-import Journal from './Journal';
-
 import JournalEntries from './JournalEntries';
-
 import EventLogs from './EventLogs';
 
 
@@ -85,7 +82,7 @@ function App() {
         <Route path="/create-account/:user_id" element={<CreateAccount />} />
 
         {/*Journal*/}
-        <Route path ="/journal/:user_id" element={<Journal />} />
+        <Route path ="/journal/:user_id" element={<JournalEntries />} />
 
 
         {/* Security Questions Setup Route */}
@@ -123,7 +120,7 @@ function App() {
         <Route path="/ledger/:accountId" element={<GeneralLedger />} /> {/* Route for ledger */}
 
 
-        <Route path="/journal-entries" element={<JournalEntries />} />
+     
 
 
 

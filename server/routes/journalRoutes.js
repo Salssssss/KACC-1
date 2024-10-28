@@ -30,6 +30,7 @@ router.get('/entries', async (req, res) => {
 
 // Route for creating a new journal entry (Accountant user functionality)
 router.post('/create', async (req, res) => {
+  console.log(req.body)
     try {
         // Journal entry data
         const { transactionDate, description, accounts, debits, credits, createdBy } = req.body;  
