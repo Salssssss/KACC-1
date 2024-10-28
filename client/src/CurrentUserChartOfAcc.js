@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
-import { generateCalendarHTML } from './calendar'; // Assuming you have a calendar.js file
-import './calendar.css'; // Import the CSS file for the calendar
+import { generateCalendarHTML } from './calendar'; 
+import './calendar.css'; 
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(''); // New state to store search query
+  const [searchQuery, setSearchQuery] = useState(''); 
   const [error, setError] = useState('');
-  const [calendarVisible, setCalendarVisible] = useState(false); // State to toggle calendar visibility
-
+  const [calendarVisible, setCalendarVisible] = useState(false); 
   const userID = localStorage.getItem('user_id');
   const navigate = useNavigate();
 
@@ -28,7 +27,6 @@ const UserChartOfAcc = () => {
     fetchUserAccounts();
   }, [userID]);
 
-
   // Filter accounts based on search query
   const filteredAccounts = userAccounts.filter(account =>
     account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,6 +36,11 @@ const UserChartOfAcc = () => {
 
   const handleViewLedger = (accountId) => {
     navigate(`/ledger/${accountId}`);
+  };
+
+  
+  const handleViewLogs = (accountId) => {
+    navigate(`/event-logs/${accountId}`);
   };
 
   return (
@@ -100,6 +103,7 @@ const UserChartOfAcc = () => {
                 <td>{account.balance}</td>
                 <td>
                   <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
+                  <button onClick={() => handleViewLogs(account.account_id)}>View Event logs</button>
                 </td>
               </tr>
             ))}

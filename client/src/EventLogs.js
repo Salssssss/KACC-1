@@ -4,16 +4,16 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom'; 
 
 const EventLogs = () => {
-  //Get the team ID from the URL
-  const { teamID } = useParams(); 
+  //Get the account ID from the URL
+  const { account_id } = useParams();
   const [eventLogs, setEventLogs] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    //Fetch event logs based on teamID
+    //Fetch event logs based on account ID
     const fetchEventLogs = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/events/${teamID}`);
+        const response = await axios.get(`http://localhost:5000/events/${account_id}`);
         const logs = response.data;
         setEventLogs(logs);
         
@@ -24,7 +24,7 @@ const EventLogs = () => {
     };
 
     fetchEventLogs();
-  }, [teamID]);
+  }, [account_id]);
 
   if (error) {
     return <div>{error}</div>;
@@ -32,7 +32,7 @@ const EventLogs = () => {
 
   return (
     <div>
-      <h1>Event Logs for Team {teamID}</h1>
+      <h1>Event Logs for Account {account_id}</h1>
       {eventLogs.length > 0 ? (
         <table>
           <thead>
