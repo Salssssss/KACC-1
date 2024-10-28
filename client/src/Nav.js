@@ -20,7 +20,7 @@ const Nav = () => {
     if (userRole === 'administrator') {
       navigate('/admin-dashboard'); 
     } else {
-      navigate('/user-dashboard'); 
+      navigate('/dashboard'); 
     }
   };
 
