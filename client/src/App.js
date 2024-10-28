@@ -16,7 +16,11 @@ import CurrentUserChartOfAcc from './CurrentUserChartOfAcc';
 import GeneralLedger from './GeneralLedger';
 import CreateAccount from './CreateAccount';
 import Journal from './Journal';
+
 import JournalEntries from './JournalEntries';
+
+import EventLogs from './EventLogs';
+
 
 
 
@@ -118,8 +122,20 @@ function App() {
         {/* Ledger */}
         <Route path="/ledger/:accountId" element={<GeneralLedger />} /> {/* Route for ledger */}
 
+
         <Route path="/journal-entries" element={<JournalEntries />} />
 
+
+
+       
+       
+       
+       
+       {/* Current User's Chart of Accounts */}
+        <Route 
+          path="/event-logs" 
+          element={<EventLogs />} 
+        />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
