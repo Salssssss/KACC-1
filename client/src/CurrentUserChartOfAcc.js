@@ -40,6 +40,27 @@ const UserChartOfAcc = () => {
     navigate(`/ledger/${accountId}`);
   };
 
+    // Handle emails sent
+    const handleSendEmail = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/user/send-email',
+          {
+            userEmail: emailDetails.userEmail,
+            subject: emailDetails.subject,
+            message: emailDetails.message,
+          },
+          { withCredentials: true }
+        );
+  
+        setEmailMessage('Email sent successfully!');
+      } catch (err) {
+        console.error('Error sending email: ', err);
+        setEmailMessage('Error sending email. Please try again.');
+      }
+    };
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Calendar Button */}
@@ -108,6 +129,45 @@ const UserChartOfAcc = () => {
       ) : (
         <p>No accounts found for your search query.</p>
       )}
+      
+      {/* Email sending form */}
+      <h3>Send Email to a User</h3>
+      <form onSubmit={handleSendEmail}>
+        <div>
+          <label>User Email:</label>
+          <input
+            type="email"
+            name="userEmail"
+            value={emailDetails.userEmail}
+            onChange={handleEmailChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Subject:</label>
+          <input
+            type="text"
+            name="subject"
+            value={emailDetails.subject}
+            onChange={handleEmailChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Message:</label>
+          <textarea
+            name="message"
+            value={emailDetails.message}
+            onChange={handleEmailChange}
+            required
+          />
+        </div>
+        <button type="submit">Send Email</button>
+      </form>
+
+      {/* Display email status message */}
+      {emailMessage && <p>{emailMessage}</p>}
+      
     </div>
   );
 };
