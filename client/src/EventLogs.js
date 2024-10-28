@@ -13,7 +13,7 @@ const EventLogs = () => {
     //Fetch event logs based on account ID
     const fetchEventLogs = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/events/${account_id}`);
+        const response = await axios.get(`http://localhost:5000/events/event-logs/${account_id}`);
         const logs = response.data;
         setEventLogs(logs);
         

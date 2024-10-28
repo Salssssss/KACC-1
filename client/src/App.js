@@ -122,7 +122,7 @@ function App() {
 
        {/* Current User's Chart of Accounts */}
         <Route 
-          path="/event-logs/:accountId" 
+          path="/event-logs/:account_id" 
           element={<EventLogs />} 
         />
 

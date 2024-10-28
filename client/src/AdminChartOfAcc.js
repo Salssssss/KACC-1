@@ -86,6 +86,10 @@ const AdminChartOfAcc = () => {
     navigate(`/ledger/${accountId}`);  // Navigate to GeneralLedger.js page with account_id as param
   };
 
+  const handleViewLogs = (accountId) => {
+    navigate(`/event-logs/${accountId}`);
+  };
+
   // Filter accounts based on the search query
   const filteredAccounts = userAccounts.filter(account =>
     account.account_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -151,6 +155,7 @@ const AdminChartOfAcc = () => {
 
                 <td>
                   <button onClick={() => handleViewLedger(account.account_id)}>View Ledger</button>
+                  <button onClick={() => handleViewLogs(account.account_id)}>View Event logs</button>
                   {canEditOrAdd && (
                     <>
                       <button onClick={() => handleEditClick(account.account_id)}>Edit</button>
