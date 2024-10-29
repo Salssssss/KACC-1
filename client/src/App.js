@@ -24,6 +24,7 @@ import JournalFromLedger from './JournalFromLedger';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
   const userRole = localStorage.getItem('userRole');
+  const userTeamID = localStorage.getItem('userTeamID');
 
   if (!userRole) {
     return <Navigate to="/login" />;
@@ -123,18 +124,9 @@ function App() {
         {/* Ledger */}
         <Route path="/ledger/:accountId" element={<GeneralLedger />} /> {/* Route for ledger */}
 
-
-     
-
-
-
-       
-       
-       
-       
        {/* Current User's Chart of Accounts */}
         <Route 
-          path="/event-logs" 
+          path="/event-logs/:account_id" 
           element={<EventLogs />} 
         />
 
