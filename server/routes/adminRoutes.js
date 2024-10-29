@@ -24,7 +24,8 @@ const {
   getReportOfAllUsers, 
   getReportOfExpiredPasswords, 
   activateOrDeactivateUser, 
-  suspendUser 
+  suspendUser, 
+  getEmails
 } = require('../controllers/adminController');
 
 
@@ -186,5 +187,16 @@ router.post('/send-email', async (req, res) => {
   }
 });
 
+// Route to get user emails
+router.get('/getEmails', authorizationMiddleware , async (req, res) => {
+  try{
+    const pool = req.app.get('dbPool');
+    const result = await getEmails(pool);
+    res.status(result.status).json(result);
+  }
+  catch (err){
+      res.status(500).json({ message: 'Error when getting user emails' });
+  }
+});
 
 module.exports = router;

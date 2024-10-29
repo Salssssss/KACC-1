@@ -92,6 +92,33 @@ const AdminChartOfAcc = () => {
     account.account_number.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Email list functions-----------------------------------
+  // Get function separated from the component
+  const getEmails = async () => {
+    // ***Replace with a real fetch call to backend***
+    return [
+        { email: "example1@example.com" },
+        { email: "example2@example.com" }
+    ];
+  };
+
+  const EmailList = () => {
+    const [emails, setEmails] = useState([]);
+
+    useEffect(() => {
+        const getEmails = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/emails');
+                setEmails(response.data);
+            } catch (error) {
+                console.error("Error fetching emails:", error);
+            }
+        };
+
+        getEmails();
+    }, []);
+
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Calendar Button */}
@@ -272,8 +299,21 @@ const AdminChartOfAcc = () => {
           </form>
         </div>
       )}
+
+      {/* Email list */}
+      <div>
+        <h2>Emails</h2>
+        <div>
+          {emails.map((item, index) => (
+              <a key={index} href={`mailto:${item.email}`} style={{ display: 'block' }}>
+                  {item.email}
+              </a>
+          ))}
+        </div>
+      </div>
+
     </div>
-  );
+  )};
 };
 
 export default AdminChartOfAcc;

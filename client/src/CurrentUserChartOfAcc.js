@@ -40,6 +40,28 @@ const UserChartOfAcc = () => {
     navigate(`/ledger/${accountId}`);
   };
 
+  // Email list functions-----------------------------------
+  // Get function separated from the component
+  const getEmails = async () => {
+    // ***Replace with a real fetch call to backend***
+    return [
+        { email: "example1@example.com" },
+        { email: "example2@example.com" }
+    ];
+  };
+
+  const EmailList = () => {
+    const [emails, setEmails] = useState([]);
+
+    // Get emails when the component mounts
+    useEffect(() => {
+        const getEmails = async () => {
+            const emailList = await getEmails();
+            setEmails(emailList);
+        };
+        getEmails();
+    }, []);
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Calendar Button */}
@@ -108,8 +130,21 @@ const UserChartOfAcc = () => {
       ) : (
         <p>No accounts found for your search query.</p>
       )}
+
+      {/* Email list */}
+      <div>
+        <h2>Emails</h2>
+        <div>
+          {emails.map((item, index) => (
+              <a key={index} href={`mailto:${item.email}`} style={{ display: 'block' }}>
+                  {item.email}
+              </a>
+          ))}
+        </div>
+      </div>
+
     </div>
-  );
+  )};
 };
 
 export default UserChartOfAcc;

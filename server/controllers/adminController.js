@@ -218,6 +218,24 @@ exports.suspendUser = async (pool, userID, suspensionStart, suspensionEnd) => {
   }
 };
 
+//Getting the emails for the email list
+exports.getEmails = async () => {
+  try {
+    
+    // Query the database for emails
+    const query = `SELECT email FROM Users`;
+
+    const request = pool.request();
+  
+    await request.query(query);
+      const result = await mssql.query`SELECT email FROM Users`; // Replace 'Users' with your table name
+
+  } catch (error) {
+      console.error("Error fetching emails:", error);
+      res.status(500).send("Error fetching emails");
+  }
+};
+
 
 
 
