@@ -35,7 +35,6 @@ exports.createBalanceSheet = async(req, res) => {
     //select all accounts under category "liabilities" or "equities" and put them on right side
     //sum the balance of each side and compare them
     try {
-        //Select and categorize accounts
         const assets = await sql.query(`SELECT * FROM accounts WHERE category = 'assets'`);
         const liabilities = await sql.query(`SELECT * FROM accounts WHERE category = 'liabilities'`);
         const equity = await sql.query(`SELECT * FROM accounts WHERE category = 'equity'`);
