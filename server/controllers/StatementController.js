@@ -78,7 +78,8 @@ exports.createIncomeStatement = async(req, res) => {
         const netResult = totalRevenue - totalExpenses;
 
         res.status(200).json({ revenue: revenue.recordset, expenses: expenses.recordset, netResult });
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ message: 'Error creating income statement', error });
     }
 };
@@ -89,4 +90,35 @@ exports.createRetainedEarningsStatement = async(req, res) => {
     //save result so it can be displayed
     //subtract 6% from the result and label the amount as dividends
     //save final result as the retained earnings and zero out all revenue and expenses accounts
+    try {
+        //Assuming we load beginning retained earnings from a saved source
+        //Technically the balance in retained earnings could be zero if there was no retained earnings last year
+        const beginningRetainedEarnings = await sql.query(`SELECT balance FROM accounts WHERE account_name = 'Retained Earnings'`);
+        
+        //?. is balanced chaining
+        //IF recordset[0] exists, then ?.balance accesses the balance property of the row
+        //If balance is undefined, set to zero
+        const beginningBalance = beginningRetainedEarnings.recordset[0]?.balance || 0;
+
+        //Retrieve the most recent net income 
+        //We might want to store net income in a dedicated account after income statement creation
+        const netIncome = await this.createIncomeStatement(req, res);
+
+        //Subtract dividends (using a 6% rate as the dividend payout)
+        const dividends = beginningBalance * 0.06;
+        const retainedEarnings = beginningBalance + netIncome - dividends;
+
+        //Reset revenue and expense accounts (year-end closing process)
+        await sql.query(`UPDATE accounts SET balance = 0 WHERE category IN ('revenue', 'expenses')`);
+
+        res.status(200).json({
+            beginningRetainedEarnings: beginningBalance,
+            netIncome,
+            dividends,
+            retainedEarnings,
+        });
+    } 
+    catch (error) {
+        res.status(500).json({ message: 'Error creating retained earnings statement', error });
+    }
 };
