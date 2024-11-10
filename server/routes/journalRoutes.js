@@ -7,7 +7,9 @@ const { getJournalEntries,
         getJournalEntryByID, 
         filterJournalEntries, 
         searchJournalEntries, 
-        attachSourceDocuments } 
+        attachSourceDocuments,
+        getJournalDocument,
+        addCommentToJournal } 
         = require('../controllers/journalController');
 const multer = require('multer'); //testing multer for uplaoding documents
 const upload = multer({ storage: multer.memoryStorage() });
@@ -18,7 +20,7 @@ router.get('/entries', async (req, res) => {
         // Allow filtering by status and date range
         const { status, dateFrom, dateTo } = req.query;  
         // Fetch journal entries with filtering
-        const pool = req.app.locals.pool;
+        const pool = req.app.get('dbPool')
         const journalEntries = await getJournalEntries(pool, status, dateFrom, dateTo);  
         res.status(200).json(journalEntries);
     } 
@@ -35,7 +37,7 @@ router.post('/create', async (req, res) => {
         // Journal entry data
         const { transactionDate, description, accounts, debits, credits, createdBy } = req.body;  
 
-        const pool = req.app.locals.pool;
+        const pool = req.app.get('dbPool')
         const newJournalEntry = await createJournalEntry(pool, transactionDate, accounts, debits, credits, description, createdBy);
         res.status(201).json(newJournalEntry);
     } 
@@ -49,7 +51,7 @@ router.post('/create', async (req, res) => {
 router.get('/entry/:id', async (req, res) => {
     try {
       const { id } = req.params; 
-        const pool = req.app.locals.pool;
+      const pool = req.app.get('dbPool')
         const journalEntry = await getJournalEntryByID(pool, id);
 
         res.status(200).json(journalEntry);
@@ -64,7 +66,7 @@ router.get('/entry/:id', async (req, res) => {
 router.patch('/approve/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const pool = req.app.locals.pool;
+        const pool = req.app.get('dbPool')
         const approvedEntry = await approveJournalEntry(pool, id);
         res.status(200).json(approvedEntry);
     } 
@@ -78,9 +80,9 @@ router.patch('/approve/:id', async (req, res) => {
 router.patch('/reject/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { comment } = req.body;  // Must include a comment for the rejection
-        const pool = req.app.locals.pool;
-        const rejectedEntry = await rejectJournalEntry(pool, id, comment);
+        const { comment } = req.body;  // Comment for the rejection
+        const pool = req.app.get('dbPool');
+        const rejectedEntry = await rejectJournalEntry(pool, id, comment);  // Pass comment to controller
         res.status(200).json(rejectedEntry);
     } catch (error) {
         console.error('Error rejecting journal entry:', error);
@@ -88,11 +90,12 @@ router.patch('/reject/:id', async (req, res) => {
     }
 });
 
+
 // Route for filtering journal entries (Pending, approved, rejected) with date range
 router.get('/filter', async (req, res) => {
     try {
         const { status, dateFrom, dateTo } = req.query;
-        const pool = req.app.locals.pool;
+        const pool = req.app.get('dbPool')
         const filteredEntries = await filterJournalEntries(pool, status, dateFrom, dateTo);
         res.status(200).json(filteredEntries);
     } 
@@ -106,7 +109,7 @@ router.get('/filter', async (req, res) => {
 router.get('/search', async (req, res) => {
     try {
         const { query } = req.query;  // Search query (account name, amount, date)
-        const pool = req.app.locals.pool;
+        const pool = req.app.get('dbPool')
         const searchResults = await searchJournalEntries(pool, query);
         res.status(200).json(searchResults);
     } 
@@ -126,7 +129,7 @@ router.post('/entry/:id/documents', upload.single('file'), async (req, res) => {
           return res.status(400).json({ message: 'No document uploaded' });
       }
 
-      const pool = req.app.locals.pool;
+      const pool = req.app.get('dbPool')
 
       const fileName = file.originalname; // Get the original file name
       const fileType = file.mimetype; // Get the file type (e.g., 'image/png', 'application/pdf')
@@ -139,5 +142,53 @@ router.post('/entry/:id/documents', upload.single('file'), async (req, res) => {
       res.status(500).json({ message: 'Error attaching documents' });
   }
 });
+
+
+  
+  // Route for retrieving a document from a journal entry
+  router.get('/entry/:id/document', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const pool = req.app.get('dbPool') 
+  
+      const document = await getJournalDocument(pool, id);
+
+      if (!document) {
+        return res.status(404).json({ message: 'Document not found for the specified journal entry' });
+      }
+  
+      // Set the correct Content-Type and Content-Disposition headers
+      const contentType = document.file_type || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${document.file_name || 'download'}"`);
+      console.log(document.file_data);
+      // Ensure file_data is a Buffer and send it in the response
+      res.send(document.file_data);
+    } catch (error) {
+      console.error('Error retrieving document from journal entry:', error);
+      res.status(500).json({ message: 'Error retrieving document from journal entry' });
+    }
+  });
+
+router.get('/pending/count', async (req, res) => {
+    const pool = req.app.get('dbPool');
+    try {
+      const result = await pool.query("SELECT COUNT(*) AS pendingCount FROM journal WHERE status = 'pending'");
+      console.log(result);
+  
+      // Check if result.recordset has entries and return the pending count
+      if (result && result.recordset && result.recordset.length > 0) {
+        res.json(result.recordset[0]); // Return the first record in the recordset
+      } else {
+        res.json({ pendingCount: 0 }); // Default to 0 if no results are found
+      }
+    } catch (error) {
+      console.error('Error fetching pending journal count:', error);
+      res.status(500).json({ message: 'Error fetching pending journal count' });
+    }
+  });
+  
+  
+  
 
 module.exports = router;

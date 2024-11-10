@@ -186,7 +186,8 @@ exports.rejectJournalEntry = async (pool, journalID, comment) => {
         const request = new sql.Request(pool);
         request.input('journalID', sql.Int, journalID);
         request.input('comment', sql.NVarChar, comment);
-        const query = "UPDATE journal SET status = 'rejected', journal_data = JSON_MODIFY(journal_data, '$.rejectionComment', @comment) WHERE journal_id = @journalID";
+
+        const query = "UPDATE journal SET status = 'rejected', comment = @comment WHERE journal_id = @journalID";
 
         await request.query(query);
         return { message: 'Journal entry rejected successfully' };
@@ -195,6 +196,7 @@ exports.rejectJournalEntry = async (pool, journalID, comment) => {
         return { status: 500, message: 'Error rejecting journal entry' };
     }
 };
+
 
 
 // Function to filter journal entries by status and date range
@@ -248,3 +250,30 @@ exports.attachSourceDocuments = async (pool, journalID, fileName, fileType, file
 };
 
 
+  exports.getJournalDocument = async (pool, id) => {
+
+    const request = new sql.Request(pool);
+    request.input('journalID', sql.Int, id);
+    const query = `
+      SELECT file_data, file_name, file_type
+      FROM journal
+      WHERE journal_id = @journalID;
+    `;
+  
+    try {
+        const result = await request.query(query);
+        console.log('Query result:', result); // Log the result for debugging
+      
+        if (!result || !result.recordset || result.recordset.length === 0) {
+          console.error('Document not found for journal ID:', id);
+          return null; // Return null if no document is found
+        }
+      
+        return result.recordset[0]; // Return the first row with document data
+      } catch (error) {
+        console.error('Error fetching document from journal entry:', error);
+        throw error;
+      }
+      
+  };
+  
