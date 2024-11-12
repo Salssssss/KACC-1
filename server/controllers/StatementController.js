@@ -12,9 +12,9 @@ exports.createTrialBalance = async(req, res) => {
                 SUM(CASE WHEN normal_side = 'debit' THEN balance ELSE 0 END) AS total_debits,
                 SUM(CASE WHEN normal_side = 'credit' THEN balance ELSE 0 END) AS total_credits
             FROM 
-                accounts
+                accounts 
             GROUP BY 
-                account_id, account_name
+                account_id, account_name 
         `);
 
         //Summing both sides for comparison

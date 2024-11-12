@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function TrialBalance() {
     const [trialBalance, setTrialBalance] = useState([]);
@@ -11,7 +12,7 @@ function TrialBalance() {
         const fetchTrialBalance = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/statements/trial-balance'); 
-                const data = await response.json();
+                const data = response.data; 
                 setTrialBalance(data.trialBalance);
                 setTotalDebits(data.totalDebits);
                 setTotalCredits(data.totalCredits);
@@ -77,7 +78,11 @@ function TrialBalance() {
                     </tr>
                     <tr>
                         <td colSpan="4">
-                            <strong>Balanced: {isBalanced ? "Yes" : "No"}</strong>
+                            <strong>
+                                <span style={{ color: isBalanced ? 'green' : 'red' }}>
+                                {isBalanced ? ' Balanced' : ' Imbalanced'}
+                                </span>
+                            </strong>
                         </td>
                     </tr>
                 </tfoot>
