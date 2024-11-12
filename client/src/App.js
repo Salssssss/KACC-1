@@ -18,6 +18,7 @@ import CreateAccount from './CreateAccount';
 import JournalEntries from './JournalEntries';
 import EventLogs from './EventLogs';
 import JournalFromLedger from './JournalFromLedger';
+import TrialBalance from './TrialBalance';
 
 
 
@@ -130,6 +131,12 @@ function App() {
           element={<EventLogs />} 
         />
 
+         {/*Viewing the Trial Balance*/}
+         <Route
+         path = "/trial-balance"
+         element = {<TrialBalance/>}
+         />
+          
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

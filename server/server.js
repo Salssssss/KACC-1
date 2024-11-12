@@ -11,6 +11,8 @@ const journalRoutes = require('./routes/journalRoutes');
 
 const eventRoutes = require('./routes/EventRoutes');
 
+const statementRoutes = require('./routes/StatementRoutes');
+
 const app = express();
 const port = 5000;
 const cron = require('node-cron');
@@ -64,10 +66,11 @@ sql.connect(dbConfig).then(pool => {
 
   app.use('/account', accountRoutes);
 
-
   app.use('/journal', journalRoutes);
 
   app.use('/events', eventRoutes);
+
+  app.use('/statements', statementRoutes);
 
 
   // Add a simple GET route for the root URL
