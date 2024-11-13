@@ -7,6 +7,7 @@ import './calendar.css';
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);
+  const [role, setRole] = useState('');
   const [searchQuery, setSearchQuery] = useState(''); 
   const [error, setError] = useState('');
   const [calendarVisible, setCalendarVisible] = useState(false); 
@@ -18,6 +19,9 @@ const UserChartOfAcc = () => {
       try {
         const response = await axios.get(`http://localhost:5000/account/${userID}/accounts`, { withCredentials: true });
         setUserAccounts(response.data);
+        setRole(localStorage.getItem('userRole'));
+        console.log("Role before rendering buttons:", role);
+
       } catch (error) {
         console.error('Error fetching user accounts: ', error);
         setError('Error fetching user accounts. Please try again.');
@@ -26,6 +30,21 @@ const UserChartOfAcc = () => {
 
     fetchUserAccounts();
   }, [userID]);
+
+  //Adding as a QOL thing 11/11/24 - Ian
+  //Basically just highlight when a statement is going to be due soon
+  const getDueDateMessage = (dueDate) => {
+    const today = new Date();
+    const dueDateObj = new Date(dueDate);
+    const daysRemaining = Math.floor((dueDateObj - today) / (1000 * 60 * 60 * 24));
+    
+    //More than two weeks out
+    if (daysRemaining > 14) return { text: `${daysRemaining} days remaining`, color: 'green' };
+    //Within two weeks of the statement being due
+    if (daysRemaining >= 0) return { text: `${daysRemaining} days remaining`, color: 'yellow' };
+    //Overdue
+    return { text: `${Math.abs(daysRemaining)} days overdue`, color: 'red' };
+  };
 
   // Filter accounts based on search query
   const filteredAccounts = userAccounts.filter(account =>
@@ -42,6 +61,8 @@ const UserChartOfAcc = () => {
   const handleViewLogs = (accountId) => {
     navigate(`/event-logs/${accountId}`);
   };
+
+  const handleNavigation = (path) => navigate(path);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -112,6 +133,39 @@ const UserChartOfAcc = () => {
       ) : (
         <p>No accounts found for your search query.</p>
       )}
+
+      {/*Section with buttons to navigate to financial statement pages */}
+      {/*THE ROLE NAME IS DATABASE IS LOWER CASED DON'T FORGET LIKE ME*/}
+      {role === 'manager' && (
+                <div>
+                    <div>
+                        {/* Trial Balance button - no due date */}
+                        <button onClick={() => handleNavigation('/trial-balance')}>View Trial Balance</button>
+                    </div>
+
+                    {/* Monthly statements: Income Statement & Balance Sheet */}
+                    <div>
+                        <p style={{ color: getDueDateMessage(new Date().setDate(0)).color }}>
+                            {getDueDateMessage(new Date().setDate(0)).text}
+                        </p>
+                        <button onClick={() => handleNavigation('/balance-sheet')}>View Balance Sheet</button>
+                    </div>
+                    <div>
+                        <p style={{ color: getDueDateMessage(new Date().setDate(0)).color }}>
+                            {getDueDateMessage(new Date().setDate(0)).text}
+                        </p>
+                        <button onClick={() => handleNavigation('/income-statement')}>View Income Statement</button>
+                    </div>
+
+                    {/* Yearly statement: Retained Earnings */}
+                    <div>
+                        <p style={{ color: getDueDateMessage(new Date(`${new Date().getFullYear()}-12-31`)).color }}>
+                            {getDueDateMessage(new Date(`${new Date().getFullYear()}-12-31`)).text}
+                        </p>
+                        <button onClick={() => handleNavigation('/retained-earnings-statement')}>View Retained Earnings Statement</button>
+                    </div>
+                </div>
+            )}
     </div>
   );
 };
