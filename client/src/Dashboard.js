@@ -6,6 +6,7 @@ import './Dashboard.css';
 const Dashboard = () => {
   const [userRole, setUserRole] = useState('user'); // Default role
   const [pendingCount, setPendingCount] = useState(0);
+  const UserId = localStorage.getItem('user_id');
 
   useEffect(() => {
     // Fetch user role from local storage or session
@@ -39,7 +40,7 @@ const Dashboard = () => {
             <Link to='/user-accounts'>Chart of Accounts</Link>
           </li>
           <li>
-            <Link to='/journal/:user_id'>
+          <Link to={`/journal/${UserId}`}>
               Journal Entries
               {/* Display alert if user is manager and there are pending journals */}
               {userRole === 'manager' && pendingCount > 0 && (

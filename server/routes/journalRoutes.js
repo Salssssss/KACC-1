@@ -32,20 +32,27 @@ router.get('/entries', async (req, res) => {
 
 // Route for creating a new journal entry (Accountant user functionality)
 router.post('/create', async (req, res) => {
-  console.log(req.body)
-    try {
-        // Journal entry data
-        const { transactionDate, description, accounts, debits, credits, createdBy } = req.body;  
+  console.log(req.body); // Debugging: Check if entries is received correctly
 
-        const pool = req.app.get('dbPool')
-        const newJournalEntry = await createJournalEntry(pool, transactionDate, accounts, debits, credits, description, createdBy);
-        res.status(201).json(newJournalEntry);
-    } 
-    catch (error) {
-        console.error('Error creating journal entry:', error);
-        res.status(500).json({ message: 'Error creating journal entry' });
-    }
+  try {
+      // Destructure the request body to get entries and other fields
+      const { transactionDate, description, entries, createdBy } = req.body;
+
+      // Access the database pool
+      const pool = req.app.get('dbPool');
+
+      // Pass entries directly to the createJournalEntry function
+      const newJournalEntry = await createJournalEntry(pool, transactionDate, entries, description, createdBy);
+
+      // Send the response with the created journal entry
+      res.status(201).json(newJournalEntry);
+  } 
+  catch (error) {
+      console.error('Error creating journal entry:', error);
+      res.status(500).json({ message: 'Error creating journal entry' });
+  }
 });
+
 
 // Route for getting a single journal entry by ID (This is for the requirement where you click on a post reference in the ledger)
 router.get('/entry/:id', async (req, res) => {
@@ -92,18 +99,19 @@ router.patch('/reject/:id', async (req, res) => {
 
 
 // Route for filtering journal entries (Pending, approved, rejected) with date range
-router.get('/filter', async (req, res) => {
+router.get('/search', async (req, res) => {
+    const { query } = req.query;  // Capture the search query from the request
+
     try {
-        const { status, dateFrom, dateTo } = req.query;
-        const pool = req.app.get('dbPool')
-        const filteredEntries = await filterJournalEntries(pool, status, dateFrom, dateTo);
-        res.status(200).json(filteredEntries);
-    } 
-    catch (error) {
-        console.error('Error filtering journal entries:', error);
-        res.status(500).json({ message: 'Error filtering journal entries' });
+        const pool = req.app.get('dbPool');
+        const searchResults = await searchJournalEntries(pool, query);
+        res.status(200).json(searchResults);
+    } catch (error) {
+        console.error('Error searching journal entries:', error);
+        res.status(500).json({ message: 'Error searching journal entries' });
     }
 });
+
 
 // Route for searching journal entries by account name, amount, or date
 router.get('/search', async (req, res) => {

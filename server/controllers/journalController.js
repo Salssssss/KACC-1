@@ -22,28 +22,25 @@ exports.getJournalEntries = async (pool, status, dateFrom, dateTo) => {
 };
 
 // Function to create a new journal entry
-exports.createJournalEntry = async (pool, transactionDate, accounts, debits, credits, journalDescription, createdBy) => {
+exports.createJournalEntry = async (pool, transactionDate, entries, journalDescription, createdBy) => {
     let transaction;
 
     try {
-        // Validate that total debits equal total credits
-        const totalDebits = debits.reduce((sum, debit) => sum + debit, 0);
-        const totalCredits = credits.reduce((sum, credit) => sum + credit, 0);
-        if (totalDebits !== totalCredits) {
-            return { status: 400, message: 'Total debits must equal total credits for a valid journal entry' };
-        }
-
-        // Start a transaction
         transaction = new sql.Transaction(pool);
         await transaction.begin();
         const request = new sql.Request(transaction);
 
-        // Prepare the entries
-        const entries = accounts.map((account, index) => ({
-            account_id: account,
-            debit: debits[index] || 0,
-            credit: credits[index] || 0
-        }));
+        // Calculate total debits and credits based on entry types
+        const totalDebits = entries
+            .filter(entry => entry.type === "debit")
+            .reduce((sum, entry) => sum + entry.amount, 0);
+        const totalCredits = entries
+            .filter(entry => entry.type === "credit")
+            .reduce((sum, entry) => sum + entry.amount, 0);
+
+        if (totalDebits !== totalCredits) {
+            return { status: 400, message: 'Total debits must equal total credits for a valid journal entry' };
+        }
 
         // Insert the journal entry
         const insertJournalQuery = `
@@ -53,24 +50,37 @@ exports.createJournalEntry = async (pool, transactionDate, accounts, debits, cre
         `;
 
         const journalData = JSON.stringify({ entries });
+        
+        // Add parameters to the request
         request.input('transactionDate', sql.DateTime, transactionDate);
         request.input('journalData', sql.NVarChar, journalData);
         request.input('createdBy', sql.Int, createdBy);
         request.input('journalDescription', sql.NVarChar, journalDescription);
 
+        // Execute the query
         const result = await request.query(insertJournalQuery);
+        
+        if (!result.recordset || result.recordset.length === 0) {
+            throw new Error("Failed to insert journal entry");
+        }
+
         const journalID = result.recordset[0].journal_id;
 
         await transaction.commit();
         return { journalID, message: 'Journal entry created successfully' };
+        
     } catch (error) {
         console.error('Error creating journal entry:', error);
+
         if (transaction) {
             await transaction.rollback();
         }
         return { status: 500, message: 'Error creating journal entry' };
     }
 };
+
+
+
 
 
 // Function to get a single journal entry by ID
@@ -98,7 +108,7 @@ exports.approveJournalEntry = async (pool, journalID) => {
         transaction = new sql.Transaction(pool);
         await transaction.begin();
 
-        // Fetch the journal entry to get `createdBy`
+        // Fetch the journal entry
         let request = new sql.Request(transaction);
         request.input('journalID', sql.Int, journalID);
         const fetchJournalQuery = 'SELECT journal_data, created_by FROM journal WHERE journal_id = @journalID';
@@ -110,6 +120,7 @@ exports.approveJournalEntry = async (pool, journalID) => {
 
         const journalData = JSON.parse(journalResult.recordset[0].journal_data);
         const createdBy = journalResult.recordset[0].created_by;
+        const { entries } = journalData;
 
         // Update the journal entry status to 'approved'
         request = new sql.Request(transaction);
@@ -117,18 +128,30 @@ exports.approveJournalEntry = async (pool, journalID) => {
         const updateJournalQuery = "UPDATE journal SET status = 'approved' WHERE journal_id = @journalID";
         await request.query(updateJournalQuery);
 
-        // Insert ledger entries linked to this journal entry and update account balances
-        const { entries } = journalData;
         for (const entry of entries) {
-            const { account_id, debit, credit } = entry;
+            const { account_id, amount, type } = entry;
+            const debit = type === 'debit' ? amount : 0;
+            const credit = type === 'credit' ? amount : 0;
 
-            // Calculate the new balance for the account
+            // Fetch the account's current balance and normal side
             request = new sql.Request(transaction);
             request.input('accountID', sql.Int, account_id);
-            const fetchAccountQuery = 'SELECT balance FROM accounts WHERE account_id = @accountID';
+            const fetchAccountQuery = 'SELECT balance, normal_side FROM accounts WHERE account_id = @accountID';
             const accountResult = await request.query(fetchAccountQuery);
-            const currentBalance = accountResult.recordset[0].balance;
-            const newBalance = currentBalance + debit - credit;
+
+            if (accountResult.recordset.length === 0) {
+                throw new Error(`Account not found with ID: ${account_id}`);
+            }
+
+            const { balance: currentBalance, normal_side } = accountResult.recordset[0];
+
+            // Calculate the new balance based on the account's normal side
+            let newBalance;
+            if (normal_side === 'debit') {
+                newBalance = currentBalance + debit - credit;
+            } else {
+                newBalance = currentBalance + credit - debit;
+            }
 
             // Insert the ledger entry
             request = new sql.Request(transaction);
@@ -154,7 +177,7 @@ exports.approveJournalEntry = async (pool, journalID) => {
             `;
             await request.query(updateAccountQuery);
 
-            // Insert account event
+            // Insert account event to track the balance change
             request = new sql.Request(transaction);
             request.input('accountID', sql.Int, account_id);
             request.input('currentBalance', sql.Decimal(18, 2), currentBalance);
@@ -177,6 +200,7 @@ exports.approveJournalEntry = async (pool, journalID) => {
         return { status: 500, message: 'Error approving journal entry' };
     }
 };
+
 
 
 
@@ -209,9 +233,22 @@ exports.searchJournalEntries = async (pool, query) => {
     try {
         const request = new sql.Request(pool);
         request.input('query', sql.NVarChar, `%${query}%`);
+
         const sqlQuery = `
-            SELECT * FROM journal
-            WHERE journal_data LIKE @query OR description LIKE @query
+            SELECT journal.*, 
+                   JSON_VALUE(journal.journal_data, '$.transactionDate') AS transaction_date,
+                   JSON_VALUE(journal.journal_data, '$.createdBy') AS created_by,
+                   debit.account AS debit_account,
+                   credit.account AS credit_account
+            FROM journal
+            OUTER APPLY OPENJSON(journal.journal_data, '$.debits')
+                WITH (account NVARCHAR(100) '$.account', amount FLOAT '$.amount') AS debit
+            OUTER APPLY OPENJSON(journal.journal_data, '$.credits')
+                WITH (account NVARCHAR(100) '$.account', amount FLOAT '$.amount') AS credit
+            WHERE journal_data LIKE @query 
+                  OR description LIKE @query 
+                  OR debit.account LIKE @query 
+                  OR credit.account LIKE @query;
         `;
 
         const result = await request.query(sqlQuery);
@@ -221,6 +258,9 @@ exports.searchJournalEntries = async (pool, query) => {
         return { status: 500, message: 'Error searching journal entries' };
     }
 };
+
+
+
 
 // Function to attach source documents to a journal entry
 //I might move this into the createJournal controller depending on how the uplaod works

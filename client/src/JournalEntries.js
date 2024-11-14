@@ -58,29 +58,57 @@ const JournalEntries = () => {
 
   const handleCreateEntry = async () => {
     if (!user_id) {
-      setError('User ID is missing.');
-      return;
+        setError('User ID is missing.');
+        return;
     }
+
     try {
-      const formattedEntry = {
-        ...newEntry,
-        debits: newEntry.debits.map(debit => ({ account: debit.account, amount: parseFloat(debit.amount) })),
-        credits: newEntry.credits.map(credit => ({ account: credit.account, amount: parseFloat(credit.amount) })),
-        createdBy: parseInt(user_id),
-      };
-  
-      const response = await axios.post('http://localhost:5000/journal/create', formattedEntry, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      setJournalEntries([...journalEntries, response.data]);
-      setNewEntry({ transactionDate: '', debits: [{ account: '', amount: '' }], credits: [{ account: '', amount: '' }], description: '', createdBy: parseInt(user_id) });
+        const entries = [
+            ...newEntry.debits.map(debit => ({
+                type: "debit",
+                account: debit.account.account_name,         // Directly access account_name
+                account_number: debit.account.account_number, // Directly access account_number
+                account_id: debit.account.account_id,                // Account ID for backend
+                amount: parseFloat(debit.amount)
+            })),
+            ...newEntry.credits.map(credit => ({
+                type: "credit",
+                account: credit.account.account_name,         // Directly access account_name
+                account_number: credit.account.account_number, // Directly access account_number
+                account_id: credit.account.account_id,                // Account ID for backend
+                amount: parseFloat(credit.amount)
+            }))
+        ];
+
+        const formattedEntry = {
+            transactionDate: newEntry.transactionDate,
+            description: newEntry.description,
+            createdBy: parseInt(user_id),
+            entries: entries
+        };
+
+        const response = await axios.post('http://localhost:5000/journal/create', formattedEntry, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        setJournalEntries([...journalEntries, response.data]);
+        setNewEntry({
+            transactionDate: '',
+            debits: [{ account: { id: '', account_name: '', account_number: '' }, amount: '' }],
+            credits: [{ account: { id: '', account_name: '', account_number: '' }, amount: '' }],
+            description: '',
+            createdBy: parseInt(user_id)
+        });
     } catch (err) {
-      console.error('Error creating journal entry:', err);
-      setError('Failed to create journal entry.');
+        console.error('Error creating journal entry:', err);
+        setError('Failed to create journal entry.');
     }
-  };
+};
+
+
+
 
   const handleApprove = async (id) => {
     try {
@@ -313,89 +341,95 @@ const JournalEntries = () => {
         />
       </div>
 
-      {/* Debits Section */}
-      <h3>Debits</h3>
-      {newEntry.debits.map((debit, index) => (
-        <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-          <select
-            value={debit.account}
+{/* Debits Section */}
+<h3>Debits</h3>
+{newEntry.debits.map((debit, index) => (
+    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <select
+            value={debit.account?.id || ""} // Use optional chaining to safely access id
             onChange={(e) => {
-              const updatedDebits = [...newEntry.debits];
-              updatedDebits[index].account = e.target.value;
-              setNewEntry({ ...newEntry, debits: updatedDebits });
+                const selectedAccount = accounts.find(acc => acc.account_id === parseInt(e.target.value));
+                const updatedDebits = [...newEntry.debits];
+                updatedDebits[index].account = selectedAccount; // Store the full account object
+                setNewEntry({ ...newEntry, debits: updatedDebits });
             }}
             style={{ flex: '1', marginRight: '10px', padding: '8px' }}
-          >
+        >
             <option value="">Select Account</option>
             {accounts.map(account => (
-              <option key={account.account_id} value={account.account_id}>{account.account_name}</option>
+                <option key={account.account_id} value={account.account_id}>
+                    {account.account_name}
+                </option>
             ))}
-          </select>
-          <input
+        </select>
+        <input
             type="number"
             placeholder="Amount"
             value={debit.amount}
             onChange={(e) => {
-              const updatedDebits = [...newEntry.debits];
-              updatedDebits[index].amount = e.target.value;
-              setNewEntry({ ...newEntry, debits: updatedDebits });
+                const updatedDebits = [...newEntry.debits];
+                updatedDebits[index].amount = e.target.value;
+                setNewEntry({ ...newEntry, debits: updatedDebits });
             }}
             style={{ flex: '1', padding: '8px', marginRight: '10px' }}
-          />
-          <button
+        />
+        <button
             onClick={() => {
-              const updatedDebits = newEntry.debits.filter((_, i) => i !== index);
-              setNewEntry({ ...newEntry, debits: updatedDebits });
+                const updatedDebits = newEntry.debits.filter((_, i) => i !== index);
+                setNewEntry({ ...newEntry, debits: updatedDebits });
             }}
             style={{ padding: '5px 10px', cursor: 'pointer' }}
-          >
+        >
             Remove
-          </button>
-        </div>
-      ))}
-      <button onClick={() => setNewEntry({ ...newEntry, debits: [...newEntry.debits, { account: '', amount: '' }] })} style={{ marginBottom: '20px' }}>Add Debit</button>
+        </button>
+    </div>
+))}
+<button onClick={() => setNewEntry({ ...newEntry, debits: [...newEntry.debits, { account: {}, amount: '' }] })} style={{ marginBottom: '20px' }}>Add Debit</button>
 
-      {/* Credits Section */}
-      <h3>Credits</h3>
-      {newEntry.credits.map((credit, index) => (
-        <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-          <select
-            value={credit.account}
+{/* Credits Section */}
+<h3>Credits</h3>
+{newEntry.credits.map((credit, index) => (
+    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <select
+            value={credit.account?.id || ""}
             onChange={(e) => {
-              const updatedCredits = [...newEntry.credits];
-              updatedCredits[index].account = e.target.value;
-              setNewEntry({ ...newEntry, credits: updatedCredits });
+                const selectedAccount = accounts.find(acc => acc.account_id === parseInt(e.target.value));
+                const updatedCredits = [...newEntry.credits];
+                updatedCredits[index].account = selectedAccount;
+                setNewEntry({ ...newEntry, credits: updatedCredits });
             }}
             style={{ flex: '1', marginRight: '10px', padding: '8px' }}
-          >
+        >
             <option value="">Select Account</option>
             {accounts.map(account => (
-              <option key={account.account_id} value={account.account_id}>{account.account_name}</option>
+                <option key={account.account_id} value={account.account_id}>
+                    {account.account_name}
+                </option>
             ))}
-          </select>
-          <input
+        </select>
+        <input
             type="number"
             placeholder="Amount"
             value={credit.amount}
             onChange={(e) => {
-              const updatedCredits = [...newEntry.credits];
-              updatedCredits[index].amount = e.target.value;
-              setNewEntry({ ...newEntry, credits: updatedCredits });
+                const updatedCredits = [...newEntry.credits];
+                updatedCredits[index].amount = e.target.value;
+                setNewEntry({ ...newEntry, credits: updatedCredits });
             }}
             style={{ flex: '1', padding: '8px', marginRight: '10px' }}
-          />
-          <button
+        />
+        <button
             onClick={() => {
-              const updatedCredits = newEntry.credits.filter((_, i) => i !== index);
-              setNewEntry({ ...newEntry, credits: updatedCredits });
+                const updatedCredits = newEntry.credits.filter((_, i) => i !== index);
+                setNewEntry({ ...newEntry, credits: updatedCredits });
             }}
             style={{ padding: '5px 10px', cursor: 'pointer' }}
-          >
+        >
             Remove
-          </button>
-        </div>
-      ))}
-      <button onClick={() => setNewEntry({ ...newEntry, credits: [...newEntry.credits, { account: '', amount: '' }] })} style={{ marginBottom: '20px' }}>Add Credit</button>
+        </button>
+    </div>
+))}
+<button onClick={() => setNewEntry({ ...newEntry, credits: [...newEntry.credits, { account: {}, amount: '' }] })} style={{ marginBottom: '20px' }}>Add Credit</button>
 
       <button onClick={handleCreateEntry} style={{ padding: '10px 20px', backgroundColor: '#007BFF', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Create Entry</button>
     </div>
