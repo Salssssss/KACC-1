@@ -20,8 +20,6 @@ const UserChartOfAcc = () => {
         const response = await axios.get(`http://localhost:5000/account/${userID}/accounts`, { withCredentials: true });
         setUserAccounts(response.data);
         setRole(localStorage.getItem('userRole'));
-        console.log("Role before rendering buttons:", role);
-
       } catch (error) {
         console.error('Error fetching user accounts: ', error);
         setError('Error fetching user accounts. Please try again.');
