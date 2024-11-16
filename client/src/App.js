@@ -19,7 +19,8 @@ import JournalEntries from './JournalEntries';
 import EventLogs from './EventLogs';
 import JournalFromLedger from './JournalFromLedger';
 import TrialBalance from './TrialBalance';
-
+import BalanceSheet from './BalanceSheet'; 
+import IncomeStatement from './IncomeStatement';
 
 
 
@@ -135,6 +136,18 @@ function App() {
          <Route
          path = "/trial-balance"
          element = {<TrialBalance/>}
+         />
+
+         {/*Viewing the Balance Sheet*/}
+         <Route
+         path = "/balance-sheet"
+         element = {<BalanceSheet/>}
+         />
+
+         {/*Viewing the Income Statement*/}
+         <Route
+         path = "/income-statement"
+         element = {<IncomeStatement/>}
          />
           
         {/* Fallback */}
