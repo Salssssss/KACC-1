@@ -94,7 +94,7 @@ exports.createRetainedEarningsStatement = async(req, res) => {
         //Technically the balance in retained earnings could be zero if there was no retained earnings last year
         const beginningRetainedEarnings = await sql.query(`SELECT balance FROM accounts WHERE account_name = 'Retained Earnings'`);
         
-        //?. is balanced chaining
+        //?. is balanced chaining: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining 
         //IF recordset[0] exists, then ?.balance accesses the balance property of the row
         //If balance is undefined, set to zero
         const beginningBalance = beginningRetainedEarnings.recordset[0]?.balance || 0;
