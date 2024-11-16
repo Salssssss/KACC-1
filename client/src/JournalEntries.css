@@ -1,0 +1,57 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6); /* Dark transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it appears on top of other elements */
+  }
+  
+  .modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 400px;
+    text-align: center;
+  }
+  
+  .modal h3 {
+    margin-bottom: 20px;
+  }
+  
+  .modal ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+    max-height: 150px;
+    overflow-y: auto; /* Scroll if the list gets too long */
+  }
+  
+  .modal ul li {
+    margin-bottom: 10px;
+  }
+  
+  .modal button {
+    margin: 10px 5px;
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .modal button[disabled] {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .modal button.cancel {
+    background: #d9534f;
+  }
+  

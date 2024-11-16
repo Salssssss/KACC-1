@@ -9,7 +9,8 @@ const { getJournalEntries,
         searchJournalEntries, 
         attachSourceDocuments,
         getJournalDocument,
-        addCommentToJournal } 
+        addCommentToJournal,
+        editJournalEntry, } 
         = require('../controllers/journalController');
 const multer = require('multer'); //testing multer for uplaoding documents
 const upload = multer({ storage: multer.memoryStorage() });
@@ -195,6 +196,32 @@ router.get('/pending/count', async (req, res) => {
       res.status(500).json({ message: 'Error fetching pending journal count' });
     }
   });
+  
+  router.patch('/edit/:journalID', async (req, res) => {
+    const { journalID } = req.params;
+    const { transactionDate, description, entries, createdBy } = req.body;
+    const pool = req.app.get('dbPool'); // Get the Azure SQL connection pool from the app
+
+    try {
+        // Call the editJournalEntry controller
+        const result = await editJournalEntry(pool, journalID, transactionDate, entries, description, createdBy);
+
+        console.log('Edit journal entry result:', result); // Debugging log
+
+        if (result.status === 400) {
+            return res.status(400).json({ message: result.message }); // Validation error
+        } else if (result.status === 500) {
+            return res.status(500).json({ message: result.message }); // Internal server error
+        }
+
+        res.status(200).json({ journalID: result.journalID, message: result.message }); // Success response
+    } catch (error) {
+        console.error('Error in edit journal route:', error);
+        res.status(500).json({ message: 'Unexpected error occurred while editing the journal entry.' });
+    }
+});
+
+  
   
   
   

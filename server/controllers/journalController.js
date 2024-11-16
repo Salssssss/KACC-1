@@ -317,3 +317,63 @@ exports.attachSourceDocuments = async (pool, journalID, fileName, fileType, file
       
   };
   
+  exports.editJournalEntry = async (pool, journalID, transactionDate, entries, journalDescription, createdBy) => {
+    let transaction;
+
+    try {
+        transaction = new sql.Transaction(pool);
+        await transaction.begin();
+        const request = new sql.Request(transaction);
+
+        // Calculate total debits and credits based on entry types
+        const totalDebits = entries
+            .filter(entry => entry.type === "debit")
+            .reduce((sum, entry) => sum + entry.amount, 0);
+        const totalCredits = entries
+            .filter(entry => entry.type === "credit")
+            .reduce((sum, entry) => sum + entry.amount, 0);
+
+        if (totalDebits !== totalCredits) {
+            return { status: 400, message: 'Total debits must equal total credits for a valid journal entry' };
+        }
+
+        // Update the journal entry
+        const updateJournalQuery = `
+            UPDATE journal
+            SET transaction_date = @transactionDate,
+                status = 'pending',
+                journal_data = @journalData,
+                description = @journalDescription,
+                created_by = @createdBy
+            WHERE journal_id = @journalID
+        `;
+
+        const journalData = JSON.stringify({ entries });
+
+        // Add parameters to the request
+        request.input('transactionDate', sql.DateTime, transactionDate);
+        request.input('journalData', sql.NVarChar, journalData);
+        request.input('createdBy', sql.Int, createdBy);
+        request.input('journalDescription', sql.NVarChar, journalDescription);
+        request.input('journalID', sql.Int, journalID);
+
+        // Execute the query
+        const result = await request.query(updateJournalQuery);
+
+        if (result.rowsAffected[0] === 0) {
+            throw new Error("No rows updated; journal entry not found or no changes made.");
+        }
+
+        await transaction.commit();
+        return { status: 200, journalID, message: 'Journal entry updated successfully' };
+    } catch (error) {
+        console.error('Error updating journal entry:', error);
+
+        if (transaction) {
+            await transaction.rollback();
+        }
+        return { status: 500, message: 'Error updating journal entry' };
+    }
+};
+
+
