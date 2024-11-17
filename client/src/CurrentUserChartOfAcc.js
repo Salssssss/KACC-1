@@ -160,7 +160,7 @@ const UserChartOfAcc = () => {
                         <p style={{ color: getDueDateMessage(new Date(`${new Date().getFullYear()}-12-31`)).color }}>
                             {getDueDateMessage(new Date(`${new Date().getFullYear()}-12-31`)).text}
                         </p>
-                        <button onClick={() => handleNavigation('/retained-earnings-statement')}>View Retained Earnings Statement</button>
+                        <button onClick={() => handleNavigation('/retained-earnings')}>View Retained Earnings Statement</button>
                     </div>
                 </div>
             )}
