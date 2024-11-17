@@ -10,7 +10,7 @@ import imageFive from './tempAssets/Stock-ChartBoard-04-adobe.jpg';
 const LandingPage = () => {
 
   return (
-    <div>
+    <div className='landing'>
       <div className="slider">
         <figure>
           <div className="slide">
@@ -29,6 +29,9 @@ const LandingPage = () => {
             <img src={imageFive} alt="" />
           </div>
         </figure>
+      </div>
+      <div className='landingPageText'>
+        <h1>KACC</h1>
       </div>
     </div>
   );

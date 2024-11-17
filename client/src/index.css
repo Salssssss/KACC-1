@@ -13,6 +13,17 @@ code {
 }
 
 
+.landingPageText {
+  padding: 20px;
+  padding-bottom: 100%;
+  background-color: rgba(0, 0, 0, 0.493);
+  color: rgb(248, 244, 15);
+  font-size: 36px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  text-align: center;
+  overflow: hidden;
+}
+
 .slider {
   overflow: hidden;
   width: 100%;
@@ -41,7 +52,6 @@ code {
 .slider figure {
   position: relative;
   width: 500%;
-  margin: 0;
   animation: animate 20s infinite;
   margin: 0;
 }
