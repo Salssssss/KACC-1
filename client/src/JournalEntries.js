@@ -703,34 +703,7 @@ const JournalEntries = () => {
   </div>
 )}
 
-<h2>{editEntry ? "Edit Journal Entry" : "Create New Journal Entry"}</h2>
-<div style={{ marginBottom: '15px' }}>
-  <input
-    type="text"
-    placeholder="Description"
-    value={editEntry ? editEntry.description : newEntry.description}
-    onChange={(e) => {
-      if (editEntry) {
-        setEditEntry({ ...editEntry, description: e.target.value });
-      } else {
-        setNewEntry({ ...newEntry, description: e.target.value });
-      }
-    }}
-    style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-  />
-  <input
-    type="date"
-    value={editEntry ? editEntry.transactionDate : newEntry.transactionDate}
-    onChange={(e) => {
-      if (editEntry) {
-        setEditEntry({ ...editEntry, transactionDate: e.target.value });
-      } else {
-        setNewEntry({ ...newEntry, transactionDate: e.target.value });
-      }
-    }}
-    style={{ width: '100%', padding: '8px' }}
-  />
-</div>
+
 {editEntry && (
   <button
     onClick={() => setEditEntry(null)}

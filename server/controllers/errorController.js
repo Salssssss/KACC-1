@@ -102,3 +102,54 @@ exports.addError = async (pool, errorCode, description) => {
         return { status: 500, message: 'Error adding error type' };
     }
 };
+
+exports.deactivateError = async (pool, activeErrorID) => {
+    try {
+        const request = new sql.Request(pool);
+        request.input('activeErrorID', sql.Int, activeErrorID);
+
+        const query = `
+            UPDATE ActiveErrors
+            SET is_resolved = 1
+            WHERE active_error_id = @activeErrorID
+        `;
+
+        const result = await request.query(query);
+
+        if (result.rowsAffected[0] === 0) {
+            return { status: 404, message: 'Error not found or already resolved.' };
+        }
+
+        return { status: 200, message: 'Active error deactivated successfully.' };
+    } catch (error) {
+        console.error('Error deactivating active error:', error);
+        return { status: 500, message: 'Error deactivating active error', errorDetails: error.message };
+    }
+};
+
+exports.getAllActiveErrors = async (pool) => {
+    try {
+      const request = new sql.Request(pool);
+  
+      const query = `
+        SELECT ae.active_error_id, ae.journal_id, e.error_code, e.description, ae.is_resolved, ae.created_at,
+               j.description AS journal_description, j.transaction_date, j.status, j.created_by AS user_id
+        FROM ActiveErrors ae
+        JOIN Errors e ON ae.error_id = e.error_id
+        JOIN Journal j ON ae.journal_id = j.journal_id
+        WHERE ae.is_resolved = 0
+      `;
+  
+      const result = await request.query(query);
+  
+      return {
+        status: 200,
+        count: result.recordset.length, // Total number of active errors
+        errors: result.recordset, // Detailed list of active errors
+      };
+    } catch (error) {
+      console.error('Error fetching all active errors:', error);
+      return { status: 500, message: 'Error fetching all active errors' };
+    }
+  };
+  
