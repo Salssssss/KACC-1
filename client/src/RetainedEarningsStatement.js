@@ -110,10 +110,10 @@ function RetainedEarningsStatement() {
                     </tr>
                 </tfoot>
             </table>
-            <button onClick={() => htmlTableToCSV()}>Download as CSV</button>
-            <button onClick={updateRetainedEarnings}>
-    Publish Earnings
-</button>
+            <button className="csv-button" onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <button className="publish-earnings" onClick={updateRetainedEarnings}>
+                Publish Earnings
+            </button>
             <PrintButton/>
         </div>
     );
