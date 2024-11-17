@@ -59,72 +59,100 @@ exports.createBalanceSheet = async(req, res) => {
         res.status(500).json({ message: 'Error creating balance sheet', error });
     }
 };
+const getNetIncome = async (sql) => {
+    const revenue = await sql.query(`SELECT * FROM accounts WHERE category = 'revenue'`);
+    const expenses = await sql.query(`SELECT * FROM accounts WHERE category = 'expenses'`);
 
-exports.createIncomeStatement = async(req, res) => {
-    //Select all accounts under category "revenue" and sum their balance
-    //Select all accounts under category "expenses" and sum their balance
-    //Subtract sum of expenses from sum of revenue
-    //save total as net income/loss
+    const totalRevenue = revenue.recordset.reduce((acc, account) => acc + Number(account.balance), 0);
+    const totalExpenses = expenses.recordset.reduce((acc, account) => acc + Number(account.balance), 0);
+    const netIncome = totalRevenue - totalExpenses;
+
+    return { revenue: revenue.recordset, expenses: expenses.recordset, totalRevenue, totalExpenses, netIncome };
+};
+
+exports.createIncomeStatement = async (req, res) => {
     try {
-        //Store details of accounts in these categories in the revenue and expenses arrays
-        //In the front end we can iterate over and display the names of each account as well as their balance
-        const revenue = await sql.query(`SELECT * FROM accounts WHERE category = 'revenue'`);
-        const expenses = await sql.query(`SELECT * FROM accounts WHERE category = 'expenses'`);
+        const netIncomeData = await getNetIncome(sql);
 
-        //The summed values and net result can be sent back to the front end as well
-        const totalRevenue = revenue.recordset.reduce((acc, account) => acc + account.balance, 0);
-        const totalExpenses = expenses.recordset.reduce((acc, account) => acc + account.balance, 0);
-        const netResult = totalRevenue - totalExpenses;
-
-        res.status(200).json({ revenue: revenue.recordset, expenses: expenses.recordset, netResult });
-    } 
-    catch (error) {
+        res.status(200).json({
+            revenue: netIncomeData.revenue,
+            expenses: netIncomeData.expenses,
+            totalRevenue: netIncomeData.totalRevenue,
+            totalExpenses: netIncomeData.totalExpenses,
+            netIncome: netIncomeData.netIncome,
+        });
+    } catch (error) {
+        console.error('Error creating income statement:', error);
         res.status(500).json({ message: 'Error creating income statement', error });
     }
 };
 
-exports.createRetainedEarningsStatement = async(req, res) => {
-    //load saved retained earnings from the beginning of the year (if applicable)
-    //add net income/loss from most recent income statement
-    //save result so it can be displayed
-    //subtract 6% from the result and label the amount as dividends
-    //save final result as the retained earnings and zero out all revenue and expenses accounts
+exports.createRetainedEarningsStatement = async (req, res) => {
     try {
-        //Assuming we load beginning retained earnings from a saved source
-        //Technically the balance in retained earnings could be zero if there was no retained earnings last year
+        // Load the beginning retained earnings balance
         const beginningRetainedEarnings = await sql.query(`SELECT balance FROM accounts WHERE account_name = 'Retained Earnings'`);
-        
-        //?. is balanced chaining: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining 
-        //IF recordset[0] exists, then ?.balance accesses the balance property of the row
-        //If balance is undefined, set to zero
         const beginningBalance = (beginningRetainedEarnings.recordset?.[0]?.balance) || 0;
 
-        //Retrieve the most recent net income 
-        //We might want to store net income in a dedicated account after income statement creation
-        //const netIncome = await this.createIncomeStatement(req, res);
-        const netIncomeResult = await sql.query(`
-            SELECT SUM(balance) AS netIncome 
-            FROM accounts 
-            WHERE category = 'revenue'
-        `);
-        const netIncome = netIncomeResult.recordset?.[0]?.netIncome || 0;
+        // Use the reusable net income calculation
+        const netIncomeData = await getNetIncome(sql);
+        const netIncome = netIncomeData.netIncome;
 
-        //Subtract dividends (using a 6% rate as the dividend payout)
-        const dividends = beginningBalance * 0.06;
+        // Calculate dividends (6% payout from beginning balance)
+        const dividends = (beginningBalance + netIncome) * 0.06;
+
+        // Calculate retained earnings
         const retainedEarnings = beginningBalance + netIncome - dividends;
 
-        //Reset revenue and expense accounts (year-end closing process)
-        await sql.query(`UPDATE accounts SET balance = 0 WHERE category IN ('revenue', 'expenses')`);
-        
 
+        console.log(netIncome, dividends, retainedEarnings)
+        // Return the retained earnings statement
         res.status(200).json({
             beginningRetainedEarnings: beginningBalance,
             netIncome: netIncome,
-            dividends : dividends,
-            retainedEarnings : retainedEarnings,
+            dividends: dividends,
+            retainedEarnings: retainedEarnings,
         });
-    } 
-    catch (error) {
+    } catch (error) {
+        console.error('Error creating retained earnings statement:', error);
         res.status(500).json({ message: 'Error creating retained earnings statement', error });
     }
 };
+
+exports.updateRetainedEarnings = async (req, res) => {
+    try {
+        // Load the beginning retained earnings balance
+        const beginningRetainedEarnings = await sql.query(`SELECT balance FROM accounts WHERE account_name = 'Retained Earnings'`);
+        const beginningBalance = (beginningRetainedEarnings.recordset?.[0]?.balance) || 0;
+
+        // Use the reusable net income calculation
+        const netIncomeData = await getNetIncome(sql);
+        const netIncome = netIncomeData.netIncome;
+
+        // Calculate dividends (6% payout from beginning balance)
+        const dividends = (beginningBalance + netIncome) * 0.06;
+
+        // Calculate retained earnings
+        const retainedEarnings = beginningBalance + netIncome - dividends;
+
+        // Save the retained earnings into the 'Retained Earnings' account
+        await sql.query(`
+            UPDATE accounts 
+            SET balance = ${retainedEarnings} 
+            WHERE account_name = 'Retained Earnings';
+            
+            UPDATE accounts 
+            SET balance = ${dividends} 
+            WHERE account_name = 'Equity';
+        `);
+        
+
+        // Reset revenue and expense accounts (year-end closing process)
+        await sql.query(`UPDATE accounts SET balance = 0 WHERE category IN ('revenue', 'expenses')`);
+        res.status(200).json({ message: 'Retained earnings updated successfully.' });
+        // Return the retained earnings statement
+    } catch (error) {
+        console.error('Error creating retained earnings statement:', error);
+        res.status(500).json({ message: 'Error creating retained earnings statement', error });
+    }
+};
+

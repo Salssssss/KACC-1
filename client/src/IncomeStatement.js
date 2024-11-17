@@ -13,7 +13,6 @@ function IncomeStatement() {
             try {
                 const response = await axios.get('http://localhost:5000/statements/income-statement');
                 const data = response.data;
-
                 setIncomeStatement(data.incomeStatement || { revenue: [], expenses: [] });
                 setTotalRevenue(data.totalRevenue || 0);
                 setTotalExpenses(data.totalExpenses || 0);

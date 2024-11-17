@@ -23,6 +23,17 @@ function RetainedEarningsStatement() {
         fetchRetainedEarningsData();
     }, []);
 
+    const updateRetainedEarnings = async () => {
+        try {
+            await axios.post('http://localhost:5000/statements/publish-earnings');
+            alert('Retained earnings updated successfully.');
+        } catch (error) {
+            console.error('Error updating retained earnings:', error);
+            alert('Failed to update retained earnings.');
+        }
+    };
+    
+
     //Function to convert the HTML table to CSV
     const htmlTableToCSV = (filename = 'retained_earnings_statement.csv') => {
         const tables = document.querySelectorAll('table');
@@ -53,13 +64,13 @@ function RetainedEarningsStatement() {
         return <div>Error loading retained earnings statement data.</div>;
     }
 
-    const { beginningRetainedEarnings, netIncome, dividends, endingRetainedEarnings } = retainedEarningsData;
+    const { beginningRetainedEarnings, netIncome, dividends, retainedEarnings } = retainedEarningsData;
 
     //Convert values to floats and ensure defaults
     const beginningRetainedEarningsValue = parseFloat(beginningRetainedEarnings) || 0;
     const netIncomeValue = parseFloat(netIncome) || 0;
     const dividendsValue = parseFloat(dividends) || 0;
-    const endingRetainedEarningsValue = parseFloat(endingRetainedEarnings) || 0;
+    const endingRetainedEarningsValue = parseFloat(retainedEarnings) || 0;
     
     return (
         <div>
@@ -90,7 +101,7 @@ function RetainedEarningsStatement() {
                         <td><strong>Ending Retained Earnings</strong></td>
                         <td>
                             <strong>
-                                <span style={{ color: endingRetainedEarnings >= 0 ? 'green' : 'red' }}>
+                                <span style={{ color: retainedEarnings >= 0 ? 'green' : 'red' }}>
                                     {endingRetainedEarningsValue.toFixed(2)}
                                 </span>
                             </strong>
@@ -99,6 +110,10 @@ function RetainedEarningsStatement() {
                 </tfoot>
             </table>
             <button onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <button onClick={updateRetainedEarnings}>
+    Publish Earnings
+</button>
+
         </div>
     );
 }
