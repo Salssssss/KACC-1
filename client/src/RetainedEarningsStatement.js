@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import PrintButton from './PrintButton';
 
 function RetainedEarningsStatement() {
     const [retainedEarningsData, setRetainedEarningsData] = useState(null);
@@ -98,7 +99,8 @@ function RetainedEarningsStatement() {
                     </tr>
                 </tfoot>
             </table>
-            <button onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <button className="csv-button" onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <PrintButton/>
         </div>
     );
 }
