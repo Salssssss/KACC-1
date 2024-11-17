@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
 import { generateCalendarHTML } from './calendar'; // Assuming you have a calendar.js file
 import './calendar.css'; // Import the CSS file for the calendar
 
@@ -99,7 +100,7 @@ const AdminChartOfAcc = () => {
   return (
     <div style={{ position: 'relative' }}>
       {/* Calendar Button */}
-      <div style={{ position: 'absolute', top: '10px', right: '10px' }}>
+      <div style={{ position: 'absolute', top: '10px', right: '10px' }} classname="no-print">
         <button onClick={() => setCalendarVisible(!calendarVisible)}>Toggle Calendar</button>
         {calendarVisible && (
           <div
@@ -122,7 +123,7 @@ const AdminChartOfAcc = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/* Search input for filtering accounts */}
-      <div>
+      <div className="no-print">
         <input
           type="text"
           placeholder="Search by account name or number"
@@ -173,7 +174,7 @@ const AdminChartOfAcc = () => {
       )}
 
       {canEditOrAdd && (
-        <button onClick={handleAddAccount}>Add New Account</button>
+        <button onClick={handleAddAccount} className="no-print">Add New Account</button>
       )}
 
       {selectedAccount && (
@@ -274,7 +275,9 @@ const AdminChartOfAcc = () => {
             </div>
             <button type="submit">Save Changes</button>
             <button type="button" onClick={() => setSelectedAccount(null)}>Cancel</button>
+
           </form>
+
         </div>
       )}
     </div>
