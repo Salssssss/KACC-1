@@ -124,14 +124,18 @@ const JournalEntries = () => {
   
     try {
       const entries = [
-        ...editEntry.debits.map(debit => ({
+        ...newEntry.debits.map(debit => ({
           type: 'debit',
           account_id: debit.account.account_id,
+          account_number : debit.account.account_number,
+          account_name: debit.account.account_name,
           amount: parseFloat(debit.amount),
         })),
-        ...editEntry.credits.map(credit => ({
+        ...newEntry.credits.map(credit => ({
           type: 'credit',
           account_id: credit.account.account_id,
+          account_number : credit.account.account_number,
+          account_name: credit.account.account_name,
           amount: parseFloat(credit.amount),
         })),
       ];
@@ -183,11 +187,15 @@ const JournalEntries = () => {
         ...newEntry.debits.map(debit => ({
           type: 'debit',
           account_id: debit.account.account_id,
+          account_number : debit.account.account_number,
+          account_name: debit.account.account_name,
           amount: parseFloat(debit.amount),
         })),
         ...newEntry.credits.map(credit => ({
           type: 'credit',
           account_id: credit.account.account_id,
+          account_number : credit.account.account_number,
+          account_name: credit.account.account_name,
           amount: parseFloat(credit.amount),
         })),
       ];
