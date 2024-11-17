@@ -20,17 +20,17 @@ exports.resolveError = async (pool, activeErrorID, resolutionNotes) => {
     }
 };
 
-exports.getActiveErrors = async (pool, userID) => {
+exports.getActiveErrors = async (pool) => {
     try {
         const request = new sql.Request(pool);
-        request.input('userID', sql.Int, userID);
+        
 
         const query = `
             SELECT ae.active_error_id, ae.journal_id, e.error_code, e.description, ae.is_resolved, ae.created_at
             FROM ActiveErrors ae
             JOIN Errors e ON ae.error_id = e.error_id
             JOIN Journal j ON ae.journal_id = j.journal_id
-            WHERE j.created_by = @userID AND ae.is_resolved = 0
+            WHERE  ae.is_resolved = 0
         `;
 
         const result = await request.query(query);
@@ -102,3 +102,4 @@ exports.addError = async (pool, errorCode, description) => {
         return { status: 500, message: 'Error adding error type' };
     }
 };
+

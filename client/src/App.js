@@ -21,6 +21,7 @@ import JournalFromLedger from './JournalFromLedger';
 import TrialBalance from './TrialBalance';
 import BalanceSheet from './BalanceSheet'; 
 import IncomeStatement from './IncomeStatement';
+import RetainedEarningsStatement from './RetainedEarningsStatement';
 
 
 
@@ -149,7 +150,13 @@ function App() {
          path = "/income-statement"
          element = {<IncomeStatement/>}
          />
-          
+
+         {/*Viewing the Retained Earnings Statement*/}
+         <Route
+         path = "/retained-earnings"
+         element = {<RetainedEarningsStatement/>}
+         />
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

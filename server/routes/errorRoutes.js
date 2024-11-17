@@ -26,15 +26,15 @@ router.post('/active-errors', async (req, res) => {
 });
 
 // Get active errors for a user
-router.get('/active-errors/:userID', async (req, res) => {
-    const { userID } = req.params;
+router.get('/active-errors', async (req, res) => {
+
     const pool = req.app.get('dbPool');
 
     try {
-        const result = await getActiveErrors(pool, userID);
+        const result = await getActiveErrors(pool);
         res.status(result.status).json(result);
     } catch (error) {
-        console.error('Error in /active-errors/:userID route:', error);
+        console.error('Error in /active-errors route:', error);
         res.status(500).json({ message: 'Failed to fetch active errors' });
     }
 });
@@ -76,5 +76,7 @@ router.patch('/activate/:journalID/errors/:errorID', async (req, res) => {
     }
   });
   
+  
+
   
 module.exports = router;

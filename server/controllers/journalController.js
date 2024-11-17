@@ -22,7 +22,14 @@ exports.getJournalEntries = async (pool, status, dateFrom, dateTo) => {
 };
 
 // Function to create a new journal entry
-exports.createJournalEntry = async (pool, transactionDate, entries, journalDescription, createdBy) => {
+exports.createJournalEntry = async (
+    pool,
+    transactionDate,
+    entries,
+    journalDescription,
+    createdBy,
+    entryType = 'regular' // Default to 'regular' if not provided
+) => {
     let transaction;
 
     try {
@@ -38,46 +45,74 @@ exports.createJournalEntry = async (pool, transactionDate, entries, journalDescr
             .filter(entry => entry.type === "credit")
             .reduce((sum, entry) => sum + entry.amount, 0);
 
+        // Validate that debits equal credits
         if (totalDebits !== totalCredits) {
-            return { status: 400, message: 'Total debits must equal total credits for a valid journal entry' };
+            return {
+                status: 400,
+                message: 'Total debits must equal total credits for a valid journal entry',
+            };
         }
 
         // Insert the journal entry
         const insertJournalQuery = `
-            INSERT INTO journal (transaction_date, status, journal_data, created_by, description)
+            INSERT INTO journal (
+                transaction_date,
+                status,
+                journal_data,
+                created_by,
+                description,
+                entry_type
+            )
             OUTPUT INSERTED.journal_id
-            VALUES (@transactionDate, 'pending', @journalData, @createdBy, @journalDescription)
+            VALUES (
+                @transactionDate,
+                'pending',
+                @journalData,
+                @createdBy,
+                @journalDescription,
+                @entryType
+            )
         `;
 
         const journalData = JSON.stringify({ entries });
-        
+
         // Add parameters to the request
         request.input('transactionDate', sql.DateTime, transactionDate);
         request.input('journalData', sql.NVarChar, journalData);
         request.input('createdBy', sql.Int, createdBy);
         request.input('journalDescription', sql.NVarChar, journalDescription);
+        request.input('entryType', sql.NVarChar, entryType);
 
         // Execute the query
         const result = await request.query(insertJournalQuery);
-        
+
+        // Check if the journal entry was inserted
         if (!result.recordset || result.recordset.length === 0) {
-            throw new Error("Failed to insert journal entry");
+            throw new Error('Failed to insert journal entry');
         }
 
         const journalID = result.recordset[0].journal_id;
 
+        // Commit the transaction
         await transaction.commit();
-        return { journalID, message: 'Journal entry created successfully' };
-        
+        return {
+            journalID,
+            message: 'Journal entry created successfully',
+        };
     } catch (error) {
         console.error('Error creating journal entry:', error);
 
         if (transaction) {
             await transaction.rollback();
         }
-        return { status: 500, message: 'Error creating journal entry' };
+
+        return {
+            status: 500,
+            message: 'Error creating journal entry',
+        };
     }
 };
+
 
 
 

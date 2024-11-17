@@ -97,11 +97,17 @@ exports.createRetainedEarningsStatement = async(req, res) => {
         //?. is balanced chaining: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining 
         //IF recordset[0] exists, then ?.balance accesses the balance property of the row
         //If balance is undefined, set to zero
-        const beginningBalance = beginningRetainedEarnings.recordset[0]?.balance || 0;
+        const beginningBalance = (beginningRetainedEarnings.recordset?.[0]?.balance) || 0;
 
         //Retrieve the most recent net income 
         //We might want to store net income in a dedicated account after income statement creation
-        const netIncome = await this.createIncomeStatement(req, res);
+        //const netIncome = await this.createIncomeStatement(req, res);
+        const netIncomeResult = await sql.query(`
+            SELECT SUM(balance) AS netIncome 
+            FROM accounts 
+            WHERE category = 'revenue'
+        `);
+        const netIncome = netIncomeResult.recordset?.[0]?.netIncome || 0;
 
         //Subtract dividends (using a 6% rate as the dividend payout)
         const dividends = beginningBalance * 0.06;
@@ -109,12 +115,13 @@ exports.createRetainedEarningsStatement = async(req, res) => {
 
         //Reset revenue and expense accounts (year-end closing process)
         await sql.query(`UPDATE accounts SET balance = 0 WHERE category IN ('revenue', 'expenses')`);
+        
 
         res.status(200).json({
             beginningRetainedEarnings: beginningBalance,
-            netIncome,
-            dividends,
-            retainedEarnings,
+            netIncome: netIncome,
+            dividends : dividends,
+            retainedEarnings : retainedEarnings,
         });
     } 
     catch (error) {

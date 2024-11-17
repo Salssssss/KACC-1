@@ -12,6 +12,6 @@ router.get('/balance-sheet', StatementController.createBalanceSheet);
 router.get('/income-statement', StatementController.createIncomeStatement);
 
 //Route to create a Retained Earnings Statement
-router.get('/retained-earnings-statement', StatementController.createRetainedEarningsStatement);
+router.get('/retained-earnings', StatementController.createRetainedEarningsStatement);
 
 module.exports = router;
