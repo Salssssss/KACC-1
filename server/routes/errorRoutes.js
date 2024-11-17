@@ -26,15 +26,15 @@ router.post('/active-errors', async (req, res) => {
 });
 
 // Get active errors for a user
-router.get('/active-errors/:userID', async (req, res) => {
-    const { userID } = req.params;
+router.get('/active-errors', async (req, res) => {
+
     const pool = req.app.get('dbPool');
 
     try {
-        const result = await getActiveErrors(pool, userID);
+        const result = await getActiveErrors(pool);
         res.status(result.status).json(result);
     } catch (error) {
-        console.error('Error in /active-errors/:userID route:', error);
+        console.error('Error in /active-errors route:', error);
         res.status(500).json({ message: 'Failed to fetch active errors' });
     }
 });
@@ -76,31 +76,6 @@ router.patch('/activate/:journalID/errors/:errorID', async (req, res) => {
     }
   });
   
-  // Deactivate an active error
-router.patch('/deactivate-errors/:activeErrorID', async (req, res) => {
-    const { activeErrorID } = req.params; // Extract activeErrorID from the request
-    const pool = req.app.get('dbPool'); // Get the database pool connection
-
-    try {
-        const result = await deactivateError(pool, activeErrorID); // Call the controller function
-        res.status(result.status || 200).json(result); // Return the result to the client
-    } catch (error) {
-        console.error('Error deactivating error:', error); // Log the error
-        res.status(500).json({ message: 'Failed to deactivate error.', error }); // Return an error response
-    }
-});
-
-router.get('/active-errors', async (req, res) => {
-    const pool = req.app.get('dbPool'); // Get the database pool connection
-  
-    try {
-      const result = await getAllActiveErrors(pool); // Call the controller function
-      res.status(result.status || 200).json(result); // Return the result to the client
-    } catch (error) {
-      console.error('Error in /active-errors route:', error); // Log the error
-      res.status(500).json({ message: 'Failed to fetch all active errors' }); // Return an error response
-    }
-  });
   
 
   

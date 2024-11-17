@@ -62,6 +62,45 @@ const UserChartOfAcc = () => {
 
   const handleNavigation = (path) => navigate(path);
 
+   //--------------------Send Email to User------------------------//
+
+  // State for email sending
+  const [emailDetails, setEmailDetails] = useState({
+    userEmail: '',
+    subject: '',
+    message: '',
+  });
+  const [emailMessage, setEmailMessage] = useState('');
+
+  // Handle email form submission
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/admin/send-email',
+        {
+          userEmail: emailDetails.userEmail,
+          subject: emailDetails.subject,
+          message: emailDetails.message,
+        },
+      );
+
+      setEmailMessage('Email sent successfully!');
+    } catch (err) {
+      console.error('Error sending email: ', err);
+      setEmailMessage('Error sending email. Please try again.');
+    }
+  };
+
+  // Update email details as the admin types
+  const handleEmailChange = (e) => {
+    const { name, value } = e.target;
+    setEmailDetails({
+      ...emailDetails,
+      [name]: value,
+    });
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Calendar Button */}
@@ -87,6 +126,8 @@ const UserChartOfAcc = () => {
       <h2>Your Chart of Accounts</h2>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
+     
+
 
       {/* Search input for filtering accounts */}
       <div>
@@ -164,8 +205,60 @@ const UserChartOfAcc = () => {
                     </div>
                 </div>
             )}
+              {/* Email Section */}
+       <div
+      style={{
+        marginTop: 'auto',
+        border: '1px solid gray',
+        padding: '15px',
+        backgroundColor: '#f9f9f9',
+      }}
+    >
+      <h3>Send Email</h3>
+      <form onSubmit={handleSendEmail}>
+        <div>
+          <label>
+            Recipient Email:
+            <input
+              type="email"
+              name="userEmail"
+              value={emailDetails.userEmail}
+              onChange={handleEmailChange}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Subject:
+            <input
+              type="text"
+              name="subject"
+              value={emailDetails.subject}
+              onChange={handleEmailChange}
+              required
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Message:
+            <textarea
+              name="message"
+              value={emailDetails.message}
+              onChange={handleEmailChange}
+              required
+            />
+          </label>
+        </div>
+        <button type="submit">Send Email</button>
+      </form>
+      {emailMessage && <p>{emailMessage}</p>}
     </div>
+    </div>
+    
   );
+  
 };
 
 export default UserChartOfAcc;
