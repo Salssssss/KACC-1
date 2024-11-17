@@ -36,7 +36,7 @@ const UserChartOfAcc = () => {
   };
 
   return (
-    <div>
+    <div className='chart'>
       <h2>Your Chart of Accounts</h2>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}

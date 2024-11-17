@@ -42,7 +42,7 @@ const CreateAccount = () => {
   };
 
   return (
-    <div>
+    <div className='createAccount'>
       <h1>Create New Account</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>

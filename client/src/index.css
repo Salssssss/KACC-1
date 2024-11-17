@@ -97,25 +97,103 @@ nav .rightnav {
 
 .login {
   padding: 50px;
+  padding-bottom: 100%;
+  background-color: rgb(131, 129, 129);
+  font-weight: bold;
 }
 
 .login input {
   margin: 10px;
 }
 
-.createAccount {
-  padding: 50px;
+.login input:hover {
+  border: 2px solid rgb(29, 28, 28);
 }
 
+.login button {
+  margin-top: 10px;
+  border-radius: 0px;
+  border: 1px solid rgb(29, 28, 28);
+  color: rgb(29, 28, 28);
+  background-color: rgb(233, 233, 154);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.login button:hover {
+  color: rgb(233, 233, 154);
+  background-color: rgb(29, 28, 28);
+}
+
+.createAccount {
+  padding: 50px;
+  padding-bottom: 100%;
+  margin: 0px;
+  background-color: rgb(131, 129, 129);
+  font-weight: bold;
+}
 
 .createAccount input {
   margin: 10px;
 }
 
+.createAccount input:hover {
+  border: 2px solid rgb(29, 28, 28);
+}
+
+.createAccount button {
+  margin-top: 10px;
+  border-radius: 0px;
+  border: 1px solid rgb(29, 28, 28);
+  color: rgb(29, 28, 28);
+  background-color: rgb(233, 233, 154);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.createAccount button:hover {
+  color: rgb(233, 233, 154);
+  background-color: rgb(29, 28, 28);
+}
+
+.createAccount select {
+  border-radius: 0%;
+  border-bottom: 1px solid;
+  border-top: 0px;
+  border-right: 0px;
+  border-left: 0px;
+  margin: 5px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.createAccount select:hover {
+  border: 2px solid rgb(29, 28, 28);
+}
+
+.chart {
+  margin: 0px;
+  padding: 20px;
+  padding-bottom: 100%;
+  background-color: rgb(131, 129, 129);
+  font-weight: bold;
+}
+
+.chart input:hover {
+  border: 2px solid rgb(29, 28, 28);
+}
+
+.adminDash {
+  padding: 20px;
+  padding-bottom: 100%;
+  background-color: rgb(131, 129, 129);
+  font-weight: bold;
+}
+
 .adminDash table, th, td {
   border: 2px solid;
   border-collapse: collapse;
-  padding: 5px;
+  padding: 10px;
   margin: 10px;
 }
 
@@ -130,13 +208,12 @@ nav .rightnav {
 }
 
 .adminDash button:hover {
-  border: 1px solid rgb(233, 233, 154);
   color: rgb(233, 233, 154);
   background-color: rgb(29, 28, 28);
 }
 
 .adminDash .fix li::marker {
-  color: white;
+  color: rgb(131, 129, 129);
 }
 
 .adminDash select {
@@ -152,7 +229,7 @@ nav .rightnav {
 
 .adminDash select:hover {
   background-color: rgb(29, 28, 28);
-  color: rgb(233, 233, 154);
+  color: white;
 }
 
 .adminDash option {
@@ -176,14 +253,18 @@ nav .rightnav {
 }
 
 .adminDash .datePicker:hover {
-  background-color:rgb(233, 233, 154);
-  border: 1px solid;
+  border: 2px solid rgb(29, 28, 28);
   cursor: pointer;
 }
 
 .dash #welcome {
   float: right;
+  margin: 0px;
   padding: 20px;
+  padding-bottom: 100%;
+  padding-left: 100%;
+  background-color: rgb(131, 129, 129);
+  font-weight: bold;
 }
 
 .tooltipButton {
@@ -201,5 +282,8 @@ nav .rightnav {
 }
 
 .about {
-  margin: 20px;
+  padding: 20px;
+  padding-bottom: 100%;
+  background-color: rgb(131, 129, 129);
+  font-weight: bold;
 }
