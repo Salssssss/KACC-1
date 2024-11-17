@@ -74,7 +74,7 @@ function RetainedEarningsStatement() {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Beginning Retained Earnings</td>
+                        <td>Initial Retained Earnings</td>
                         <td>{beginningRetainedEarningsValue.toFixed(2)}</td>
                     </tr>
                     <tr>
@@ -82,13 +82,13 @@ function RetainedEarningsStatement() {
                         <td>{netIncomeValue.toFixed(2)}</td>
                     </tr>
                     <tr>
-                        <td>Less: Dividends</td>
+                        <td>Dividends</td>
                         <td>{dividendsValue.toFixed(2)}</td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td><strong>Ending Retained Earnings</strong></td>
+                        <td><strong>Final Retained Earnings</strong></td>
                         <td>
                             <strong>
                                 <span style={{ color: endingRetainedEarnings >= 0 ? 'green' : 'red' }}>
