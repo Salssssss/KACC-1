@@ -278,9 +278,6 @@ const AdminChartOfAcc = () => {
 
           </form>
 
-          {/*this should add a print button to the page Print button*/}
-          <PrintButton />
-
         </div>
       )}
     </div>

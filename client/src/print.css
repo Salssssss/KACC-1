@@ -1,5 +1,5 @@
 @media print {
-    .no-print {
+    .no-print, .csv-button, .print-button, .navbar {
       display: none !important;
     }
   

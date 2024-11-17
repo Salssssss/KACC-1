@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import PrintPage from './PrintButton';
 
 function BalanceSheet() {
     const [balanceSheet, setBalanceSheet] = useState(null);
@@ -119,7 +120,8 @@ function BalanceSheet() {
                     </tr>
                 </tfoot>
             </table>
-            <button onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <button className="csv-button" onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <PrintPage />
         </div>
     );
 }
