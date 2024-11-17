@@ -21,6 +21,8 @@ const JournalEntries = () => {
   const [errorList, setErrorList] = useState([]);
   const [selectedError, setSelectedError] = useState(null);
   const [editEntry, setEditEntry] = useState(null); // Tracks the entry being edited
+  const [entryType, setEntryType] = useState('normal'); // Tracks whether the entry is 'normal' or 'adjusting'
+
 
   
   const fetchErrors = async () => {
@@ -138,7 +140,7 @@ const JournalEntries = () => {
         transactionDate: editEntry.transactionDate,
         entries,
         description: editEntry.description,
-        createdBy: user_id, // Assuming `createdBy` is the current user
+        createdBy: user_id, 
       };
   
       // Input validation
@@ -175,57 +177,58 @@ const JournalEntries = () => {
   
   
   
- const handleSubmitNewEntry = async () => {
-  try {
-    const entries = [
-      ...newEntry.debits.map(debit => ({
-        type: 'debit',
-        account_id: debit.account.account_id,
-        amount: parseFloat(debit.amount),
-      })),
-      ...newEntry.credits.map(credit => ({
-        type: 'credit',
-        account_id: credit.account.account_id,
-        amount: parseFloat(credit.amount),
-      })),
-    ];
-
-    const payload = {
-      transactionDate: newEntry.transactionDate,
-      entries,
-      description: newEntry.description,
-      createdBy: user_id, // Assuming `createdBy` is the current user
-    };
-
-    // Input validation
-    if (!payload.transactionDate || !entries.length) {
-      setError('Please fill out all fields and ensure debits and credits are added.');
-      return;
+  const handleSubmitNewEntry = async () => {
+    try {
+      const entries = [
+        ...newEntry.debits.map(debit => ({
+          type: 'debit',
+          account_id: debit.account.account_id,
+          amount: parseFloat(debit.amount),
+        })),
+        ...newEntry.credits.map(credit => ({
+          type: 'credit',
+          account_id: credit.account.account_id,
+          amount: parseFloat(credit.amount),
+        })),
+      ];
+  
+      const payload = {
+        transactionDate: newEntry.transactionDate,
+        entries,
+        description: newEntry.description,
+        createdBy: user_id, 
+        entryType, // Add entryType to the payload
+      };
+  
+      // Input validation
+      if (!payload.transactionDate || !entries.length) {
+        setError('Please fill out all fields and ensure debits and credits are added.');
+        return;
+      }
+  
+      const totalDebits = entries.filter(e => e.type === 'debit').reduce((sum, e) => sum + e.amount, 0);
+      const totalCredits = entries.filter(e => e.type === 'credit').reduce((sum, e) => sum + e.amount, 0);
+  
+      if (totalDebits !== totalCredits) {
+        setError('Total debits must equal total credits.');
+        return;
+      }
+  
+      const url = `http://localhost:5000/journal/create`;
+      const response = await axios.post(url, payload);
+  
+      if (response.status === 201) {
+        alert('Entry created successfully!');
+        setNewEntry({ transactionDate: '', accounts: [], debits: [], credits: [], description: '', createdBy: user_id });
+        fetchJournalEntries(); // Refresh entries
+      } else {
+        setError('Failed to create entry. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error submitting new entry:', err);
+      setError('Failed to create entry.');
     }
-
-    const totalDebits = entries.filter(e => e.type === 'debit').reduce((sum, e) => sum + e.amount, 0);
-    const totalCredits = entries.filter(e => e.type === 'credit').reduce((sum, e) => sum + e.amount, 0);
-
-    if (totalDebits !== totalCredits) {
-      setError('Total debits must equal total credits.');
-      return;
-    }
-
-    const url = `http://localhost:5000/journal/create`;
-    const response = await axios.post(url, payload);
-
-    if (response.status === 201) {
-      alert('Entry created successfully!');
-      setNewEntry({ transactionDate: '', accounts: [], debits: [], credits: [], description: '', createdBy: user_id });
-      fetchJournalEntries(); // Refresh entries
-    } else {
-      setError('Failed to create entry. Please try again.');
-    }
-  } catch (err) {
-    console.error('Error submitting new entry:', err);
-    setError('Failed to create entry.');
-  }
-};
+  };
 
   
 
@@ -473,6 +476,26 @@ const JournalEntries = () => {
     borderRadius: '8px',
   }}
 >
+<div style={{ textAlign: 'center', marginBottom: '20px' }}>
+  <label>
+    <input
+      type="radio"
+      value="normal"
+      checked={entryType === 'normal'}
+      onChange={(e) => setEntryType(e.target.value)}
+    />
+    Normal Entry
+  </label>
+  <label style={{ marginLeft: '10px' }}>
+    <input
+      type="radio"
+      value="adjusting"
+      checked={entryType === 'adjusting'}
+      onChange={(e) => setEntryType(e.target.value)}
+    />
+    Adjusting Entry
+  </label>
+</div>
   <h2>{editEntry ? "Edit Journal Entry" : "Create New Journal Entry"}</h2>
 
   <div style={{ marginBottom: '15px' }}>

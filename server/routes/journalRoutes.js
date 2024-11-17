@@ -37,13 +37,13 @@ router.post('/create', async (req, res) => {
 
   try {
       // Destructure the request body to get entries and other fields
-      const { transactionDate, description, entries, createdBy } = req.body;
+      const { transactionDate, description, entries, createdBy, entryType = 'regular' } = req.body;
 
       // Access the database pool
       const pool = req.app.get('dbPool');
 
       // Pass entries directly to the createJournalEntry function
-      const newJournalEntry = await createJournalEntry(pool, transactionDate, entries, description, createdBy);
+      const newJournalEntry = await createJournalEntry(pool, transactionDate, entries, description, createdBy, entryType);
 
       // Send the response with the created journal entry
       res.status(201).json(newJournalEntry);
@@ -221,7 +221,8 @@ router.get('/pending/count', async (req, res) => {
     }
 });
 
-  
+
+
   
   
   
