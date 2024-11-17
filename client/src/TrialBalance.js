@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import PrintPage from './PrintButton';
 
 function TrialBalance() {
     const [trialBalance, setTrialBalance] = useState([]);
@@ -87,7 +88,8 @@ function TrialBalance() {
                     </tr>
                 </tfoot>
             </table>
-            <button onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <button className="csv-button" onClick={() => htmlTableToCSV()}>Download as CSV</button>
+            <PrintPage />
         </div>
     );
 }

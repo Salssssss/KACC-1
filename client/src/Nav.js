@@ -72,7 +72,7 @@ const Nav = () => {
   }, [isLoggedIn]);
 
   return (
-    <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px' }}>
+    <nav class="navbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px' }}>
       {/* Left Section: Logo and Navigation Buttons */}
       <div className="leftNav" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <button onClick={() => navigate('/')}>
