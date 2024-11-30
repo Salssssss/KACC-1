@@ -1,10 +1,11 @@
 //Chart.js documentation: https://www.chartjs.org/docs/latest/getting-started/usage.html 
+//Additional guide: https://www.youtube.com/watch?v=6q5d3Z1-5kQ 
 import React, { useEffect } from 'react';
 import { Chart, registerables } from 'chart.js';
 import './FinancialDashboard.css';
 
 //Register all chart.js components (scales, controllers, plugins, etc)
-//Spread syntax to include every single component more concisely 
+//Spread syntax again to include every single component more concisely 
 //I was getting the bug: "linear" is not a regitered scale. This line fixed that
 Chart.register(...registerables);
 
@@ -69,6 +70,7 @@ function renderPieChart(elementId, labels, data) {
                 {
                     data: data,
                     backgroundColor: [
+                        //One of the requirements says to display using three color codes:
                         '#4caf50',  //Green
                         '#ffeb3b',  //Yellow
                         '#f44336'], //Red
