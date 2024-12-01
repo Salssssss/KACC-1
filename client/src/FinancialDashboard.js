@@ -1,7 +1,7 @@
 //Chart.js documentation: https://www.chartjs.org/docs/latest/getting-started/usage.html 
 //Additional guide: https://www.youtube.com/watch?v=6q5d3Z1-5kQ 
 import React, { useEffect } from 'react';
-import { Chart, registerables } from 'chart.js';
+import { Chart, defaults, registerables } from 'chart.js';
 import './FinancialDashboard.css';
 
 //Register all chart.js components (scales, controllers, plugins, etc)
