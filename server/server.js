@@ -13,6 +13,7 @@ const eventRoutes = require('./routes/EventRoutes');
 
 const statementRoutes = require('./routes/StatementRoutes');
 const errorRoutes = require('./routes/errorRoutes');
+const financialRoutes = require('./routes/financialRoutes.js');
 
 const app = express();
 const port = 5000;
@@ -74,6 +75,8 @@ sql.connect(dbConfig).then(pool => {
   app.use('/statements', statementRoutes);
 
   app.use('/errors', errorRoutes);
+
+  app.use('/api', financialRoutes);
 
 
   // Add a simple GET route for the root URL

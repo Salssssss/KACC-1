@@ -83,6 +83,7 @@ const Nav = () => {
             <button onClick={() => navigate('/user-accounts')}>Chart Of Accounts</button>
             <button onClick={() => navigate('/dashboard')}>Dashboard</button>
             <button onClick={() => navigate(`/Journal/${user_id}`)}>Journal</button>
+            <button onClick={() => navigate('/financial-dashboard')}>KPI</button>
             <button
               onClick={() => {
                 localStorage.clear();
