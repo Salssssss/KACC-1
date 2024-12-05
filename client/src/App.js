@@ -22,6 +22,7 @@ import TrialBalance from './TrialBalance';
 import BalanceSheet from './BalanceSheet'; 
 import IncomeStatement from './IncomeStatement';
 import RetainedEarningsStatement from './RetainedEarningsStatement';
+import FinancialDashboard from './FinancialDashboard';
 
 
 
@@ -155,6 +156,12 @@ function App() {
          <Route
          path = "/retained-earnings"
          element = {<RetainedEarningsStatement/>}
+         />
+
+         {/*Viewing the Financial Dashboard*/}
+         <Route
+         path = "/financial-dashboard"
+         element = {<FinancialDashboard/>}
          />
 
         {/* Fallback */}

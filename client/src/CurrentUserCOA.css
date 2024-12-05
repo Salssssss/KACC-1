@@ -1,3 +1,9 @@
+/* Colors we use:
+    Blue: #007bff
+    Red for cancel button: #d9534f
+    Hover over blue button: #0056b3
+*/
+
 .modal-overlay {
     position: fixed;
     top: 0;
