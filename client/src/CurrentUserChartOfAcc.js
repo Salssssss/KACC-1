@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { generateCalendarHTML } from './calendar'; 
 import './calendar.css'; 
-import './CurrentUserCOA.css';
+import './css scripts/CurrentUserCOA.css';
 
 const UserChartOfAcc = () => {
   const [userAccounts, setUserAccounts] = useState([]);

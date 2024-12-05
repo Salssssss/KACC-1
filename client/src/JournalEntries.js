@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import './JournalEntries.css';
+import './css scripts/JournalEntries.css';
 
 const JournalEntries = () => {
   const [journalEntries, setJournalEntries] = useState([]);

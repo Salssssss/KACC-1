@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Chart, registerables } from 'chart.js';
 import axios from 'axios';
-import './FinancialDashboard.css';
+import './css scripts/FinancialDashboard.css';
 
 Chart.register(...registerables);
 
