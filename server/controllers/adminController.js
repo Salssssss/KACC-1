@@ -176,7 +176,8 @@ exports.getReportOfExpiredPasswords = async(pool) => {
 //I want to handle the suspension requirement in its own method, so that way it's easier to set it from a start date to an end date - Ian
 exports.activateOrDeactivateUser = async (pool, userID, status) => {
   try {
-    const query = `
+    // Update the user's status
+    const updateStatusQuery = `
       UPDATE users
       SET status = @status
       WHERE user_id = @userID;
@@ -185,15 +186,38 @@ exports.activateOrDeactivateUser = async (pool, userID, status) => {
     const request = pool.request();
     request.input('status', status);
     request.input('userID', userID);
-    
-    await request.query(query);
 
-    return { status: 200, message: 'User status updated successfully' };
+    await request.query(updateStatusQuery);
+
+    // If the user is being activated, check if they are on a team
+    if (status === 'active') {
+      const checkTeamQuery = `
+        SELECT team_id
+        FROM team_members
+        WHERE user_id = @userID;
+      `;
+
+      const teamCheckResult = await request.query(checkTeamQuery);
+
+      // If the user is not on a team (null or undefined team_id), assign them to Team 1
+      if (!teamCheckResult.recordset[0]?.team_id) {
+        const assignTeamQuery = `
+          INSERT INTO team_members (team_id, user_id)
+VALUES (1, @userID);
+
+        `;
+
+        await request.query(assignTeamQuery);
+      }
+    }
+
+    return { status: 200, message: 'User status and team updated successfully' };
   } catch (error) {
-    console.error('Error updating user status: ', error);
-    return { status: 500, message: 'Error updating user status' };
+    console.error('Error updating user status or team: ', error);
+    return { status: 500, message: 'Error updating user status or team' };
   }
 };
+
 
 //Suspending a user for a set amount of time
 exports.suspendUser = async (pool, userID, suspensionStart, suspensionEnd) => {

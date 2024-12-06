@@ -83,7 +83,7 @@ const UserChartOfAcc = () => {
           userEmail: emailDetails.userEmail,
           subject: emailDetails.subject,
           message: emailDetails.message,
-        },
+        }, {withCredentials: true}
       );
 
       setEmailMessage('Email sent successfully!');
